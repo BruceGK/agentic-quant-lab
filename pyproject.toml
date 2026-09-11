@@ -1,0 +1,45 @@
+[project]
+name = "agentic-quant-lab"
+version = "0.1.0"
+description = "Integrity-first prospective SEC filing recorder"
+readme = "README.md"
+authors = [
+    { name = "copilot-swe-agent[bot]", email = "198982749+Copilot@users.noreply.github.com" }
+]
+requires-python = ">=3.12"
+dependencies = [
+    "psycopg[binary]==3.3.5",
+]
+
+[build-system]
+requires = ["hatchling==1.32.0"]
+build-backend = "hatchling.build"
+
+[project.scripts]
+quant-recorder = "agentic_quant_lab.cli:main"
+
+[dependency-groups]
+dev = [
+    "pyright==1.1.414",
+    "pytest==9.1.1",
+    "ruff==0.16.7",
+]
+
+[tool.ruff]
+target-version = "py312"
+line-length = 100
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B"]
+
+[tool.pyright]
+pythonVersion = "3.12"
+typeCheckingMode = "standard"
+include = ["src", "tests"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+markers = [
+    "postgres: requires TEST_DATABASE_URL pointing to an isolated PostgreSQL database",
+    "live_sec: opt-in test using the real SEC service",
+]
