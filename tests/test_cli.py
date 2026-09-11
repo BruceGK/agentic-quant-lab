@@ -30,10 +30,16 @@ def test_heartbeat_contains_committed_head(settings: Settings) -> None:
         patch("agentic_quant_lab.cli.Recorder", return_value=recorder),
         patch("agentic_quant_lab.cli.build_opener") as opener,
     ):
+        opener.return_value.open.return_value.__enter__.return_value.status = 204
         main()
         request = opener.return_value.open.call_args.args[0]
         assert request.method == "POST"
-        assert json.loads(request.data) == {"new_filings": 2, "sequence": 5, "hash": "a" * 64}
+        assert json.loads(request.data) == {
+            "status": "success",
+            "new_filings": 2,
+            "sequence": 5,
+            "hash": "a" * 64,
+        }
 
 
 def test_failed_record_does_not_send_success_heartbeat(settings: Settings) -> None:
@@ -45,7 +51,7 @@ def test_failed_record_does_not_send_success_heartbeat(settings: Settings) -> No
         patch("agentic_quant_lab.cli.Settings.from_env", return_value=settings),
         patch("agentic_quant_lab.cli.Recorder", return_value=recorder),
         patch("agentic_quant_lab.cli.build_opener") as opener,
-        pytest.raises(URLError),
+        pytest.raises(SystemExit),
     ):
         main()
     opener.assert_not_called()

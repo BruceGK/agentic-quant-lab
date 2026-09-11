@@ -12,6 +12,7 @@ import psycopg
 from agentic_quant_lab.config import Settings
 from agentic_quant_lab.database import WRITER_LOCK, Projection
 from agentic_quant_lab.ledger import Ledger, digest, timestamp, utc_now
+from agentic_quant_lab.provenance import provenance
 from agentic_quant_lab.sec import (
     EASTERN,
     Candidate,
@@ -39,6 +40,7 @@ class Recorder:
         self.client = client
         self.clock = clock
         self.replay = replay
+        self.provenance = provenance(settings)
         self.ledger = Ledger(settings.ledger_path)
         self.connection: psycopg.Connection[Any] | None = None
         self._projection: Projection | None = None
@@ -82,6 +84,7 @@ class Recorder:
     def _append(self, kind: str, payload: dict[str, Any]) -> dict[str, Any]:
         if self._projection is None:
             raise RuntimeError("Recorder is not open")
+        payload = {**payload, "provenance": self.provenance}
         self._projection.validate_payload(payload)
         record = self.ledger.append(kind, payload)
         try:
@@ -132,6 +135,7 @@ class Recorder:
                 "accepted_at": timestamp(accepted),
                 "fetched_at": fetched,
                 "decision_eligible_at": fetched,
+                "availability_mode": "observed",
                 "form_type": form_type,
                 "content_sha256": hashlib.sha256(content).hexdigest(),
                 "content_base64": base64.b64encode(content).decode("ascii"),
@@ -141,7 +145,7 @@ class Recorder:
         return True
 
     def ingest_many(self, candidates: list[Candidate]) -> int:
-        return self._ingest_batch([c for c in candidates if c.cik in self.settings.universe_ciks])
+        return self._ingest_batch([c for c in candidates if c.cik in self.settings.ingestion_scope])
 
     def _ingest_batch(self, candidates: list[Candidate]) -> int:
         seen = self.clock()
@@ -165,7 +169,17 @@ class Recorder:
         universe_hash = digest(payload)
         latest = next((r for r in reversed(self.ledger.records) if r["kind"] == "universe"), None)
         if latest is None or latest["payload"]["universe_hash"] != universe_hash:
-            self._append("universe", {**payload, "universe_hash": universe_hash})
+            self._append(
+                "universe",
+                {
+                    **payload,
+                    "universe_hash": universe_hash,
+                    "as_of": timestamp(self.clock()),
+                    "screen_version": "explicit-cik-list-v1",
+                    "screen_config_sha256": universe_hash,
+                    "reason": "Explicit configured research eligibility; not a trading signal",
+                },
+            )
         return universe_hash
 
     def catch_up(self, start: date, end: date, force: bool = False) -> int:
@@ -173,10 +187,14 @@ class Recorder:
         if end >= today or start > end:
             raise ValueError("Catch-up requires start <= end < today's SEC Eastern date")
         universe_hash = self.snapshot_universe()
+        ingestion_ciks = sorted(set(self.settings.ingestion_scope))
+        scope_hash = digest({"source": "sec", "ciks": ingestion_ciks})
         checkpoints = {
             (r["payload"]["day"], r["payload"]["index_sha256"])
             for r in self.ledger.records
-            if r["kind"] == "reconciliation" and r["payload"]["universe_hash"] == universe_hash
+            if r["kind"] == "reconciliation"
+            and r["payload"].get("ingestion_scope_hash", r["payload"]["universe_hash"])
+            == scope_hash
         }
         completed = {day for day, _ in checkpoints}
         count = 0
@@ -220,6 +238,8 @@ class Recorder:
                     {
                         "day": day.isoformat(),
                         "universe_hash": universe_hash,
+                        "ingestion_scope_hash": scope_hash,
+                        "ingestion_ciks": ingestion_ciks,
                         "index_sha256": index_hash,
                         "index_base64": base64.b64encode(content).decode("ascii"),
                     },
@@ -284,7 +304,8 @@ class Recorder:
             (
                 r
                 for r in self.ledger.records
-                if r["kind"] == "correction" and r["payload"] == payload
+                if r["kind"] == "correction"
+                and all(r["payload"].get(k) == v for k, v in payload.items())
             ),
             None,
         )

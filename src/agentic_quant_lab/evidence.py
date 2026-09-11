@@ -29,6 +29,10 @@ def verify_evidence(records: list[dict[str, Any]]) -> None:
             kind = record["kind"]
             if not isinstance(p, dict):
                 raise ValueError("Payload must be an object")
+            if "provenance" in p:
+                context = p["provenance"]
+                if digest(context["config"]) != context["config_sha256"]:
+                    raise ValueError("Provenance configuration hash mismatch")
             if kind in ("discovery", "filing"):
                 candidate = Candidate.from_url(p["document_url"])
                 if (p["source"], p["external_id"], p["cik"]) != (
@@ -70,12 +74,19 @@ def verify_evidence(records: list[dict[str, Any]]) -> None:
                 config = {"source": "sec", "ciks": sorted(set(p["ciks"]))}
                 if digest(config) != p["universe_hash"]:
                     raise ValueError("Universe configuration hash mismatch")
+                if "as_of" in p:
+                    evidence_time(p["as_of"])
                 universes[p["universe_hash"]] = set(p["ciks"])
             elif kind == "reconciliation":
                 content = base64.b64decode(p["index_base64"], validate=True)
                 if hashlib.sha256(content).hexdigest() != p["index_sha256"]:
                     raise ValueError("Index content hash mismatch")
-                ciks = universes[p["universe_hash"]]
+                ciks = set(p.get("ingestion_ciks", universes[p["universe_hash"]]))
+                if (
+                    "ingestion_scope_hash" in p
+                    and digest({"source": "sec", "ciks": sorted(ciks)}) != p["ingestion_scope_hash"]
+                ):
+                    raise ValueError("Ingestion scope hash mismatch")
                 candidates = parse_daily_index(content, date.fromisoformat(p["day"]))
                 if any(("sec", c.external_id) not in filings for c in candidates if c.cik in ciks):
                     raise ValueError("Checkpoint precedes required filing evidence")

@@ -53,8 +53,10 @@ Never commit credentials.
 | `SEC_USER_AGENT` | Required application name and real contact email, per SEC fair-access policy |
 | `LEDGER_PATH` | Durable JSONL path; defaults to `state/sec.jsonl` for local development only |
 | `UNIVERSE_CIKS` | Comma-separated CIKs, normalized and snapshotted; required for batch commands |
+| `INGEST_CIKS` | Optional separate raw-ingestion scope; defaults to the research universe for a bounded deployment |
 | `CATCHUP_START` | Explicit first SEC dissemination-index date to reconcile, `YYYY-MM-DD`; required by `record` |
 | `HEARTBEAT_URL` | Optional HTTPS success hook locally; required by scheduled workflow |
+| `RECORDER_GIT_SHA` | Optional full code commit SHA; set automatically by the workflow |
 
 ```sh
 uv run quant-recorder ingest-one \
@@ -92,6 +94,12 @@ catch-up never pretends the content was available to this system earlier.
 Ambiguous/nonexistent local acceptance times fail closed rather than guessing.
 The host clock must be synchronized. Failed fetches retain their discovery
 timestamp across retries and restarts.
+New filing payloads explicitly carry `availability_mode=observed`; legacy
+records have the same enforced observed semantics, not inferred availability.
+Every new event carries package version, a hash of package source/config files,
+optional Git SHA, and a nonsecret recorder configuration with its own hash.
+No contact identities, DSNs, heartbeat URLs, or credential hashes are recorded
+as provenance. Old evidence is not rewritten to fill missing provenance.
 
 The ledger is authoritative; PostgreSQL is its query projection:
 
@@ -115,6 +123,9 @@ semantics without database/network configuration. `uv run quant-recorder reconci
 detects missing, extra, or differing database evidence **without repairing it**;
 `replay` inserts only missing rows after verifying all existing rows match.
 Successful recording/catch-up reconciles again before sending any healthy heartbeat.
+Offline `verify`, `reconcile`, and `replay` need no SEC contact identity.
+An independent heartbeat/backup head can be checked with:
+`quant-recorder verify "$LEDGER_PATH" --expected-sequence N --expected-head HASH`.
 
 Corrections are new linked events, not edits or silent replacements:
 
@@ -152,6 +163,12 @@ and failed fetches fail the run and suppress the success heartbeat.
 Independent filings/dates are still attempted after source failures so one
 unavailable submission cannot starve the rest of the universe. Ledger or
 database write failures, by contrast, abort immediately.
+Snapshots include an observed `as_of`, explicit-list screen version, config
+hash, and selection reason. Membership is a step function of snapshots in
+ledger order; before the first snapshot it is **unknown**, not today's list.
+Only listed CIKs are eligible under that snapshot. `INGEST_CIKS` can record a
+broader raw scope without granting research eligibility. Checkpoints bind the
+ingestion scope independently; expanding it reopens historical reconciliation.
 
 ## Scheduled operation and durability
 
@@ -170,16 +187,26 @@ Production activation is intentionally **off by default**:
 2. Create the GitHub environment `sec-recorder`, restricted to the default
    branch. Add environment secrets `RECORDER_DATABASE_URL` (restricted runtime
    login) and `RECORDER_HEARTBEAT_URL`. Do not add migration credentials.
-3. Set repository variables `SEC_USER_AGENT`, `UNIVERSE_CIKS`, `CATCHUP_START`,
-   and absolute `LEDGER_PATH`; set repository variable `RECORDER_ENABLED=true`
-   only after migrations, backups and the live SEC test succeed.
+3. Set repository variables `SEC_USER_AGENT`, `UNIVERSE_CIKS`, optional
+   `INGEST_CIKS`, `CATCHUP_START`, and absolute `LEDGER_PATH`. For one manual
+   acceptance cycle, set `RECORDER_ACCEPTANCE_ENABLED=true` and confirm the
+   workflow-dispatch input on the default branch. This does not enable scheduling.
+   Leave `RECORDER_ENABLED` unset/false. Recurring runs are additionally blocked
+   by the packaged `constitution.toml`; enabling them requires a reviewed policy
+   change after genuine external acceptance, not just a repository variable.
 4. Configure the external hook to accept HTTPS POST JSON with `new_filings`,
    ledger `sequence` and `hash`, and alert on missing success heartbeats.
    Redirects are refused. Hook failure fails the job but does not undo evidence.
+   Local omission is explicit in JSON output (`heartbeat=disabled`). Success
+   requires a 2xx response. CLI failures print fixed, credential-free error codes
+   and exit nonzero; provider exception messages/tracebacks are intentionally not logged.
 
 CI uses GitHub-hosted runners and disposable PostgreSQL, with **no production
 secrets or environment**. Dependency installation in the recorder workflow
 also occurs before production secrets are supplied to the recording step.
+That step invokes the already-installed executable directly, without dependency
+resolution or build hooks while credentials are present. `.env.example` is a
+blank template; supply contact and credentials privately, never to CI tests.
 
 The JSONL chain is tamper-evident, not tamper-proof: an attacker who can rewrite
 the entire chain, or remove a suffix together with the database, can defeat

@@ -4,6 +4,12 @@ on:
   schedule:
     - cron: "7,22,37,52 * * * *" # UTC, including weekends; delayed runs are reconciled.
   workflow_dispatch:
+    inputs:
+      confirm_acceptance:
+        description: "Run one provisioned, default-branch acceptance cycle (does not enable schedule)"
+        required: true
+        type: boolean
+        default: false
 
 permissions:
   contents: read
@@ -15,8 +21,10 @@ concurrency:
 jobs:
   record:
     if: >-
-      vars.RECORDER_ENABLED == 'true' &&
-      github.ref == format('refs/heads/{0}', github.event.repository.default_branch)
+      github.ref == format('refs/heads/{0}', github.event.repository.default_branch) &&
+      ((github.event_name == 'schedule' && vars.RECORDER_ENABLED == 'true') ||
+       (github.event_name == 'workflow_dispatch' &&
+        vars.RECORDER_ACCEPTANCE_ENABLED == 'true' && inputs.confirm_acceptance))
     runs-on: [self-hosted, linux, sec-recorder]
     environment: sec-recorder
     timeout-minutes: 60
@@ -35,8 +43,11 @@ jobs:
           HEARTBEAT_URL: ${{ secrets.RECORDER_HEARTBEAT_URL }}
           SEC_USER_AGENT: ${{ vars.SEC_USER_AGENT }}
           UNIVERSE_CIKS: ${{ vars.UNIVERSE_CIKS }}
+          INGEST_CIKS: ${{ vars.INGEST_CIKS || vars.UNIVERSE_CIKS }}
           CATCHUP_START: ${{ vars.CATCHUP_START }}
           LEDGER_PATH: ${{ vars.LEDGER_PATH }}
+          RECORDER_GIT_SHA: ${{ github.sha }}
+          RECORDER_RUN_MODE: ${{ github.event_name == 'schedule' && 'scheduled' || 'acceptance' }}
         run: |
           set -euo pipefail
           umask 077
@@ -52,4 +63,4 @@ jobs:
           esac
           test -d "$(dirname "$LEDGER_PATH")"
           test -n "$HEARTBEAT_URL"
-          uv run --frozen --no-dev quant-recorder record
+          .venv/bin/quant-recorder record

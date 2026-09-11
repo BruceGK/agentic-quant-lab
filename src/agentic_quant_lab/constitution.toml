@@ -1,0 +1,21 @@
+[project]
+weekly_hours_budget = 6
+total_hours_before_review = 120
+
+[live_execution]
+enabled = false
+requires_compliance_review = true
+note = "No live execution before compliance review and an explicitly authorized future phase."
+
+[compliance]
+insider_trading_policy_reviewed = false
+restricted_trading_policy_reviewed = false
+automated_trading_allowed = "unknown"
+
+[research]
+real_alpha_research_enabled = false
+synthetic_controls_only = true
+
+[phase0]
+scheduled_recording_enabled = false
+external_acceptance_complete = false
