@@ -100,8 +100,9 @@ def test_rebuild_empty_projection_from_ledger(settings: Settings, database: Data
         admin.execute(sql.SQL("CREATE SCHEMA {}").format(sql.Identifier(schema)))
         try:
             admin.execute(sql.SQL("SET search_path TO {}").format(sql.Identifier(schema)))
-            migration = Path(__file__).resolve().parents[1] / "migrations/001_evidence.sql"
-            admin.execute(cast(LiteralString, migration.read_text()))
+            migrations = Path(__file__).resolve().parents[1] / "migrations"
+            for migration in sorted(migrations.glob("*.sql")):
+                admin.execute(cast(LiteralString, migration.read_text()))
             Projection(admin).replay(records)
             assert admin.execute("SELECT count(*) FROM filings").fetchone() == (1,)
             assert admin.execute("SELECT count(*) FROM corrections").fetchone() == (1,)
@@ -319,7 +320,24 @@ def test_ingest_real_sec_filing(settings: Settings) -> None:
     settings = replace(settings, sec_user_agent=user_agent)
     with Recorder(settings, SecClient(user_agent)) as recorder:
         assert recorder.ingest(candidate)
+        recorder.reconcile()
+        original = settings.ledger_path.read_bytes()
         assert not recorder.ingest(candidate)
+    with Recorder(settings, SecClient(user_agent)) as recorder:
+        assert not recorder.ingest(candidate)
+    assert settings.ledger_path.read_bytes() == original
+    records = Ledger.verify(settings.ledger_path)
+    assert len(records) == 2
+    discovery, filing = records
+    payload = filing["payload"]
+    assert filing["prev_hash"] == discovery["hash"]
+    assert payload["source"] == "sec"
+    assert payload["external_id"] == candidate.external_id
+    assert payload["form_type"] in ("8-K", "10-Q", "10-K")
+    assert (
+        hashlib.sha256(base64.b64decode(payload["content_base64"])).hexdigest()
+        == (payload["content_sha256"])
+    )
     with psycopg.connect(settings.database_url) as connection:
         row = connection.execute(
             """SELECT accepted_at, first_seen_at, fetched_at, decision_eligible_at
@@ -327,3 +345,25 @@ def test_ingest_real_sec_filing(settings: Settings) -> None:
         ).fetchone()
         assert row is not None
         assert row[0] <= row[1] <= row[2] == row[3]
+        assert connection.execute("SELECT count(*) FROM filings").fetchone() == (1,)
+        assert connection.execute("SELECT count(*) FROM audit_events").fetchone() == (2,)
+
+
+@pytest.mark.live_sec
+@pytest.mark.skipif(os.getenv("RUN_LIVE_SEC") != "1", reason="Opt-in real SEC network test")
+def test_real_sec_missed_index_interval(settings: Settings) -> None:
+    candidate = Candidate.from_url(os.environ["TEST_SEC_URL"])
+    day = date.fromisoformat(os.environ["TEST_SEC_INDEX_DATE"])
+    user_agent = os.environ["SEC_USER_AGENT"]
+    settings = replace(settings, universe_ciks=(candidate.cik,), sec_user_agent=user_agent)
+    with Recorder(settings, SecClient(user_agent)) as recorder:
+        # No latest-feed discovery is run: this entire day was deliberately missed.
+        assert recorder.catch_up(day, day) >= 1
+        recorder.reconcile()
+        assert candidate.external_id in {
+            r["payload"]["external_id"] for r in recorder.ledger.records if r["kind"] == "filing"
+        }
+    original = settings.ledger_path.read_bytes()
+    with Recorder(settings, SecClient(user_agent)) as recorder:
+        assert recorder.catch_up(day, day) == 0
+    assert settings.ledger_path.read_bytes() == original

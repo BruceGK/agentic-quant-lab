@@ -104,6 +104,11 @@ class SecClient:
             f"master.{day:%Y%m%d}.idx"
         )
 
+    def full_index(self, year: int, quarter: int) -> bytes:
+        if not 1994 <= year <= 9999 or quarter not in (1, 2, 3, 4):
+            raise ValueError("Invalid EDGAR archive quarter")
+        return self.get(f"{SEC_ORIGIN}/Archives/edgar/full-index/{year}/QTR{quarter}/master.idx")
+
     def fetch(self, candidate: Candidate) -> bytes:
         return self.get(candidate.document_url)
 
@@ -134,6 +139,19 @@ def parse_daily_index(body: bytes, day: date) -> list[Candidate]:
     published = re.search(r"^Last Data Received:[ \t]*(.+)$", text, re.MULTILINE)
     if not published or datetime.strptime(published[1].strip(), "%b %d, %Y").date() != day:
         raise ValueError("Daily index dissemination date does not match the requested day")
+    return [candidate for _, candidate in index_rows(text)]
+
+
+def parse_full_index(body: bytes, year: int, quarter: int) -> list[Candidate]:
+    rows = index_rows(body.decode("latin-1"))
+    if not rows:
+        raise ValueError("An empty quarterly archive is not proof of recovery")
+    if any(filed.year != year or (filed.month - 1) // 3 + 1 != quarter for filed, _ in rows):
+        raise ValueError("Archive index contains filing dates outside the requested quarter")
+    return [candidate for _, candidate in rows]
+
+
+def index_rows(text: str) -> list[tuple[date, Candidate]]:
     lines = text.splitlines()
     header_index = next(
         (
@@ -146,7 +164,7 @@ def parse_daily_index(body: bytes, day: date) -> list[Candidate]:
     )
     if header_index is None:
         raise ValueError("Invalid SEC daily index header")
-    result: list[Candidate] = []
+    result: list[tuple[date, Candidate]] = []
     for line in lines[header_index + 1 :]:
         if not line.strip() or set(line.strip()) == {"-"}:
             continue
@@ -154,11 +172,11 @@ def parse_daily_index(body: bytes, day: date) -> list[Candidate]:
         if len(fields) != 5:
             raise ValueError("Malformed SEC daily index row")
         cik, _, _, filed, path = fields
-        date.fromisoformat(filed)
+        filed_date = date.fromisoformat(filed)
         candidate = Candidate.from_url(f"{SEC_ORIGIN}/Archives/{path}")
         if candidate.cik != normalize_cik(cik):
             raise ValueError("Daily index CIK/path mismatch")
-        result.append(candidate)
+        result.append((filed_date, candidate))
     return result
 
 

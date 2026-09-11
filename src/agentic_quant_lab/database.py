@@ -1,13 +1,15 @@
+import json
 from datetime import datetime
+from decimal import Decimal
 from typing import Any
 from uuid import UUID
 
 import psycopg
 from psycopg import sql
 from psycopg.rows import dict_row
-from psycopg.types.json import Jsonb
+from psycopg.types.json import Jsonb, set_json_loads
 
-from agentic_quant_lab.ledger import LedgerError, canonical, timestamp
+from agentic_quant_lab.ledger import LedgerError, timestamp
 
 WRITER_LOCK = 728415920001
 TABLE_FIELDS = {
@@ -59,6 +61,21 @@ def normalized_row(row: dict[str, Any]) -> dict[str, Any]:
     }
 
 
+def same_json(left: Any, right: Any) -> bool:
+    # JSONB normalizes exponent notation; boolean/number distinctions still matter.
+    if type(left) in (int, float, Decimal) and type(right) in (int, float, Decimal):
+        return Decimal(str(left)) == Decimal(str(right))
+    if type(left) is not type(right):
+        return False
+    if isinstance(left, dict):
+        return left.keys() == right.keys() and all(same_json(v, right[k]) for k, v in left.items())
+    if isinstance(left, list):
+        return len(left) == len(right) and all(
+            same_json(a, b) for a, b in zip(left, right, strict=True)
+        )
+    return left == right
+
+
 class Projection:
     def __init__(self, connection: psycopg.Connection[Any]):
         self.connection = connection
@@ -72,6 +89,7 @@ class Projection:
         missing: set[str] = set()
         for table, expected in projected_rows(records).items():
             with self.connection.cursor(row_factory=dict_row) as cursor:
+                set_json_loads(lambda raw: json.loads(raw, parse_float=Decimal), cursor)
                 rows = cursor.execute(
                     sql.SQL("SELECT * FROM {}").format(sql.Identifier(table))
                 ).fetchall()
@@ -79,7 +97,7 @@ class Projection:
             if actual.keys() - expected.keys():
                 raise LedgerError(f"Database is ahead of ledger: unexpected {table} evidence")
             for event_id, row in actual.items():
-                if canonical(row) != canonical(expected[event_id]):
+                if not same_json(row, expected[event_id]):
                     raise LedgerError(f"Database and ledger diverge in {table}")
             missing.update(expected.keys() - actual.keys())
         if missing and not allow_missing:

@@ -5,7 +5,12 @@ from typing import Any
 from uuid import UUID
 
 from agentic_quant_lab.ledger import LedgerError, digest, timestamp
-from agentic_quant_lab.sec import Candidate, parse_daily_index, submission_metadata
+from agentic_quant_lab.sec import (
+    Candidate,
+    parse_daily_index,
+    parse_full_index,
+    submission_metadata,
+)
 
 
 def evidence_time(value: str) -> datetime:
@@ -77,17 +82,23 @@ def verify_evidence(records: list[dict[str, Any]]) -> None:
                 if "as_of" in p:
                     evidence_time(p["as_of"])
                 universes[p["universe_hash"]] = set(p["ciks"])
-            elif kind == "reconciliation":
+            elif kind in ("reconciliation", "archive_recovery"):
                 content = base64.b64decode(p["index_base64"], validate=True)
                 if hashlib.sha256(content).hexdigest() != p["index_sha256"]:
                     raise ValueError("Index content hash mismatch")
+                if ("ingestion_ciks" in p) != ("ingestion_scope_hash" in p):
+                    raise ValueError("Ingestion scope metadata must be complete")
                 ciks = set(p.get("ingestion_ciks", universes[p["universe_hash"]]))
                 if (
                     "ingestion_scope_hash" in p
                     and digest({"source": "sec", "ciks": sorted(ciks)}) != p["ingestion_scope_hash"]
                 ):
                     raise ValueError("Ingestion scope hash mismatch")
-                candidates = parse_daily_index(content, date.fromisoformat(p["day"]))
+                candidates = (
+                    parse_daily_index(content, date.fromisoformat(p["day"]))
+                    if kind == "reconciliation"
+                    else parse_full_index(content, p["year"], p["quarter"])
+                )
                 if any(("sec", c.external_id) not in filings for c in candidates if c.cik in ciks):
                     raise ValueError("Checkpoint precedes required filing evidence")
             elif kind == "correction":

@@ -70,8 +70,9 @@ def database() -> Iterator[DatabaseConfig]:
         admin.execute(sql.SQL("CREATE ROLE {} NOLOGIN").format(sql.Identifier(role)))
     try:
         with psycopg.connect(admin_dsn, autocommit=True) as admin:
-            migration = Path(__file__).resolve().parents[1] / "migrations/001_evidence.sql"
-            admin.execute(cast(LiteralString, migration.read_text()))
+            migrations = Path(__file__).resolve().parents[1] / "migrations"
+            for migration in sorted(migrations.glob("*.sql")):
+                admin.execute(cast(LiteralString, migration.read_text()))
             admin.execute(
                 sql.SQL("GRANT USAGE ON SCHEMA {} TO {}").format(
                     sql.Identifier(schema), sql.Identifier(role)

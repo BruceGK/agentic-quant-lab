@@ -18,6 +18,7 @@ from agentic_quant_lab.sec import (
     Candidate,
     SecClient,
     parse_daily_index,
+    parse_full_index,
     scheduled_sec_closure,
     submission_metadata,
 )
@@ -283,6 +284,35 @@ class Recorder:
                 failures.append(exc)
         if failures:
             raise ExceptionGroup("SEC recording is incomplete; no success heartbeat", failures)
+        return count
+
+    def recover_quarter(self, year: int, quarter: int) -> int:
+        today = self.clock().astimezone(EASTERN).date()
+        if (
+            year < 1994
+            or quarter not in (1, 2, 3, 4)
+            or (year, quarter) >= (today.year, (today.month - 1) // 3 + 1)
+        ):
+            raise ValueError("Archive recovery requires a completed EDGAR quarter")
+        universe_hash = self.snapshot_universe()
+        content = self.client.full_index(year, quarter)
+        count = self.ingest_many(parse_full_index(content, year, quarter))
+        ciks = sorted(set(self.settings.ingestion_scope))
+        payload = {
+            "year": year,
+            "quarter": quarter,
+            "universe_hash": universe_hash,
+            "ingestion_ciks": ciks,
+            "ingestion_scope_hash": digest({"source": "sec", "ciks": ciks}),
+            "index_sha256": hashlib.sha256(content).hexdigest(),
+            "index_base64": base64.b64encode(content).decode("ascii"),
+        }
+        if not any(
+            r["kind"] == "archive_recovery"
+            and all(r["payload"].get(k) == v for k, v in payload.items())
+            for r in self.ledger.records
+        ):
+            self._append("archive_recovery", payload)
         return count
 
     def reconcile(self) -> None:

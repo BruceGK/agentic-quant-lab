@@ -34,6 +34,9 @@ def run() -> None:
     catchup = commands.add_parser("catch-up")
     catchup.add_argument("--start", type=date.fromisoformat, required=True)
     catchup.add_argument("--end", type=date.fromisoformat, required=True)
+    archive = commands.add_parser("recover-quarter")
+    archive.add_argument("--year", type=int, required=True)
+    archive.add_argument("--quarter", type=int, required=True)
     commands.add_parser("replay")
     commands.add_parser("reconcile")
     commands.add_parser("snapshot")
@@ -46,7 +49,7 @@ def run() -> None:
     correction.add_argument("--reason", required=True)
     correction.add_argument("--changes", type=Path, required=True)
     args = parser.parse_args()
-    if args.command in ("record", "catch-up", "ingest-one"):
+    if args.command in ("record", "catch-up", "ingest-one", "recover-quarter"):
         check_recording_policy(os.getenv("RECORDER_RUN_MODE", "local"))
     if args.command == "verify":
         records = Ledger.verify(args.ledger)
@@ -58,7 +61,9 @@ def run() -> None:
             raise LedgerError("Ledger does not match the independently retained head")
         print(json.dumps({"verified_records": len(records), "hash": head}))
         return
-    settings = Settings.from_env(require_sec=args.command in ("record", "catch-up", "ingest-one"))
+    settings = Settings.from_env(
+        require_sec=args.command in ("record", "catch-up", "ingest-one", "recover-quarter")
+    )
     with Recorder(
         settings, SecClient(settings.sec_user_agent), replay=args.command != "reconcile"
     ) as recorder:
@@ -69,6 +74,8 @@ def run() -> None:
             count = recorder.record()
         elif args.command == "catch-up":
             count = recorder.catch_up(args.start, args.end, force=True)
+        elif args.command == "recover-quarter":
+            count = recorder.recover_quarter(args.year, args.quarter)
         elif args.command == "snapshot":
             recorder.snapshot_universe()
         elif args.command == "correct":
@@ -84,8 +91,9 @@ def run() -> None:
             "hash": head["hash"] if head else GENESIS_HASH,
             "heartbeat": "not_requested",
         }
-        if args.command in ("record", "catch-up"):
+        if args.command in ("record", "catch-up", "recover-quarter"):
             recorder.reconcile()
+        if args.command in ("record", "catch-up"):
             status["heartbeat"] = "disabled"
         if settings.heartbeat_url and args.command in ("record", "catch-up"):
             request = Request(

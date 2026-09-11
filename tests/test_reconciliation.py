@@ -8,6 +8,7 @@ from conftest import CANDIDATE, DatabaseConfig, FakeSec
 from psycopg import sql
 
 from agentic_quant_lab.config import Settings
+from agentic_quant_lab.database import same_json
 from agentic_quant_lab.evidence import verify_evidence
 from agentic_quant_lab.ledger import Ledger, LedgerError
 from agentic_quant_lab.recorder import FilingFetchError, Recorder
@@ -133,3 +134,18 @@ def test_preheartbeat_reconciliation_detects_missing_filing(settings: Settings) 
         ):
             with pytest.raises(LedgerError):
                 recorder.reconcile()
+
+
+def test_jsonb_numeric_normalization_is_not_divergence(settings: Settings) -> None:
+    with Recorder(settings, FakeSec(), lambda: SEEN) as recorder:
+        recorder.ingest(CANDIDATE)
+        recorder.correct(
+            recorder.ledger.records[-1]["event_id"],
+            "numeric annotation",
+            {"large": 1e20, "small": 1e-20, "fraction": 1.0},
+        )
+        recorder.reconcile()
+    with Recorder(settings, FakeSec()) as recorder:
+        recorder.reconcile()
+    assert not same_json({"x": False}, {"x": 0})
+    assert not same_json({"x": 1e20}, {"x": 100000000000000000001})

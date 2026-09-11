@@ -21,10 +21,13 @@ paths for your durable ledger, migration files, and correction JSON files.
 ```sh
 uv sync --locked --python 3.12
 psql "$MIGRATION_DATABASE_URL" -v ON_ERROR_STOP=1 -f "$PWD/migrations/001_evidence.sql"
+psql "$MIGRATION_DATABASE_URL" -v ON_ERROR_STOP=1 -f "$PWD/migrations/002_archive_recovery.sql"
 ```
 
-Apply `001_evidence.sql` **once to an empty schema**, not on each recorder run.
-It is transactional; a failed migration rolls back. The runtime must use a
+Apply migrations in numeric order **once**, not on each recorder run.
+Existing `001` installations apply only `002`; it permits archive recovery
+events without changing prior evidence. Each migration is transactional.
+The runtime must use a
 separate non-owner, non-superuser login with only `CONNECT` on the database,
 `USAGE` on the schema and `SELECT, INSERT` on the evidence tables. A database
 administrator must provision that login and its authentication out of band.
@@ -66,6 +69,8 @@ uv run quant-recorder verify "$LEDGER_PATH"
 uv run quant-recorder record
 # Explicitly rescan any historical interval; end must precede today's SEC Eastern date.
 uv run quant-recorder catch-up --start 2026-09-08 --end 2026-09-09
+# Explicit tertiary recovery for a completed quarter whose daily indexes are unavailable:
+uv run quant-recorder recover-quarter --year 2024 --quarter 4
 ```
 
 Use a complete SEC submission `.txt` URL, not its primary HTML document. The
@@ -208,6 +213,13 @@ That step invokes the already-installed executable directly, without dependency
 resolution or build hooks while credentials are present. `.env.example` is a
 blank template; supply contact and credentials privately, never to CI tests.
 
+Quarterly archive recovery is manual and uses SEC's `full-index` master index.
+It records exact index bytes and a distinct `archive_recovery` event only after
+the selected content is persisted. It **never** advances daily reconciliation
+checkpoints: quarterly filing dates cannot prove daily dissemination coverage.
+Eligibility remains observed at the actual fetch, and oversized archives fail
+the same bounded-download policy instead of silently truncating.
+
 The JSONL chain is tamper-evident, not tamper-proof: an attacker who can rewrite
 the entire chain, or remove a suffix together with the database, can defeat
 unanchored verification. Keep independent immutable/off-host backups and retain
@@ -239,6 +251,7 @@ by SEC, and the isolated test database (no production secrets):
 ```sh
 RUN_LIVE_SEC=1 \
 TEST_SEC_URL=https://www.sec.gov/Archives/edgar/data/320193/0000320193-24-000123.txt \
+TEST_SEC_INDEX_DATE=2024-11-01 \
 TEST_DATABASE_URL=postgresql:///quant_test \
 uv run pytest -m live_sec -v
 ```
@@ -248,3 +261,42 @@ discovery across failed fetches, ledger-before-database crash recovery,
 missed-interval catch-up, failed-run checkpoint behavior, correction history,
 ledger tampering/truncation, writer locks and append-only database permissions
 and triggers. Live SEC results must not be substituted with a mocked response.
+The live tests require both the filing URL and its dissemination-index date;
+they verify original bytes/hashes and timestamps, a restart with zero duplicates,
+and recovery with latest-feed discovery deliberately omitted. If SEC has retired
+that daily index, choose a recent 8-K/10-Q/10-K with an available daily index;
+manual quarterly recovery is not a substitute for the daily-catch-up acceptance gate.
+
+To inspect a separately provisioned acceptance recorder after a real run:
+
+```sh
+uv run quant-recorder reconcile
+uv run quant-recorder verify "$LEDGER_PATH"
+psql "$DATABASE_URL" -c \
+  'SELECT source, external_id, accepted_at, first_seen_at, fetched_at,
+          decision_eligible_at, content_sha256 FROM filings ORDER BY fetched_at DESC LIMIT 5'
+psql "$DATABASE_URL" -c \
+  'SELECT sequence, kind, prev_hash, record_hash FROM audit_events ORDER BY sequence DESC LIMIT 5'
+```
+
+Use a dedicated acceptance heartbeat endpoint. Confirm receipt of the successful
+run's chain head, then deliberately stop manual acceptance runs and wait past
+the receiver's configured interval plus grace; verify an alert reaches you.
+This tests the external dead-man switch, not merely HTTP delivery. Do not send
+standalone synthetic successes to a production monitoring endpoint.
+
+## 120-hour review contract
+
+The packaged machine-readable constitution sets a six-hour weekly budget and
+a review at 120 total hours. Expected deliverables by that review are:
+a reliable prospective recorder, externally monitored ingestion, an independently
+recoverable ledger, a point-in-time data contract, an immutable experiment-registry
+foundation, validated null/positive/leakage controls, first panel-evidence
+implementation, first published-anomaly replication, and an analytic feasibility map.
+These are review targets, **not claims of current completion**.
+
+Outside that scope: autonomous live trading, production Robinhood execution,
+multi-agent trading swarms, polished UI, RD-Agent integration, and sophisticated
+automated strategy discovery. Compliance status remains unreviewed/unknown;
+live execution cannot be enabled before the required policy reviews and explicit
+authorization of a future phase. No broker implementation exists here.
