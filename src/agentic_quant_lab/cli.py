@@ -5,6 +5,7 @@ from pathlib import Path
 from urllib.request import Request, build_opener
 
 from agentic_quant_lab.config import Settings
+from agentic_quant_lab.evidence import verify_evidence
 from agentic_quant_lab.ledger import Ledger, canonical
 from agentic_quant_lab.recorder import Recorder
 from agentic_quant_lab.sec import Candidate, NoRedirect, SecClient
@@ -20,6 +21,7 @@ def main() -> None:
     catchup.add_argument("--start", type=date.fromisoformat, required=True)
     catchup.add_argument("--end", type=date.fromisoformat, required=True)
     commands.add_parser("replay")
+    commands.add_parser("reconcile")
     commands.add_parser("snapshot")
     verify = commands.add_parser("verify")
     verify.add_argument("ledger", type=Path)
@@ -30,10 +32,13 @@ def main() -> None:
     args = parser.parse_args()
     if args.command == "verify":
         records = Ledger.verify(args.ledger)
+        verify_evidence(records)
         print(json.dumps({"verified_records": len(records)}))
         return
     settings = Settings.from_env()
-    with Recorder(settings, SecClient(settings.sec_user_agent)) as recorder:
+    with Recorder(
+        settings, SecClient(settings.sec_user_agent), replay=args.command != "reconcile"
+    ) as recorder:
         count = 0
         if args.command == "ingest-one":
             count = int(recorder.ingest(Candidate.from_url(args.url)))
@@ -54,6 +59,8 @@ def main() -> None:
             "sequence": head["sequence"] if head else 0,
             "hash": head["hash"] if head else None,
         }
+        if args.command in ("record", "catch-up"):
+            recorder.reconcile()
         if settings.heartbeat_url and args.command in ("record", "catch-up"):
             request = Request(
                 settings.heartbeat_url,

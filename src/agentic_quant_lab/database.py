@@ -1,11 +1,62 @@
+from datetime import datetime
 from typing import Any
+from uuid import UUID
 
 import psycopg
+from psycopg import sql
+from psycopg.rows import dict_row
 from psycopg.types.json import Jsonb
 
-from agentic_quant_lab.ledger import LedgerError
+from agentic_quant_lab.ledger import LedgerError, canonical, timestamp
 
 WRITER_LOCK = 728415920001
+TABLE_FIELDS = {
+    "discoveries": ("source", "external_id", "first_seen_at"),
+    "filings": (
+        "source",
+        "external_id",
+        "cik",
+        "form_type",
+        "document_url",
+        "accepted_at",
+        "first_seen_at",
+        "fetched_at",
+        "decision_eligible_at",
+        "content_sha256",
+    ),
+    "corrections": ("supersedes_event_id", "reason", "changes"),
+}
+KIND_TABLE = {"discovery": "discoveries", "filing": "filings", "correction": "corrections"}
+
+
+def projected_rows(records: list[dict[str, Any]]) -> dict[str, dict[str, dict[str, Any]]]:
+    tables: dict[str, dict[str, dict[str, Any]]] = {
+        "audit_events": {},
+        **{table: {} for table in TABLE_FIELDS},
+    }
+    for record in records:
+        event_id = record["event_id"]
+        tables["audit_events"][event_id] = {
+            key: record[key]
+            for key in ("sequence", "event_id", "kind", "recorded_at", "prev_hash", "payload")
+        } | {"record_hash": record["hash"]}
+        if table := KIND_TABLE.get(record["kind"]):
+            tables[table][event_id] = {
+                "event_id": event_id,
+                **{key: record["payload"][key] for key in TABLE_FIELDS[table]},
+            }
+    return tables
+
+
+def normalized_row(row: dict[str, Any]) -> dict[str, Any]:
+    return {
+        key: timestamp(value)
+        if isinstance(value, datetime)
+        else str(value)
+        if isinstance(value, UUID)
+        else value
+        for key, value in row.items()
+    }
 
 
 class Projection:
@@ -17,17 +68,33 @@ class Projection:
         # Validate without writing evidence before making the durable append.
         self.connection.execute("SELECT jsonb_typeof(%s)", (Jsonb(payload),))
 
+    def reconcile(self, records: list[dict[str, Any]], *, allow_missing: bool = False) -> set[str]:
+        missing: set[str] = set()
+        for table, expected in projected_rows(records).items():
+            with self.connection.cursor(row_factory=dict_row) as cursor:
+                rows = cursor.execute(
+                    sql.SQL("SELECT * FROM {}").format(sql.Identifier(table))
+                ).fetchall()
+            actual = {str(row["event_id"]): normalized_row(row) for row in rows}
+            if actual.keys() - expected.keys():
+                raise LedgerError(f"Database is ahead of ledger: unexpected {table} evidence")
+            for event_id, row in actual.items():
+                if canonical(row) != canonical(expected[event_id]):
+                    raise LedgerError(f"Database and ledger diverge in {table}")
+            missing.update(expected.keys() - actual.keys())
+        if missing and not allow_missing:
+            raise LedgerError("Database evidence is missing; run replay from the verified ledger")
+        return missing
+
     def replay(self, records: list[dict[str, Any]]) -> None:
-        existing = self.connection.execute(
-            "SELECT sequence, record_hash FROM audit_events ORDER BY sequence"
-        ).fetchall()
-        if len(existing) > len(records):
-            raise LedgerError("Database is ahead of ledger; restore the durable ledger")
-        for row, record in zip(existing, records, strict=False):
-            if (row[0], row[1]) != (record["sequence"], record["hash"]):
-                raise LedgerError("Database and ledger diverge")
-        for record in records[len(existing) :]:
-            self.apply(record)
+        from agentic_quant_lab.evidence import verify_evidence
+
+        verify_evidence(records)
+        missing = self.reconcile(records, allow_missing=True)
+        for record in records:
+            if record["event_id"] in missing:
+                self.apply(record)
+        self.reconcile(records)
 
     def apply(self, record: dict[str, Any]) -> None:
         p = record["payload"]
@@ -54,7 +121,6 @@ class Projection:
                 ).fetchone()
                 if row is None or row[0] != record["hash"]:
                     raise LedgerError("Projection conflict")
-                return
             if record["kind"] == "discovery":
                 self.connection.execute(
                     """INSERT INTO discoveries (source, external_id, event_id, first_seen_at)

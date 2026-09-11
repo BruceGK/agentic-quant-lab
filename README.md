@@ -96,8 +96,10 @@ timestamp across retries and restarts.
 The ledger is authoritative; PostgreSQL is its query projection:
 
 1. Acquire a database advisory lock and an exclusive ledger file lock.
-2. Verify the full ledger and check the database's existing hash prefix.
-3. Replay any durable events that were not yet projected.
+2. Verify the full hash chain, content hashes, identities, prospective timestamps,
+   and checkpoint prerequisites; compare every existing database row and payload.
+3. Replay missing durable events and missing materialized rows without modifying
+   any existing evidence. Divergence fails closed before repair.
 4. Preflight payloads for JSONB representability without writing evidence.
    Append canonical JSON with sequence, event ID, UTC record time, `prev_hash`
    and SHA-256; flush and `fsync` before the corresponding database transaction.
@@ -108,8 +110,11 @@ A crash after the ledger append but before the database commit is recoverable
 on the next run. A partial final line or divergent database fails closed; never
 truncate or edit the ledger to make verification pass. Restore a known-good
 backup and rebuild into a **new, empty migrated database/schema** with
-`uv run quant-recorder replay`. A standalone `verify` checks hashes without any
-database or network configuration.
+`uv run quant-recorder replay`. A standalone `verify` checks chain and evidence
+semantics without database/network configuration. `uv run quant-recorder reconcile`
+detects missing, extra, or differing database evidence **without repairing it**;
+`replay` inserts only missing rows after verifying all existing rows match.
+Successful recording/catch-up reconciles again before sending any healthy heartbeat.
 
 Corrections are new linked events, not edits or silent replacements:
 

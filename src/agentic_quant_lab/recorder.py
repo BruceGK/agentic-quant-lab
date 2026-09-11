@@ -28,11 +28,17 @@ class FilingFetchError(RuntimeError):
 
 class Recorder:
     def __init__(
-        self, settings: Settings, client: SecClient, clock: Callable[[], datetime] = utc_now
+        self,
+        settings: Settings,
+        client: SecClient,
+        clock: Callable[[], datetime] = utc_now,
+        *,
+        replay: bool = True,
     ):
         self.settings = settings
         self.client = client
         self.clock = clock
+        self.replay = replay
         self.ledger = Ledger(settings.ledger_path)
         self.connection: psycopg.Connection[Any] | None = None
         self._projection: Projection | None = None
@@ -49,7 +55,10 @@ class Recorder:
                 raise RuntimeError("Another recorder holds the database writer lock")
             self.ledger.__enter__()
             self._projection = Projection(self.connection)
-            self._projection.replay(self.ledger.records)
+            if self.replay:
+                self._projection.replay(self.ledger.records)
+            else:
+                self.reconcile()
             self._discoveries = {
                 r["payload"]["external_id"]: r
                 for r in self.ledger.records
@@ -83,6 +92,8 @@ class Recorder:
         return record
 
     def discover(self, candidate: Candidate, seen: datetime | None = None) -> dict[str, Any]:
+        if candidate != Candidate.from_url(candidate.document_url):
+            raise ValueError("Candidate identity is inconsistent with its URL")
         if candidate.external_id not in self._discoveries:
             record = self._append(
                 "discovery",
@@ -108,8 +119,10 @@ class Recorder:
             content = self.client.fetch(candidate)
             fetched = timestamp(self.clock())
             accepted, form_type = submission_metadata(content, candidate)
-            if fetched < p["first_seen_at"]:
+            if datetime.fromisoformat(fetched) < datetime.fromisoformat(p["first_seen_at"]):
                 raise ValueError("Recorder clock moved backwards")
+            if accepted > datetime.fromisoformat(fetched):
+                raise ValueError("SEC acceptance time is later than our fetch clock")
         except (OSError, ValueError, HTTPException) as exc:
             raise FilingFetchError(f"Fetch/validation failed for {candidate.external_id}") from exc
         record = self._append(
@@ -219,6 +232,8 @@ class Recorder:
     def record(self) -> int:
         if self.settings.catchup_start is None:
             raise ValueError("CATCHUP_START must be explicit; gaps must not be silently skipped")
+        if self.settings.catchup_start > self.clock().astimezone(EASTERN).date():
+            raise ValueError("CATCHUP_START cannot be in the future")
         self.snapshot_universe()
         pending = [
             Candidate.from_url(r["payload"]["document_url"])
@@ -249,6 +264,15 @@ class Recorder:
         if failures:
             raise ExceptionGroup("SEC recording is incomplete; no success heartbeat", failures)
         return count
+
+    def reconcile(self) -> None:
+        from agentic_quant_lab.evidence import verify_evidence
+
+        if self._projection is None:
+            raise RuntimeError("Recorder is not open")
+        records = Ledger.verify(self.settings.ledger_path)
+        verify_evidence(records)
+        self._projection.reconcile(records)
 
     def correct(self, event_id: str, reason: str, changes: dict[str, Any]) -> dict[str, Any]:
         if not reason.strip() or not changes:
