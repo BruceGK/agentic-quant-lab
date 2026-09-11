@@ -1,4 +1,10 @@
 from datetime import UTC, date, datetime
+from email.message import Message
+from http.client import HTTPMessage, IncompleteRead
+from io import BytesIO
+from unittest.mock import MagicMock, patch
+from urllib.error import HTTPError
+from urllib.request import Request
 
 import pytest
 from conftest import CANDIDATE, SUBMISSION
@@ -6,6 +12,8 @@ from conftest import CANDIDATE, SUBMISSION
 from agentic_quant_lab.config import Settings, normalize_cik
 from agentic_quant_lab.sec import (
     Candidate,
+    NoRedirect,
+    SecClient,
     parse_daily_index,
     parse_latest,
     scheduled_sec_closure,
@@ -63,16 +71,30 @@ def test_malformed_index_fails_closed() -> None:
         parse_daily_index(b"<html>Access denied</html>", date(2026, 9, 9))
     with pytest.raises(ValueError):
         parse_daily_index(
-            b"CIK|Company Name|Form Type|Date Filed|Filename\nbroken row\n", date(2026, 9, 9)
+            b"Last Data Received: Sep 09, 2026\n"
+            b"CIK|Company Name|Form Type|Date Filed|Filename\nbroken row\n",
+            date(2026, 9, 9),
         )
 
 
 def test_legacy_index_header_and_compact_date() -> None:
     content = (
+        b"Last Data Received: Sep 09, 2026\n"
         b"CIK|Company Name|Form Type|Date Filed|File Name\n"
         b"320193|Example|10-K|20260909|edgar/data/320193/0000320193-24-000123.txt\n"
     )
     assert parse_daily_index(content, date(2026, 9, 9)) == [CANDIDATE]
+
+
+def test_dissemination_index_can_include_older_filing_dates() -> None:
+    content = (
+        b"Last Data Received: Sep 09, 2026\n"
+        b"CIK|Company Name|Form Type|Date Filed|File Name\n"
+        b"320193|Example|10-K|20241101|edgar/data/320193/0000320193-24-000123.txt\n"
+    )
+    assert parse_daily_index(content, date(2026, 9, 9)) == [CANDIDATE]
+    with pytest.raises(ValueError, match="dissemination date"):
+        parse_daily_index(content, date(2026, 9, 8))
 
 
 @pytest.mark.parametrize(
@@ -99,6 +121,93 @@ def test_sec_observed_federal_holidays(day: date) -> None:
 def test_exchange_holidays_are_not_sec_holidays() -> None:
     assert not scheduled_sec_closure(date(2026, 4, 3))  # Good Friday
     assert not scheduled_sec_closure(date(2026, 9, 9))
+
+
+def test_sec_transport_retries_rate_limit_with_identifying_headers() -> None:
+    client = SecClient("agentic-quant-lab test@example.invalid")
+    headers = Message()
+    headers["Retry-After"] = "2"
+    rate_limited = HTTPError(CANDIDATE.document_url, 429, "rate limited", headers, None)
+    response = MagicMock()
+    response.__enter__.return_value = response
+    response.read.return_value = SUBMISSION
+    response.headers = {"Content-Length": str(len(SUBMISSION))}
+    with (
+        patch.object(client._opener, "open", side_effect=[rate_limited, response]) as request,
+        patch("agentic_quant_lab.sec.time.sleep") as sleep,
+    ):
+        assert client.fetch(CANDIDATE) == SUBMISSION
+    assert request.call_count == 2
+    sent = request.call_args.args[0]
+    assert sent.get_header("User-agent") == client.user_agent
+    assert sent.get_header("Accept-encoding") == "identity"
+    assert any(call.args == (2,) for call in sleep.call_args_list)
+
+
+def test_sec_transport_does_not_retry_access_denied() -> None:
+    client = SecClient("agentic-quant-lab test@example.invalid")
+    denied = HTTPError(CANDIDATE.document_url, 403, "denied", Message(), None)
+    with (
+        patch.object(client._opener, "open", side_effect=denied) as request,
+        pytest.raises(HTTPError),
+    ):
+        client.fetch(CANDIDATE)
+    assert request.call_count == 1
+
+
+def test_sec_transport_bounds_content_and_destination() -> None:
+    client = SecClient("agentic-quant-lab test@example.invalid", max_bytes=2)
+    response = MagicMock()
+    response.__enter__.return_value = response
+    response.headers = {}
+    response.read.return_value = b"too large"
+    with (
+        patch.object(client._opener, "open", return_value=response),
+        pytest.raises(ValueError, match="size limit"),
+    ):
+        client.fetch(CANDIDATE)
+    with pytest.raises(ValueError, match="Only HTTPS"):
+        client.get("https://example.invalid/submission")
+    assert (
+        NoRedirect().redirect_request(
+            Request(CANDIDATE.document_url),
+            BytesIO(),
+            302,
+            "",
+            HTTPMessage(),
+            "https://example.invalid",
+        )
+        is None
+    )
+
+
+def test_sec_transport_retries_truncated_transfer_before_returning() -> None:
+    client = SecClient("agentic-quant-lab test@example.invalid")
+    response = MagicMock()
+    response.__enter__.return_value = response
+    response.headers = {"Content-Length": str(len(SUBMISSION))}
+    response.read.side_effect = [SUBMISSION[:-30], SUBMISSION]
+    with (
+        patch.object(client._opener, "open", return_value=response) as request,
+        patch("agentic_quant_lab.sec.time.sleep"),
+    ):
+        assert client.fetch(CANDIDATE) == SUBMISSION
+    assert request.call_count == 2
+
+
+def test_truncated_index_transfer_is_never_returned_as_complete() -> None:
+    client = SecClient("agentic-quant-lab test@example.invalid")
+    response = MagicMock()
+    response.__enter__.return_value = response
+    response.headers = {"Content-Length": "999"}
+    response.read.return_value = b"CIK|Company Name|Form Type|Date Filed|File Name\n"
+    with (
+        patch.object(client._opener, "open", return_value=response) as request,
+        patch("agentic_quant_lab.sec.time.sleep"),
+        pytest.raises(IncompleteRead),
+    ):
+        client.daily_index(date(2026, 9, 9))
+    assert request.call_count == 4
 
 
 def test_configuration_requires_contact_and_normalizes_universe(

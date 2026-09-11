@@ -113,6 +113,7 @@ def test_rebuild_empty_projection_from_ledger(settings: Settings, database: Data
 def index(day: str, candidate: Candidate = CANDIDATE) -> bytes:
     return (
         "Description: synthetic daily index\n"
+        f"Last Data Received: {date.fromisoformat(day):%b %d, %Y}\n"
         "CIK|Company Name|Form Type|Date Filed|Filename\n"
         "------------------------------------------\n"
         f"{candidate.cik}|Example|10-K|{day}|edgar/data/{candidate.cik}/"
@@ -272,6 +273,26 @@ def test_corrections_append_and_are_idempotent(settings: Settings) -> None:
         assert settings.ledger_path.read_bytes().startswith(before)
         with pytest.raises(ValueError):
             recorder.correct("not-an-event", "reason", {"note": "x"})
+
+
+@pytest.mark.parametrize(
+    "changes",
+    [
+        {"note": "\u0000"},
+        {"nested": [{"\u0000": "invalid key"}]},
+        {"nested": {"note": "\ud800"}},
+        {"value": float("nan")},
+    ],
+)
+def test_unprojectable_corrections_never_enter_ledger(settings: Settings, changes: dict) -> None:
+    with Recorder(settings, FakeSec(), lambda: SEEN) as recorder:
+        recorder.ingest(CANDIDATE)
+        original = settings.ledger_path.read_bytes()
+        with pytest.raises(psycopg.Error):
+            recorder.correct(recorder.ledger.records[-1]["event_id"], "annotation", changes)
+        assert settings.ledger_path.read_bytes() == original
+    with Recorder(settings, FakeSec()) as recorder:
+        assert not recorder.ingest(CANDIDATE)
 
 
 def test_database_ahead_of_truncated_ledger_fails(settings: Settings) -> None:

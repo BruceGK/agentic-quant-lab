@@ -3,6 +3,7 @@ import hashlib
 import xml.etree.ElementTree as ET
 from collections.abc import Callable
 from datetime import date, datetime, timedelta
+from http.client import HTTPException
 from typing import Any, Self
 from urllib.error import HTTPError
 
@@ -72,6 +73,7 @@ class Recorder:
     def _append(self, kind: str, payload: dict[str, Any]) -> dict[str, Any]:
         if self._projection is None:
             raise RuntimeError("Recorder is not open")
+        self._projection.validate_payload(payload)
         record = self.ledger.append(kind, payload)
         try:
             self._projection.apply(record)
@@ -108,7 +110,7 @@ class Recorder:
             accepted, form_type = submission_metadata(content, candidate)
             if fetched < p["first_seen_at"]:
                 raise ValueError("Recorder clock moved backwards")
-        except (OSError, ValueError) as exc:
+        except (OSError, ValueError, HTTPException) as exc:
             raise FilingFetchError(f"Fetch/validation failed for {candidate.external_id}") from exc
         record = self._append(
             "filing",
@@ -182,7 +184,7 @@ class Recorder:
                 failures.append(exc)
                 day += timedelta(days=1)
                 continue
-            except (OSError, ValueError) as exc:
+            except (OSError, ValueError, HTTPException) as exc:
                 failures.append(exc)
                 day += timedelta(days=1)
                 continue
@@ -227,7 +229,7 @@ class Recorder:
         failures: list[Exception] = []
         try:
             candidates = self.client.latest()
-        except (OSError, ValueError, ET.ParseError) as exc:
+        except (OSError, ValueError, HTTPException, ET.ParseError) as exc:
             failures.append(exc)
         else:
             try:

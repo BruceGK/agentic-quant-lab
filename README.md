@@ -53,7 +53,7 @@ Never commit credentials.
 | `SEC_USER_AGENT` | Required application name and real contact email, per SEC fair-access policy |
 | `LEDGER_PATH` | Durable JSONL path; defaults to `state/sec.jsonl` for local development only |
 | `UNIVERSE_CIKS` | Comma-separated CIKs, normalized and snapshotted; required for batch commands |
-| `CATCHUP_START` | Explicit first SEC filing date to reconcile, `YYYY-MM-DD`; required by `record` |
+| `CATCHUP_START` | Explicit first SEC dissemination-index date to reconcile, `YYYY-MM-DD`; required by `record` |
 | `HEARTBEAT_URL` | Optional HTTPS success hook locally; required by scheduled workflow |
 
 ```sh
@@ -98,7 +98,8 @@ The ledger is authoritative; PostgreSQL is its query projection:
 1. Acquire a database advisory lock and an exclusive ledger file lock.
 2. Verify the full ledger and check the database's existing hash prefix.
 3. Replay any durable events that were not yet projected.
-4. Append canonical JSON with sequence, event ID, UTC record time, `prev_hash`
+4. Preflight payloads for JSONB representability without writing evidence.
+   Append canonical JSON with sequence, event ID, UTC record time, `prev_hash`
    and SHA-256; flush and `fsync` before the corresponding database transaction.
 5. Insert with conflict handling. `UNIQUE(source, external_id)` prevents
    duplicate filing identities. SEC amendments have their own accession IDs.
@@ -131,6 +132,9 @@ are fetched. Daily checkpoints are appended **after all selected filings are
 persisted**, scoped to the universe hash, and include the exact index bytes and
 hash. Older completed dates are skipped; the latest three completed dates are
 rechecked for late index publication. Explicit `catch-up` forces a rescan.
+The index header's dissemination date must match the requested day; individual
+rows can legitimately have older filing dates. Declared HTTP content lengths
+are checked before any response can become reconciliation evidence.
 
 Missing intervals, failed fetches, and changed universes are therefore
 recoverable without backdating eligibility. Universe changes append a new

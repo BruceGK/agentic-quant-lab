@@ -12,6 +12,11 @@ class Projection:
     def __init__(self, connection: psycopg.Connection[Any]):
         self.connection = connection
 
+    def validate_payload(self, payload: dict[str, Any]) -> None:
+        # JSONL accepts values (e.g. NUL strings) that PostgreSQL JSONB cannot store.
+        # Validate without writing evidence before making the durable append.
+        self.connection.execute("SELECT jsonb_typeof(%s)", (Jsonb(payload),))
+
     def replay(self, records: list[dict[str, Any]]) -> None:
         existing = self.connection.execute(
             "SELECT sequence, record_hash FROM audit_events ORDER BY sequence"

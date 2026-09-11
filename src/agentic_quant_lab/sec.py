@@ -3,7 +3,8 @@ import time
 import xml.etree.ElementTree as ET
 from dataclasses import dataclass
 from datetime import UTC, date, datetime, timedelta
-from urllib.error import HTTPError, URLError
+from http.client import HTTPException, IncompleteRead
+from urllib.error import HTTPError
 from urllib.parse import urlsplit
 from urllib.request import HTTPRedirectHandler, Request, build_opener
 from zoneinfo import ZoneInfo
@@ -66,7 +67,13 @@ class SecClient:
             )
             try:
                 with self._opener.open(request, timeout=45) as response:
+                    declared = response.headers.get("Content-Length")
+                    expected = int(declared) if declared is not None else None
+                    if expected is not None and not 0 <= expected <= self.max_bytes:
+                        raise ValueError("SEC response exceeds the recorder's size limit")
                     body = response.read(self.max_bytes + 1)
+                    if expected is not None and len(body) < expected:
+                        raise IncompleteRead(body, expected - len(body))
                 if len(body) > self.max_bytes:
                     raise ValueError("SEC response exceeds the recorder's size limit")
                 return body
@@ -76,7 +83,7 @@ class SecClient:
                 retry_after = exc.headers.get("Retry-After", "")
                 delay = min(float(retry_after), 120) if retry_after.isdigit() else 2**attempt
                 time.sleep(max(delay, 2**attempt))
-            except (URLError, TimeoutError):
+            except (OSError, HTTPException):
                 if attempt == 3:
                     raise
                 time.sleep(2**attempt)
@@ -124,6 +131,9 @@ def parse_latest(body: bytes) -> list[Candidate]:
 
 def parse_daily_index(body: bytes, day: date) -> list[Candidate]:
     text = body.decode("latin-1")
+    published = re.search(r"^Last Data Received:[ \t]*(.+)$", text, re.MULTILINE)
+    if not published or datetime.strptime(published[1].strip(), "%b %d, %Y").date() != day:
+        raise ValueError("Daily index dissemination date does not match the requested day")
     lines = text.splitlines()
     header_index = next(
         (
@@ -144,8 +154,7 @@ def parse_daily_index(body: bytes, day: date) -> list[Candidate]:
         if len(fields) != 5:
             raise ValueError("Malformed SEC daily index row")
         cik, _, _, filed, path = fields
-        if date.fromisoformat(filed) != day:
-            raise ValueError("Daily index contains an unexpected filing date")
+        date.fromisoformat(filed)
         candidate = Candidate.from_url(f"{SEC_ORIGIN}/Archives/{path}")
         if candidate.cik != normalize_cik(cik):
             raise ValueError("Daily index CIK/path mismatch")
