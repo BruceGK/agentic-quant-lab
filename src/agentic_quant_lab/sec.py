@@ -2,7 +2,7 @@ import re
 import time
 import xml.etree.ElementTree as ET
 from dataclasses import dataclass
-from datetime import UTC, date, datetime
+from datetime import UTC, date, datetime, timedelta
 from urllib.error import HTTPError, URLError
 from urllib.parse import urlsplit
 from urllib.request import HTTPRedirectHandler, Request, build_opener
@@ -44,7 +44,7 @@ class Candidate:
 
 
 class NoRedirect(HTTPRedirectHandler):
-    def redirect_request(self, req, fp, code, msg, headers, newurl):  # type: ignore[no-untyped-def]
+    def redirect_request(self, req, fp, code, msg, headers, newurl):
         return None
 
 
@@ -125,11 +125,19 @@ def parse_latest(body: bytes) -> list[Candidate]:
 def parse_daily_index(body: bytes, day: date) -> list[Candidate]:
     text = body.decode("latin-1")
     lines = text.splitlines()
-    header = "CIK|Company Name|Form Type|Date Filed|Filename"
-    if header not in lines:
+    header_index = next(
+        (
+            i
+            for i, line in enumerate(lines)
+            if line.replace("File Name", "Filename")
+            == "CIK|Company Name|Form Type|Date Filed|Filename"
+        ),
+        None,
+    )
+    if header_index is None:
         raise ValueError("Invalid SEC daily index header")
     result: list[Candidate] = []
-    for line in lines[lines.index(header) + 1 :]:
+    for line in lines[header_index + 1 :]:
         if not line.strip() or set(line.strip()) == {"-"}:
             continue
         fields = line.split("|")
@@ -162,3 +170,27 @@ def submission_metadata(body: bytes, candidate: Candidate) -> tuple[datetime, st
     if not body.rstrip().endswith(b"</SEC-DOCUMENT>"):
         raise ValueError("Truncated SEC submission")
     return early.astimezone(UTC), form[1].strip()
+
+
+def scheduled_sec_closure(day: date) -> bool:
+    """Federal holidays observed by EDGAR; extraordinary closures still fail closed."""
+    if day.weekday() >= 5:
+        return True
+    fixed: set[date] = set()
+    for year in (day.year, day.year + 1):
+        for month, number in ((1, 1), (6, 19), (7, 4), (11, 11), (12, 25)):
+            holiday = date(year, month, number)
+            if month == 6 and year < 2021:
+                continue
+            offset = -1 if holiday.weekday() == 5 else 1 if holiday.weekday() == 6 else 0
+            fixed.add(holiday + timedelta(days=offset))
+    if day in fixed:
+        return True
+    # MLK, Washington's Birthday, Labor, Columbus, and Thanksgiving.
+    for month, weekday, occurrence in ((1, 0, 3), (2, 0, 3), (9, 0, 1), (10, 0, 2), (11, 3, 4)):
+        first = date(day.year, month, 1)
+        holiday = first + timedelta(days=(weekday - first.weekday()) % 7 + 7 * (occurrence - 1))
+        if day == holiday:
+            return True
+    last_may = date(day.year, 5, 31)
+    return day == last_may - timedelta(days=last_may.weekday())

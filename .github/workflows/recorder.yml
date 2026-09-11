@@ -1,0 +1,55 @@
+name: SEC recorder
+
+on:
+  schedule:
+    - cron: "7,22,37,52 * * * *" # UTC, including weekends; delayed runs are reconciled.
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: sec-recorder-writer
+  cancel-in-progress: false
+
+jobs:
+  record:
+    if: >-
+      vars.RECORDER_ENABLED == 'true' &&
+      github.ref == format('refs/heads/{0}', github.event.repository.default_branch)
+    runs-on: [self-hosted, linux, sec-recorder]
+    environment: sec-recorder
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          persist-credentials: false
+      - uses: astral-sh/setup-uv@6b9c6063abd6010835644d4c2e1bef4cf5cd0fca # v6.0.1
+        with:
+          version: "0.12.13"
+          enable-cache: false
+      - run: uv sync --locked --no-dev --python 3.12
+      - name: Record and reconcile, then send success heartbeat
+        env:
+          DATABASE_URL: ${{ secrets.RECORDER_DATABASE_URL }}
+          HEARTBEAT_URL: ${{ secrets.RECORDER_HEARTBEAT_URL }}
+          SEC_USER_AGENT: ${{ vars.SEC_USER_AGENT }}
+          UNIVERSE_CIKS: ${{ vars.UNIVERSE_CIKS }}
+          CATCHUP_START: ${{ vars.CATCHUP_START }}
+          LEDGER_PATH: ${{ vars.LEDGER_PATH }}
+        run: |
+          set -euo pipefail
+          umask 077
+          case "$LEDGER_PATH" in
+            /*) ;;
+            *) echo "LEDGER_PATH must be an absolute durable path"; exit 1 ;;
+          esac
+          LEDGER_PATH="$(realpath -m "$LEDGER_PATH")"
+          export LEDGER_PATH
+          case "$LEDGER_PATH" in
+            "$GITHUB_WORKSPACE"|"$GITHUB_WORKSPACE"/*)
+              echo "Ledger must be outside the ephemeral checkout"; exit 1 ;;
+          esac
+          test -d "$(dirname "$LEDGER_PATH")"
+          test -n "$HEARTBEAT_URL"
+          uv run --frozen --no-dev quant-recorder record

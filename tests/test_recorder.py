@@ -3,8 +3,12 @@ import hashlib
 import os
 from dataclasses import replace
 from datetime import UTC, date, datetime
+from email.message import Message
 from pathlib import Path
+from typing import LiteralString, cast
 from unittest.mock import patch
+from urllib.error import HTTPError
+from uuid import uuid4
 
 import psycopg
 import pytest
@@ -14,7 +18,7 @@ from psycopg import sql
 from agentic_quant_lab.config import Settings
 from agentic_quant_lab.database import Projection
 from agentic_quant_lab.ledger import Ledger, LedgerError
-from agentic_quant_lab.recorder import Recorder
+from agentic_quant_lab.recorder import FilingFetchError, Recorder
 from agentic_quant_lab.sec import Candidate, SecClient
 
 pytestmark = pytest.mark.postgres
@@ -48,7 +52,7 @@ def test_failed_fetch_preserves_first_seen(settings: Settings) -> None:
     client = FakeSec()
     client.fail = True
     with Recorder(settings, client, lambda: SEEN) as recorder:
-        with pytest.raises(TimeoutError):
+        with pytest.raises(FilingFetchError):
             recorder.ingest(CANDIDATE)
     assert [r["kind"] for r in Ledger.verify(settings.ledger_path)] == ["discovery"]
     client.fail = False
@@ -84,6 +88,26 @@ def test_projection_replay_is_idempotent(settings: Settings, database: DatabaseC
         projection.apply(records[-1])
         projection.replay(records)
         assert connection.execute("SELECT count(*) FROM filings").fetchone() == (1,)
+
+
+def test_rebuild_empty_projection_from_ledger(settings: Settings, database: DatabaseConfig) -> None:
+    with Recorder(settings, FakeSec(), lambda: SEEN) as recorder:
+        recorder.ingest(CANDIDATE)
+        recorder.correct(recorder.ledger.records[-1]["event_id"], "annotation", {"note": "review"})
+    records = Ledger.verify(settings.ledger_path)
+    schema = "rebuild_" + uuid4().hex
+    with psycopg.connect(database.admin_dsn, autocommit=True) as admin:
+        admin.execute(sql.SQL("CREATE SCHEMA {}").format(sql.Identifier(schema)))
+        try:
+            admin.execute(sql.SQL("SET search_path TO {}").format(sql.Identifier(schema)))
+            migration = Path(__file__).resolve().parents[1] / "migrations/001_evidence.sql"
+            admin.execute(cast(LiteralString, migration.read_text()))
+            Projection(admin).replay(records)
+            assert admin.execute("SELECT count(*) FROM filings").fetchone() == (1,)
+            assert admin.execute("SELECT count(*) FROM corrections").fetchone() == (1,)
+            assert admin.execute("SELECT count(*) FROM audit_events").fetchone() == (len(records),)
+        finally:
+            admin.execute(sql.SQL("DROP SCHEMA {} CASCADE").format(sql.Identifier(schema)))
 
 
 def index(day: str, candidate: Candidate = CANDIDATE) -> bytes:
@@ -125,12 +149,96 @@ def test_failed_catchup_does_not_checkpoint(settings: Settings) -> None:
     client.indexes["2026-09-09"] = index("2026-09-09")
     client.fail = True
     with Recorder(settings, client, lambda: SEEN) as recorder:
-        with pytest.raises(TimeoutError):
+        with pytest.raises(ExceptionGroup, match="reconciliation is incomplete"):
             recorder.catch_up(date(2026, 9, 9), date(2026, 9, 9))
         assert not any(r["kind"] == "reconciliation" for r in recorder.ledger.records)
     client.fail = False
     with Recorder(settings, client, lambda: FETCHED) as recorder:
         assert recorder.catch_up(date(2026, 9, 9), date(2026, 9, 9)) == 1
+
+
+@pytest.mark.parametrize(
+    "day, allowed",
+    [
+        (date(2026, 9, 7), True),  # Labor Day
+        (date(2026, 9, 6), True),
+        (date(2026, 9, 9), False),
+    ],
+)
+def test_index_404_only_allowed_for_known_closure(
+    settings: Settings, day: date, allowed: bool
+) -> None:
+    with Recorder(settings, FakeSec(), lambda: SEEN) as recorder:
+        with patch.object(
+            recorder.client,
+            "daily_index",
+            side_effect=HTTPError("SEC", 404, "missing", Message(), None),
+        ):
+            if allowed:
+                assert recorder.catch_up(day, day) == 0
+            else:
+                with pytest.raises(ExceptionGroup, match="reconciliation is incomplete"):
+                    recorder.catch_up(day, day)
+        assert not any(r["kind"] == "reconciliation" for r in recorder.ledger.records)
+
+
+def test_new_universe_reconciles_old_completed_dates(settings: Settings) -> None:
+    client = FakeSec()
+    other = Candidate.from_url(
+        "https://www.sec.gov/Archives/edgar/data/789019/0000789019-24-000123.txt"
+    )
+    client.indexes["2026-09-01"] = index("2026-09-01", other)
+    with Recorder(settings, client, lambda: SEEN) as recorder:
+        assert recorder.catch_up(date(2026, 9, 1), date(2026, 9, 1)) == 0
+    settings = replace(settings, universe_ciks=("320193", "789019"))
+    with Recorder(settings, client, lambda: FETCHED) as recorder:
+        assert recorder.catch_up(date(2026, 9, 1), date(2026, 9, 1)) == 1
+        snapshots = [r for r in recorder.ledger.records if r["kind"] == "universe"]
+        assert len(snapshots) == 2
+        assert snapshots[0]["payload"]["ciks"] == ["320193"]
+
+
+def test_failed_latest_feed_does_not_prevent_catchup(settings: Settings) -> None:
+    client = FakeSec()
+    client.indexes["2026-09-09"] = index("2026-09-09")
+    settings = replace(settings, catchup_start=date(2026, 9, 9))
+    with Recorder(settings, client, lambda: SEEN) as recorder:
+        with (
+            patch.object(client, "latest", side_effect=TimeoutError("feed unavailable")),
+            pytest.raises(ExceptionGroup, match="recording is incomplete"),
+        ):
+            recorder.record()
+        assert len([r for r in recorder.ledger.records if r["kind"] == "filing"]) == 1
+        assert len([r for r in recorder.ledger.records if r["kind"] == "reconciliation"]) == 1
+
+
+def test_unavailable_filing_does_not_starve_other_filings(settings: Settings) -> None:
+    client = FakeSec()
+    other = Candidate.from_url(CANDIDATE.document_url.replace("000123", "000124"))
+    original_fetch = client.fetch
+
+    def fetch(candidate: Candidate) -> bytes:
+        if candidate == CANDIDATE:
+            raise TimeoutError("unavailable filing")
+        return original_fetch(candidate)
+
+    with Recorder(settings, client, lambda: SEEN) as recorder:
+        with (
+            patch.object(client, "fetch", side_effect=fetch),
+            pytest.raises(ExceptionGroup, match="filings remain unresolved"),
+        ):
+            recorder.ingest_many([CANDIDATE, other])
+        filings = [r for r in recorder.ledger.records if r["kind"] == "filing"]
+        assert [r["payload"]["external_id"] for r in filings] == [other.external_id]
+
+
+def test_database_failure_aborts_batch_immediately(settings: Settings) -> None:
+    client = FakeSec()
+    with Recorder(settings, client, lambda: SEEN) as recorder:
+        with patch.object(Projection, "apply", side_effect=RuntimeError("write failed")):
+            with pytest.raises(RuntimeError, match="write failed"):
+                recorder.ingest_many([CANDIDATE])
+    assert client.fetch_count == 0
 
 
 @pytest.mark.parametrize("table", ["audit_events", "discoveries", "filings", "corrections"])

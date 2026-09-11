@@ -4,7 +4,13 @@ import pytest
 from conftest import CANDIDATE, SUBMISSION
 
 from agentic_quant_lab.config import Settings, normalize_cik
-from agentic_quant_lab.sec import Candidate, parse_daily_index, parse_latest, submission_metadata
+from agentic_quant_lab.sec import (
+    Candidate,
+    parse_daily_index,
+    parse_latest,
+    scheduled_sec_closure,
+    submission_metadata,
+)
 
 
 def test_atom_uses_canonical_complete_submission_url() -> None:
@@ -59,6 +65,40 @@ def test_malformed_index_fails_closed() -> None:
         parse_daily_index(
             b"CIK|Company Name|Form Type|Date Filed|Filename\nbroken row\n", date(2026, 9, 9)
         )
+
+
+def test_legacy_index_header_and_compact_date() -> None:
+    content = (
+        b"CIK|Company Name|Form Type|Date Filed|File Name\n"
+        b"320193|Example|10-K|20260909|edgar/data/320193/0000320193-24-000123.txt\n"
+    )
+    assert parse_daily_index(content, date(2026, 9, 9)) == [CANDIDATE]
+
+
+@pytest.mark.parametrize(
+    "day",
+    [
+        date(2026, 1, 1),
+        date(2026, 1, 19),
+        date(2026, 2, 16),
+        date(2026, 5, 25),
+        date(2026, 6, 19),
+        date(2026, 7, 3),
+        date(2026, 9, 7),
+        date(2026, 10, 12),
+        date(2026, 11, 11),
+        date(2026, 11, 26),
+        date(2026, 12, 25),
+        date(2021, 12, 31),
+    ],
+)
+def test_sec_observed_federal_holidays(day: date) -> None:
+    assert scheduled_sec_closure(day)
+
+
+def test_exchange_holidays_are_not_sec_holidays() -> None:
+    assert not scheduled_sec_closure(date(2026, 4, 3))  # Good Friday
+    assert not scheduled_sec_closure(date(2026, 9, 9))
 
 
 def test_configuration_requires_contact_and_normalizes_universe(

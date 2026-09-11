@@ -1,5 +1,6 @@
 import base64
 import hashlib
+import xml.etree.ElementTree as ET
 from collections.abc import Callable
 from datetime import date, datetime, timedelta
 from typing import Any, Self
@@ -15,8 +16,13 @@ from agentic_quant_lab.sec import (
     Candidate,
     SecClient,
     parse_daily_index,
+    scheduled_sec_closure,
     submission_metadata,
 )
+
+
+class FilingFetchError(RuntimeError):
+    pass
 
 
 class Recorder:
@@ -96,11 +102,14 @@ class Recorder:
         p = discovery["payload"]
         # Always retry the original observed URL, not metadata from a later discovery.
         candidate = Candidate.from_url(p["document_url"])
-        content = self.client.fetch(candidate)
-        fetched = timestamp(self.clock())
-        accepted, form_type = submission_metadata(content, candidate)
-        if fetched < p["first_seen_at"]:
-            raise ValueError("Recorder clock moved backwards")
+        try:
+            content = self.client.fetch(candidate)
+            fetched = timestamp(self.clock())
+            accepted, form_type = submission_metadata(content, candidate)
+            if fetched < p["first_seen_at"]:
+                raise ValueError("Recorder clock moved backwards")
+        except (OSError, ValueError) as exc:
+            raise FilingFetchError(f"Fetch/validation failed for {candidate.external_id}") from exc
         record = self._append(
             "filing",
             {
@@ -117,11 +126,22 @@ class Recorder:
         return True
 
     def ingest_many(self, candidates: list[Candidate]) -> int:
-        selected = [c for c in candidates if c.cik in self.settings.universe_ciks]
+        return self._ingest_batch([c for c in candidates if c.cik in self.settings.universe_ciks])
+
+    def _ingest_batch(self, candidates: list[Candidate]) -> int:
         seen = self.clock()
-        for candidate in selected:
+        for candidate in candidates:
             self.discover(candidate, seen)
-        return sum(self.ingest(candidate) for candidate in selected)
+        count = 0
+        failures: list[Exception] = []
+        for candidate in candidates:
+            try:
+                count += self.ingest(candidate)
+            except FilingFetchError as exc:
+                failures.append(exc)
+        if failures:
+            raise ExceptionGroup("Some SEC filings remain unresolved", failures)
+        return count
 
     def snapshot_universe(self) -> str:
         if not self.settings.universe_ciks:
@@ -145,6 +165,7 @@ class Recorder:
         }
         completed = {day for day, _ in checkpoints}
         count = 0
+        failures: list[Exception] = []
         day = start
         while day <= end:
             # Recheck recent indexes for late publication; older gaps are never skipped.
@@ -154,13 +175,29 @@ class Recorder:
             try:
                 content = self.client.daily_index(day)
             except HTTPError as exc:
-                # EDGAR does not accept filings on weekends. Weekday 404s fail closed:
-                # holidays and not-yet-published indexes must not hide an unresolved gap.
-                if exc.code == 404 and day.weekday() >= 5:
+                # Only a known closure may explain a missing index; other gaps fail closed.
+                if exc.code == 404 and scheduled_sec_closure(day):
                     day += timedelta(days=1)
                     continue
-                raise
-            count += self.ingest_many(parse_daily_index(content, day))
+                failures.append(exc)
+                day += timedelta(days=1)
+                continue
+            except (OSError, ValueError) as exc:
+                failures.append(exc)
+                day += timedelta(days=1)
+                continue
+            try:
+                candidates = parse_daily_index(content, day)
+            except ValueError as exc:
+                failures.append(exc)
+                day += timedelta(days=1)
+                continue
+            try:
+                count += self.ingest_many(candidates)
+            except ExceptionGroup as exc:
+                failures.append(exc)
+                day += timedelta(days=1)
+                continue
             index_hash = hashlib.sha256(content).hexdigest()
             if (day.isoformat(), index_hash) not in checkpoints:
                 self._append(
@@ -173,18 +210,42 @@ class Recorder:
                     },
                 )
             day += timedelta(days=1)
+        if failures:
+            raise ExceptionGroup("SEC reconciliation is incomplete", failures)
         return count
 
     def record(self) -> int:
         if self.settings.catchup_start is None:
             raise ValueError("CATCHUP_START must be explicit; gaps must not be silently skipped")
         self.snapshot_universe()
-        count = self.ingest_many(self.client.latest())
-        for record in list(self._discoveries.values()):
-            count += self.ingest(Candidate.from_url(record["payload"]["document_url"]))
+        pending = [
+            Candidate.from_url(r["payload"]["document_url"])
+            for key, r in self._discoveries.items()
+            if key not in self._filings
+        ]
+        count = 0
+        failures: list[Exception] = []
+        try:
+            candidates = self.client.latest()
+        except (OSError, ValueError, ET.ParseError) as exc:
+            failures.append(exc)
+        else:
+            try:
+                count += self.ingest_many(candidates)
+            except ExceptionGroup as exc:
+                failures.append(exc)
+        try:
+            count += self._ingest_batch(pending)
+        except ExceptionGroup as exc:
+            failures.append(exc)
         end = self.clock().astimezone(EASTERN).date() - timedelta(days=1)
         if self.settings.catchup_start <= end:
-            count += self.catch_up(self.settings.catchup_start, end)
+            try:
+                count += self.catch_up(self.settings.catchup_start, end)
+            except ExceptionGroup as exc:
+                failures.append(exc)
+        if failures:
+            raise ExceptionGroup("SEC recording is incomplete; no success heartbeat", failures)
         return count
 
     def correct(self, event_id: str, reason: str, changes: dict[str, Any]) -> dict[str, Any]:
