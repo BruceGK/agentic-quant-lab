@@ -300,3 +300,16 @@ multi-agent trading swarms, polished UI, RD-Agent integration, and sophisticated
 automated strategy discovery. Compliance status remains unreviewed/unknown;
 live execution cannot be enabled before the required policy reviews and explicit
 authorization of a future phase. No broker implementation exists here.
+
+## Synthetic scientific controls (test-only)
+
+`tests/scientific_controls.py` contains immutable, seeded IID linear fixtures and
+a toy slope estimator with normal-approximation uncertainty. Tests across a
+fixed seed ensemble check a null random score, recovery of a known planted
+effect, interval coverage/standard-error calibration, and rejection of deliberately
+future-available information. Generator version and seed identify the fixtures.
+Run `uv run pytest tests/test_scientific_controls.py`.
+
+This is only a Phase 1 control foundation: no market downloads, real anomalies,
+Sharpe ratios, experiment registry, or panel-evidence implementation. Passing IID
+control tests does not establish uncertainty calibration for dependent market data.
