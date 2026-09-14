@@ -558,5 +558,6 @@ filing timestamps, duplicate-free official filing rerun and missed-interval reco
 GitHub dispatch separately requires protected environment/default branch configuration
 and an authorized administrative token; it is not required for manual Azure acceptance.
 Current credit and actual billing-meter applicability remain operator cost checks.
-Use the deployment report for exact live results; no “Phase 0 complete,” recurring
+Use [the deployment report](../../docs/azure-deployment-report.md) for exact live results;
+no “Phase 0 complete,” recurring
 activation or Phase-1/live-execution claim follows from infrastructure validation.

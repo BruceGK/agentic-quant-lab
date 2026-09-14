@@ -187,8 +187,9 @@ ingestion scope independently; expanding it reopens historical reconciliation.
 ## Azure deployment and durability
 
 See [the Azure runbook](infra/azure/README.md) for reproducible deployment and
-real-world acceptance. It reuses discovered shared infrastructure without
-redeploying RiskPulse applications. PostgreSQL and the Blob namespace are
+real-world acceptance, and [the deployment report](docs/azure-deployment-report.md)
+for actual resources, costs, tests and remaining gates. It reuses discovered shared
+infrastructure without redeploying RiskPulse applications. PostgreSQL and the Blob namespace are
 isolated AQL state. The production container has no build/development tools,
 runs as a non-root user, and performs no dependency installation at startup.
 
