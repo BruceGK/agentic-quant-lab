@@ -6,11 +6,13 @@ Qlib, or agent orchestration. `ExecutionAdapter` is an empty protocol placeholde
 
 ## Layout
 
-- `src/agentic_quant_lab/`: configuration, SEC transport/parsers, JSONL ledger,
+- `src/agentic_quant_lab/`: configuration, SEC transport/parsers, local/Blob ledger,
   PostgreSQL projection, recorder, CLI, execution placeholder.
 - `migrations/`: ordered SQL migrations, applied once by a separate database owner.
 - `tests/`: deterministic tests, real PostgreSQL integration tests, opt-in live SEC test.
-- `.github/workflows/`: isolated CI and opt-in UTC recorder schedule.
+- `.github/workflows/`: isolated CI and manual-only Azure recorder automation.
+- `infra/azure/`: reproducible Azure deployment, isolated database roles and monitoring.
+- `Dockerfile`: pinned, non-root production image without development/build tools.
 
 ## Local setup and the one-filing slice
 
@@ -55,6 +57,12 @@ Never commit credentials.
 | `DATABASE_URL` | Runtime PostgreSQL DSN; use certificate-verified TLS for remote production databases |
 | `SEC_USER_AGENT` | Required application name and real contact email, per SEC fair-access policy |
 | `LEDGER_PATH` | Durable JSONL path; defaults to `state/sec.jsonl` for local development only |
+| `LEDGER_BACKEND` | `local` (default) or `azure`; Azure never uses the local path as a durability fallback |
+| `AZURE_STORAGE_ACCOUNT_URL` | HTTPS Blob account endpoint without credentials/query/path; required for Azure |
+| `AZURE_STORAGE_CONTAINER` / `AZURE_LEDGER_PREFIX` | Isolated ledger namespace; defaults `aql-audit-ledger` / `sec` |
+| `DATABASE_AUTH` | `password` (existing local behavior) or `azure` (short-lived Entra token) |
+| `AZURE_SUBSCRIPTION_ID` | Explicit subscription for local Azure CLI authentication |
+| `AZURE_CLIENT_ID` | Explicit user-assigned managed identity in Container Apps |
 | `UNIVERSE_CIKS` | Comma-separated CIKs, normalized and snapshotted; required for batch commands |
 | `INGEST_CIKS` | Optional separate raw-ingestion scope; defaults to the research universe for a bounded deployment |
 | `CATCHUP_START` | Explicit first SEC dissemination-index date to reconcile, `YYYY-MM-DD`; required by `record` |
@@ -108,14 +116,15 @@ as provenance. Old evidence is not rewritten to fill missing provenance.
 
 The ledger is authoritative; PostgreSQL is its query projection:
 
-1. Acquire a database advisory lock and an exclusive ledger file lock.
+1. Acquire a database advisory lock and, locally, an exclusive ledger file lock.
 2. Verify the full hash chain, content hashes, identities, prospective timestamps,
    and checkpoint prerequisites; compare every existing database row and payload.
 3. Replay missing durable events and missing materialized rows without modifying
    any existing evidence. Divergence fails closed before repair.
 4. Preflight payloads for JSONB representability without writing evidence.
    Append canonical JSON with sequence, event ID, UTC record time, `prev_hash`
-   and SHA-256; flush and `fsync` before the corresponding database transaction.
+   and SHA-256; flush and `fsync` (local) or atomically commit a create-only
+   block blob (Azure) before the corresponding database transaction.
 5. Insert with conflict handling. `UNIQUE(source, external_id)` prevents
    duplicate filing identities. SEC amendments have their own accession IDs.
 
@@ -175,43 +184,78 @@ Only listed CIKs are eligible under that snapshot. `INGEST_CIKS` can record a
 broader raw scope without granting research eligibility. Checkpoints bind the
 ingestion scope independently; expanding it reopens historical reconciliation.
 
-## Scheduled operation and durability
+## Azure deployment and durability
 
-The recorder workflow runs at minutes 7, 22, 37 and 52 of every hour **UTC**.
-GitHub schedules can be delayed or dropped; reconciliation is required, not
-optional. One constant concurrency group (`cancel-in-progress: false`) covers
-both scheduled and manual workflow runs; database/file locks also protect CLI
-writers. Interrupted runs are safe to retry.
+See [the Azure runbook](infra/azure/README.md) for reproducible deployment and
+real-world acceptance. It reuses discovered shared infrastructure without
+redeploying RiskPulse applications. PostgreSQL and the Blob namespace are
+isolated AQL state. The production container has no build/development tools,
+runs as a non-root user, and performs no dependency installation at startup.
 
-Production activation is intentionally **off by default**:
+Azure uses managed identity for Blob and PostgreSQL. A separate Entra
+migration administrator owns the schema; the recorder has only the evidence
+grants described above. `DATABASE_AUTH=azure` requires a password-free DSN
+to an Azure PostgreSQL endpoint with `sslmode=verify-full` and a trusted
+`sslrootcert`. Local Azure commands use the explicitly selected subscription;
+Container Apps uses the explicitly configured runtime identity.
 
-1. Provision a dedicated Linux runner labelled `sec-recorder` with PostgreSQL
-   access and a persistent, backed-up ledger directory **outside the checkout**.
-   Restrict its runner group to this trusted default-branch workflow; never run
-   pull-request/test jobs or other untrusted workloads on it.
-2. Create the GitHub environment `sec-recorder`, restricted to the default
-   branch. Add environment secrets `RECORDER_DATABASE_URL` (restricted runtime
-   login) and `RECORDER_HEARTBEAT_URL`. Do not add migration credentials.
-3. Set repository variables `SEC_USER_AGENT`, `UNIVERSE_CIKS`, optional
-   `INGEST_CIKS`, `CATCHUP_START`, and absolute `LEDGER_PATH`. For one manual
-   acceptance cycle, set `RECORDER_ACCEPTANCE_ENABLED=true` and confirm the
-   workflow-dispatch input on the default branch. This does not enable scheduling.
-   Leave `RECORDER_ENABLED` unset/false. Recurring runs are additionally blocked
-   by the packaged `constitution.toml`; enabling them requires a reviewed policy
-   change after genuine external acceptance, not just a repository variable.
-4. Configure the external hook to accept HTTPS POST JSON with `new_filings`,
-   ledger `sequence` and `hash`, and alert on missing success heartbeats.
-   Redirects are refused. Hook failure fails the job but does not undo evidence.
-   Local omission is explicit in JSON output (`heartbeat=disabled`). Success
-   requires a 2xx response. CLI failures print fixed, credential-free error codes
-   and exit nonzero; provider exception messages/tracebacks are intentionally not logged.
+The Blob backend stores one canonical JSONL record per block blob:
+`sec/records/00000000000000000001.jsonl`, and so on. Atomic create-if-absent
+commits prevent two writers from replacing the same sequence, including
+writers attached to different databases. Large SEC records are not constrained
+by the legacy append-blob 4 MiB limit. Upload failure, an ambiguous acknowledgement,
+gaps, unexpected filenames, or invalid bytes fail closed. A subsequent verified
+replay recovers a committed Blob record whose database transaction was missed.
+There is no local-file fallback and no mutable head/manifest to reconcile.
+All records are re-read and verified before reporting database reconciliation.
+As with the local backend, full-chain scans are intentionally Phase 0 scale.
 
-CI uses GitHub-hosted runners and disposable PostgreSQL, with **no production
-secrets or environment**. Dependency installation in the recorder workflow
-also occurs before production secrets are supplied to the recording step.
-That step invokes the already-installed executable directly, without dependency
-resolution or build hooks while credentials are present. `.env.example` is a
-blank template; supply contact and credentials privately, never to CI tests.
+Independent verification and export need neither a database nor SEC contact:
+
+```sh
+# Configure LEDGER_BACKEND=azure and the nonsecret Azure endpoint/identity settings.
+uv run quant-recorder verify-blob
+uv run quant-recorder export-ledger /absolute/backup/sec.jsonl \
+  --expected-sequence N --expected-head HASH
+uv run quant-recorder verify /absolute/backup/sec.jsonl \
+  --expected-sequence N --expected-head HASH
+# Point DATABASE_URL at a NEW, empty migrated restore database/schema.
+LEDGER_BACKEND=local LEDGER_PATH=/absolute/backup/sec.jsonl uv run quant-recorder replay
+LEDGER_BACKEND=local LEDGER_PATH=/absolute/backup/sec.jsonl uv run quant-recorder reconcile
+```
+
+Export refuses to overwrite an existing destination. Retain the expected head
+independently, not just beside the ledger being checked. Azure storage enables
+versioning and soft delete, not irreversible WORM retention.
+
+## Manual execution and success monitoring
+
+**Scheduling remains disabled.** The Azure Job has a `Manual` trigger, the
+GitHub recorder workflow has no cron trigger, and the packaged constitution
+still prohibits scheduled recording and live execution. A manually dispatched
+workflow uses scoped GitHub OIDC, not the operator's Azure CLI login or a
+long-lived client secret. CI stays on GitHub-hosted runners with disposable
+PostgreSQL and **no production secrets or Azure identity**.
+
+Supply the real `SEC_USER_AGENT` through the job's secret configuration, never
+the image, committed parameters, or test CI. Missing contact fails recording
+without fabricating evidence. `snapshot`, `verify-blob`, `reconcile`, and
+`replay` remain available without it but do not satisfy SEC acceptance.
+
+The recorder emits `event=aql.recorder.completed` only after `record` or
+`catch-up` has completed ingestion, durable ledger writes, database commits,
+and final reconciliation. Azure Monitor additionally requires
+`ledger_backend=azure` and `reconciliation=passed`. Merely starting a process,
+a successful maintenance command, or an Azure Job `Succeeded` status is not
+an ingestion heartbeat. Failed recording/reconciliation exits nonzero with
+fixed credential-free JSON error codes. Provider exception messages and
+tracebacks are deliberately not printed.
+
+An optional local `HEARTBEAT_URL` still accepts HTTPS POST JSON containing
+`new_filings`, `sequence`, and `hash`. Redirects are refused; only a 2xx
+acknowledgement succeeds, and hook failure fails the job without undoing
+evidence. Omission is explicit (`heartbeat=disabled`). Azure log alerts provide
+the deployment's independent failure/dead-man path without requiring this hook.
 
 Quarterly archive recovery is manual and uses SEC's `full-index` master index.
 It records exact index bytes and a distinct `archive_recovery` event only after
@@ -223,9 +267,11 @@ the same bounded-download policy instead of silently truncating.
 The JSONL chain is tamper-evident, not tamper-proof: an attacker who can rewrite
 the entire chain, or remove a suffix together with the database, can defeat
 unanchored verification. Keep independent immutable/off-host backups and retain
-head hashes at the heartbeat receiver. The application does not provision or
-verify those external backups. GitHub artifacts/cache are **not** the durable
-ledger. Phase 0 verifies and loads the full ledger on startup; large-scale
+head hashes at the heartbeat receiver or in independently retained Azure logs.
+Blob versions/soft delete are recoverability aids, not proof against an
+administrator rewriting all history. Demonstrate export and replay into a
+fresh database before claiming restoration acceptance. GitHub artifacts/cache
+are **not** the durable ledger. Phase 0 verifies and loads the full ledger on startup; large-scale
 segmentation/rotation is deliberately deferred.
 
 ## Validation
@@ -234,9 +280,27 @@ segmentation/rotation is deliberately deferred.
 uv run ruff check .
 uv run ruff format --check .
 uv run pyright
-TEST_DATABASE_URL=postgresql:///quant_test uv run pytest -m "not live_sec"
+TEST_DATABASE_URL=postgresql:///quant_test uv run pytest -m "not live_sec and not live_azure"
 uv build
 ```
+
+The production image is also built and smoke-tested in CI, without an Azure
+identity or production configuration. The opt-in Azure persistence test uses
+a generated, isolated `acceptance/<uuid>` Blob prefix and the usual disposable
+PostgreSQL schema. It tests real conditional commits, independent export and
+idempotent replay, but deliberately creates **no SEC filing evidence**:
+
+```sh
+RUN_LIVE_AZURE=1 \
+TEST_AZURE_STORAGE_ACCOUNT_URL=https://YOURACCOUNT.blob.core.windows.net \
+TEST_AZURE_STORAGE_CONTAINER=aql-audit-acceptance \
+TEST_DATABASE_URL=postgresql:///quant_test \
+uv run pytest tests/test_live_azure.py -v
+```
+
+It requires explicit `AZURE_SUBSCRIPTION_ID`, an authenticated local Azure CLI,
+and Blob read/write/delete permission on that isolated test container. Only its generated
+test blobs are removed; production `sec/` records are never touched.
 
 Use only an **isolated disposable test database** whose test administrator can
 create roles and schemas. Each PostgreSQL test gets a separate schema and

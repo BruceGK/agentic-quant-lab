@@ -35,7 +35,14 @@ jobs:
       - run: uv run --frozen ruff check .
       - run: uv run --frozen ruff format --check .
       - run: uv run --frozen pyright
-      - run: uv run --frozen pytest -m "not live_sec"
+      - run: uv run --frozen pytest -m "not live_sec and not live_azure"
         env:
           TEST_DATABASE_URL: postgresql://postgres@localhost:5432/quant_test
       - run: uv build --no-sources
+      - name: Build isolated production image
+        run: docker build --tag aql-recorder:ci .
+      - name: Smoke-test non-root runtime without production configuration
+        run: |
+          docker run --rm aql-recorder:ci --help
+          docker run --rm --entrypoint python aql-recorder:ci -c \
+            'import os, importlib.util; import psycopg, azure.identity, azure.storage.blob; assert os.getuid() == 10001; assert importlib.util.find_spec("pytest") is None; assert importlib.util.find_spec("uv") is None'
