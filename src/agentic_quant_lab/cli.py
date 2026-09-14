@@ -6,10 +6,11 @@ from datetime import date
 from pathlib import Path
 from urllib.request import Request, build_opener
 
-from agentic_quant_lab.config import Settings
+from agentic_quant_lab.blob_ledger import BlobLedger
+from agentic_quant_lab.config import BlobSettings, Settings
 from agentic_quant_lab.constitution import check_recording_policy
 from agentic_quant_lab.evidence import verify_evidence
-from agentic_quant_lab.ledger import GENESIS_HASH, Ledger, LedgerError, canonical
+from agentic_quant_lab.ledger import GENESIS_HASH, Ledger, LedgerError, canonical, export_records
 from agentic_quant_lab.recorder import Recorder
 from agentic_quant_lab.sec import Candidate, NoRedirect, SecClient
 
@@ -42,8 +43,12 @@ def run() -> None:
     commands.add_parser("snapshot")
     verify = commands.add_parser("verify")
     verify.add_argument("ledger", type=Path)
-    verify.add_argument("--expected-head")
-    verify.add_argument("--expected-sequence", type=int)
+    verify_blob = commands.add_parser("verify-blob")
+    export = commands.add_parser("export-ledger")
+    export.add_argument("destination", type=Path)
+    for command in (verify, verify_blob, export):
+        command.add_argument("--expected-head")
+        command.add_argument("--expected-sequence", type=int)
     correction = commands.add_parser("correct")
     correction.add_argument("event_id")
     correction.add_argument("--reason", required=True)
@@ -51,14 +56,23 @@ def run() -> None:
     args = parser.parse_args()
     if args.command in ("record", "catch-up", "ingest-one", "recover-quarter"):
         check_recording_policy(os.getenv("RECORDER_RUN_MODE", "local"))
-    if args.command == "verify":
-        records = Ledger.verify(args.ledger)
+    if args.command in ("verify", "verify-blob", "export-ledger"):
+        if args.command == "verify":
+            records = Ledger.verify(args.ledger)
+        else:
+            blob_settings = BlobSettings.from_env()
+            if blob_settings is None:
+                raise ValueError("This command requires LEDGER_BACKEND=azure")
+            with BlobLedger(blob_settings) as ledger:
+                records = ledger.records
         verify_evidence(records)
         head = records[-1]["hash"] if records else GENESIS_HASH
         if (args.expected_head is not None and args.expected_head != head) or (
             args.expected_sequence is not None and args.expected_sequence != len(records)
         ):
             raise LedgerError("Ledger does not match the independently retained head")
+        if args.command == "export-ledger":
+            export_records(records, args.destination)
         print(json.dumps({"verified_records": len(records), "hash": head}))
         return
     settings = Settings.from_env(
@@ -91,7 +105,7 @@ def run() -> None:
             "hash": head["hash"] if head else GENESIS_HASH,
             "heartbeat": "not_requested",
         }
-        if args.command in ("record", "catch-up", "recover-quarter"):
+        if args.command != "reconcile":
             recorder.reconcile()
         if args.command in ("record", "catch-up"):
             status["heartbeat"] = "disabled"
@@ -107,7 +121,14 @@ def run() -> None:
                     raise RuntimeError("Heartbeat was not acknowledged")
                 response.read(1024)
             status["heartbeat"] = "sent"
-        print(json.dumps(status))
+        status.update(
+            command=args.command,
+            ledger_backend="azure" if settings.azure_ledger else "local",
+            reconciliation="passed",
+        )
+        if args.command in ("record", "catch-up"):
+            status["event"] = "aql.recorder.completed"
+    print(json.dumps(status))
 
 
 if __name__ == "__main__":

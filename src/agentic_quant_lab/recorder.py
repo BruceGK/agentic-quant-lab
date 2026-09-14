@@ -9,8 +9,9 @@ from urllib.error import HTTPError
 
 import psycopg
 
+from agentic_quant_lab.blob_ledger import BlobLedger
 from agentic_quant_lab.config import Settings
-from agentic_quant_lab.database import WRITER_LOCK, Projection
+from agentic_quant_lab.database import WRITER_LOCK, Projection, connect_database
 from agentic_quant_lab.ledger import Ledger, digest, timestamp, utc_now
 from agentic_quant_lab.provenance import provenance
 from agentic_quant_lab.sec import (
@@ -42,14 +43,18 @@ class Recorder:
         self.clock = clock
         self.replay = replay
         self.provenance = provenance(settings)
-        self.ledger = Ledger(settings.ledger_path)
+        self.ledger = (
+            BlobLedger(settings.azure_ledger)
+            if settings.azure_ledger
+            else Ledger(settings.ledger_path)
+        )
         self.connection: psycopg.Connection[Any] | None = None
         self._projection: Projection | None = None
         self._discoveries: dict[str, dict[str, Any]] = {}
         self._filings: dict[str, dict[str, Any]] = {}
 
     def __enter__(self) -> Self:
-        self.connection = psycopg.connect(self.settings.database_url, autocommit=True)
+        self.connection = connect_database(self.settings)
         try:
             locked = self.connection.execute(
                 "SELECT pg_try_advisory_lock(%s)", (WRITER_LOCK,)
@@ -320,7 +325,7 @@ class Recorder:
 
         if self._projection is None:
             raise RuntimeError("Recorder is not open")
-        records = Ledger.verify(self.settings.ledger_path)
+        records = self.ledger.read_records()
         verify_evidence(records)
         self._projection.reconcile(records)
 

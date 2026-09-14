@@ -1,4 +1,5 @@
 import json
+import re
 from datetime import datetime
 from decimal import Decimal
 from typing import Any
@@ -6,9 +7,12 @@ from uuid import UUID
 
 import psycopg
 from psycopg import sql
+from psycopg.conninfo import conninfo_to_dict
 from psycopg.rows import dict_row
 from psycopg.types.json import Jsonb, set_json_loads
 
+from agentic_quant_lab.azure_auth import POSTGRES_SCOPE, azure_credential
+from agentic_quant_lab.config import Settings
 from agentic_quant_lab.ledger import LedgerError, timestamp
 
 WRITER_LOCK = 728415920001
@@ -29,6 +33,26 @@ TABLE_FIELDS = {
     "corrections": ("supersedes_event_id", "reason", "changes"),
 }
 KIND_TABLE = {"discovery": "discoveries", "filing": "filings", "correction": "corrections"}
+
+
+def connect_database(settings: Settings) -> psycopg.Connection[Any]:
+    if settings.database_auth == "password":
+        return psycopg.connect(settings.database_url, autocommit=True)
+    options = conninfo_to_dict(settings.database_url)
+    host = options.get("host")
+    if (
+        not isinstance(host, str)
+        or not re.fullmatch(r"[a-z0-9-]+\.postgres\.database\.azure\.com", host)
+        or options.get("sslmode") != "verify-full"
+        or not options.get("sslrootcert")
+        or options.get("password")
+    ):
+        raise ValueError("Azure database authentication requires a password-free, verified TLS DSN")
+    with azure_credential() as credential:
+        token = credential.get_token(POSTGRES_SCOPE).token
+        return psycopg.connect(
+            settings.database_url, password=token, autocommit=True, connect_timeout=15
+        )
 
 
 def projected_rows(records: list[dict[str, Any]]) -> dict[str, dict[str, dict[str, Any]]]:

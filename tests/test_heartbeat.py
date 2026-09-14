@@ -142,6 +142,66 @@ def test_missing_heartbeat_is_explicit(tmp_path: Path, capsys: pytest.CaptureFix
     assert json.loads(capsys.readouterr().out)["heartbeat"] == "disabled"
 
 
+def test_only_reconciled_ingestion_emits_azure_success_event(
+    tmp_path: Path, capsys: pytest.CaptureFixture[str]
+) -> None:
+    from agentic_quant_lab.config import BlobSettings
+
+    settings = Settings(
+        "",
+        tmp_path / "ledger",
+        "",
+        azure_ledger=BlobSettings("https://aqltest.blob.core.windows.net"),
+    )
+    recorder = MagicMock()
+    recorder.__enter__.return_value = recorder
+    recorder.record.return_value = 0
+    recorder.ledger.records = []
+    for command in ("record", "reconcile", "snapshot", "replay"):
+        with (
+            patch("sys.argv", ["quant-recorder", command]),
+            patch("agentic_quant_lab.cli.Settings.from_env", return_value=settings),
+            patch("agentic_quant_lab.cli.Recorder", return_value=recorder),
+        ):
+            main()
+        status = json.loads(capsys.readouterr().out)
+        assert status["ledger_backend"] == "azure"
+        assert status["reconciliation"] == "passed"
+        assert ("event" in status) == (command == "record")
+        if command == "record":
+            assert status["event"] == "aql.recorder.completed"
+    recorder.reconcile.side_effect = LedgerError("synthetic divergence")
+    with (
+        patch("sys.argv", ["quant-recorder", "record"]),
+        patch("agentic_quant_lab.cli.Settings.from_env", return_value=settings),
+        patch("agentic_quant_lab.cli.Recorder", return_value=recorder),
+        pytest.raises(SystemExit),
+    ):
+        main()
+    output = capsys.readouterr()
+    assert output.out == ""
+    assert json.loads(output.err)["error"] == "integrity_check_failed"
+
+
+def test_close_failure_does_not_emit_success(
+    tmp_path: Path, capsys: pytest.CaptureFixture[str]
+) -> None:
+    settings = Settings("", tmp_path / "ledger", "")
+    recorder = MagicMock()
+    recorder.__enter__.return_value = recorder
+    recorder.__exit__.side_effect = OSError("synthetic close failure")
+    recorder.record.return_value = 0
+    recorder.ledger.records = []
+    with (
+        patch("sys.argv", ["quant-recorder", "record"]),
+        patch("agentic_quant_lab.cli.Settings.from_env", return_value=settings),
+        patch("agentic_quant_lab.cli.Recorder", return_value=recorder),
+        pytest.raises(SystemExit),
+    ):
+        main()
+    assert capsys.readouterr().out == ""
+
+
 def test_cli_never_prints_libpq_password_fragments(
     monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str], tmp_path: Path
 ) -> None:

@@ -1,8 +1,40 @@
 import os
+import re
 from dataclasses import dataclass, field
 from datetime import date
 from pathlib import Path
 from urllib.parse import urlsplit
+
+
+@dataclass(frozen=True)
+class BlobSettings:
+    account_url: str
+    container: str = "aql-audit-ledger"
+    prefix: str = "sec"
+
+    def __post_init__(self) -> None:
+        if not re.fullmatch(r"https://[a-z0-9]{3,24}\.blob\.core\.windows\.net", self.account_url):
+            raise ValueError("Use an HTTPS Azure Blob account URL without credentials or a path")
+        if (
+            not re.fullmatch(r"[a-z0-9][a-z0-9-]{1,61}[a-z0-9]", self.container)
+            or "--" in self.container
+        ):
+            raise ValueError("Invalid Azure Blob container name")
+        if not re.fullmatch(r"[A-Za-z0-9_-]+(?:/[A-Za-z0-9_-]+)*", self.prefix):
+            raise ValueError("Use a nonempty relative ledger prefix without dot segments")
+
+    @classmethod
+    def from_env(cls) -> "BlobSettings | None":
+        backend = os.getenv("LEDGER_BACKEND", "local")
+        if backend == "local":
+            return None
+        if backend != "azure":
+            raise ValueError("LEDGER_BACKEND must be local or azure")
+        return cls(
+            account_url=os.environ["AZURE_STORAGE_ACCOUNT_URL"],
+            container=os.getenv("AZURE_STORAGE_CONTAINER", "aql-audit-ledger"),
+            prefix=os.getenv("AZURE_LEDGER_PREFIX", "sec"),
+        )
 
 
 @dataclass(frozen=True)
@@ -15,6 +47,12 @@ class Settings:
     heartbeat_url: str | None = field(default=None, repr=False)
     ingestion_ciks: tuple[str, ...] | None = None
     git_sha: str | None = None
+    azure_ledger: BlobSettings | None = None
+    database_auth: str = "password"
+
+    def __post_init__(self) -> None:
+        if self.database_auth not in ("password", "azure"):
+            raise ValueError("DATABASE_AUTH must be password or azure")
 
     @property
     def ingestion_scope(self) -> tuple[str, ...]:
@@ -66,6 +104,8 @@ class Settings:
             heartbeat_url=heartbeat,
             ingestion_ciks=ingestion_ciks,
             git_sha=git_sha,
+            azure_ledger=BlobSettings.from_env(),
+            database_auth=os.getenv("DATABASE_AUTH", "password"),
         )
 
 

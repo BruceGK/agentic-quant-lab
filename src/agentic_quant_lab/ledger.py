@@ -2,6 +2,7 @@ import fcntl
 import hashlib
 import json
 import os
+from collections.abc import Iterable
 from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any, BinaryIO, Self
@@ -32,6 +33,76 @@ def timestamp(value: datetime) -> str:
 
 class LedgerError(RuntimeError):
     pass
+
+
+def make_record(
+    records: list[dict[str, Any]], kind: str, payload: dict[str, Any]
+) -> dict[str, Any]:
+    record = {
+        "version": 1,
+        "sequence": len(records) + 1,
+        "event_id": str(uuid4()),
+        "kind": kind,
+        "recorded_at": timestamp(utc_now()),
+        "prev_hash": records[-1]["hash"] if records else GENESIS_HASH,
+        "payload": payload,
+    }
+    record["hash"] = digest(record)
+    return record
+
+
+def verify_lines(lines: Iterable[bytes]) -> list[dict[str, Any]]:
+    records: list[dict[str, Any]] = []
+    previous = GENESIS_HASH
+    ids: set[str] = set()
+    for sequence, line in enumerate(lines, 1):
+        try:
+            if not line.endswith(b"\n"):
+                raise ValueError("incomplete final line")
+            record = json.loads(line)
+            expected_keys = {
+                "version",
+                "sequence",
+                "event_id",
+                "kind",
+                "recorded_at",
+                "prev_hash",
+                "payload",
+                "hash",
+            }
+            if set(record) != expected_keys:
+                raise ValueError("invalid envelope")
+            claimed = record["hash"]
+            unsigned = {k: v for k, v in record.items() if k != "hash"}
+            if (
+                record["version"] != 1
+                or record["sequence"] != sequence
+                or record["prev_hash"] != previous
+                or claimed != digest(unsigned)
+                or record["event_id"] in ids
+                or canonical(record) + b"\n" != line
+            ):
+                raise ValueError("hash, sequence, identity, or encoding mismatch")
+            records.append(record)
+            ids.add(record["event_id"])
+            previous = claimed
+        except (ValueError, KeyError, TypeError) as exc:
+            raise LedgerError(f"Invalid ledger record at line {sequence}") from exc
+    return records
+
+
+def export_records(records: list[dict[str, Any]], destination: Path) -> None:
+    destination.parent.mkdir(parents=True, exist_ok=True)
+    with destination.open("xb") as stream:
+        for record in records:
+            stream.write(canonical(record) + b"\n")
+        stream.flush()
+        os.fsync(stream.fileno())
+    directory = os.open(destination.parent, os.O_RDONLY | os.O_DIRECTORY)
+    try:
+        os.fsync(directory)
+    finally:
+        os.close(directory)
 
 
 class Ledger:
@@ -67,58 +138,16 @@ class Ledger:
 
     @staticmethod
     def verify(path: Path) -> list[dict[str, Any]]:
-        records: list[dict[str, Any]] = []
-        previous = GENESIS_HASH
-        ids: set[str] = set()
         with path.open("rb") as stream:
-            for sequence, line in enumerate(stream, 1):
-                try:
-                    if not line.endswith(b"\n"):
-                        raise ValueError("incomplete final line")
-                    record = json.loads(line)
-                    expected_keys = {
-                        "version",
-                        "sequence",
-                        "event_id",
-                        "kind",
-                        "recorded_at",
-                        "prev_hash",
-                        "payload",
-                        "hash",
-                    }
-                    if set(record) != expected_keys:
-                        raise ValueError("invalid envelope")
-                    claimed = record["hash"]
-                    unsigned = {k: v for k, v in record.items() if k != "hash"}
-                    if (
-                        record["version"] != 1
-                        or record["sequence"] != sequence
-                        or record["prev_hash"] != previous
-                        or claimed != digest(unsigned)
-                        or record["event_id"] in ids
-                        or canonical(record) + b"\n" != line
-                    ):
-                        raise ValueError("hash, sequence, identity, or encoding mismatch")
-                    records.append(record)
-                    ids.add(record["event_id"])
-                    previous = claimed
-                except (ValueError, KeyError, TypeError) as exc:
-                    raise LedgerError(f"Invalid ledger record at line {sequence}") from exc
-        return records
+            return verify_lines(stream)
+
+    def read_records(self) -> list[dict[str, Any]]:
+        return self.verify(self.path)
 
     def append(self, kind: str, payload: dict[str, Any]) -> dict[str, Any]:
         if self._file is None or self._failed:
             raise LedgerError("Ledger is closed or a prior write failed; reopen and verify")
-        record = {
-            "version": 1,
-            "sequence": len(self.records) + 1,
-            "event_id": str(uuid4()),
-            "kind": kind,
-            "recorded_at": timestamp(utc_now()),
-            "prev_hash": self.records[-1]["hash"] if self.records else GENESIS_HASH,
-            "payload": payload,
-        }
-        record["hash"] = digest(record)
+        record = make_record(self.records, kind, payload)
         line = canonical(record) + b"\n"
         try:
             self._file.write(line)
