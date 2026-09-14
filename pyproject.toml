@@ -37,11 +37,13 @@ select = ["E", "F", "I", "UP", "B"]
 [tool.pyright]
 pythonVersion = "3.12"
 typeCheckingMode = "standard"
-include = ["src", "tests"]
+include = ["src", "tests", "infra/azure/scripts", "infra/azure/tests"]
+extraPaths = ["infra/azure/scripts"]
 
 [tool.pytest.ini_options]
-testpaths = ["tests"]
+testpaths = ["tests", "infra/azure/tests"]
 markers = [
     "postgres: requires TEST_DATABASE_URL pointing to an isolated PostgreSQL database",
     "live_sec: opt-in test using the real SEC service",
+    "live_azure: opt-in test using a dedicated Azure Blob namespace and isolated PostgreSQL",
 ]

@@ -1,0 +1,8 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "startDate": { "value": "REPLACE_WITH_FIRST_DAY_OF_CREATION_MONTH_UTC" },
+    "monthlyBudget": { "value": 65 }
+  }
+}

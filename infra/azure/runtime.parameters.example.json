@@ -1,0 +1,13 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "imageRef": { "value": "riskpulseacr12345.azurecr.io/aql-recorder@sha256:REPLACE_WITH_IMAGE_DIGEST" },
+    "recorderGitSha": { "value": "REPLACE_WITH_FULL_BUILT_COMMIT_SHA" },
+    "catchupStart": { "value": "REPLACE_WITH_EXPLICIT_YYYY-MM-DD" },
+    "universeCiks": { "value": "320193" },
+    "ingestCiks": { "value": "320193" },
+    "replicaTimeout": { "value": 1800 },
+    "githubRunnerEnabled": { "value": false }
+  }
+}

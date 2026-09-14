@@ -1,0 +1,12 @@
+AqlLogs
+| where TimeGenerated >= ago(__STALE_MINUTES__m)
+| where SourceTable contains "ConsoleLogs"
+| where tostring(Payload.event) == "aql.recorder.completed"
+    and tostring(Payload.status) == "success"
+    and tostring(Payload.ledger_backend) == "azure"
+    and tostring(Payload.reconciliation) == "passed"
+    and tostring(Payload.command) in ("record", "catch-up")
+// Ungrouped summarize emits one row even when the input is completely empty.
+| summarize SuccessfulIngestions = count(), LastSuccessfulIngestion = max(TimeGenerated)
+| project MissingSuccess = iff(SuccessfulIngestions == 0, 1, 0),
+    SuccessfulIngestions, LastSuccessfulIngestion

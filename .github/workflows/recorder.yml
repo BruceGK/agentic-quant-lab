@@ -1,66 +1,77 @@
-name: SEC recorder
+name: Azure SEC recorder acceptance
 
 on:
-  schedule:
-    - cron: "7,22,37,52 * * * *" # UTC, including weekends; delayed runs are reconciled.
   workflow_dispatch:
     inputs:
       confirm_acceptance:
-        description: "Run one provisioned, default-branch acceptance cycle (does not enable schedule)"
+        description: "Run one existing Azure job; does not enable scheduled recording"
         required: true
         type: boolean
         default: false
+      command:
+        description: "Only record can produce an ingestion completion event"
+        required: true
+        type: choice
+        default: record
+        options:
+          - record
+          - snapshot
+          - reconcile
+          - replay
+          - verify-blob
 
 permissions:
   contents: read
 
 concurrency:
-  group: sec-recorder-writer
+  group: aql-azure-recorder-writer
   cancel-in-progress: false
 
 jobs:
-  record:
+  acceptance:
     if: >-
+      github.event_name == 'workflow_dispatch' &&
       github.ref == format('refs/heads/{0}', github.event.repository.default_branch) &&
-      ((github.event_name == 'schedule' && vars.RECORDER_ENABLED == 'true') ||
-       (github.event_name == 'workflow_dispatch' &&
-        vars.RECORDER_ACCEPTANCE_ENABLED == 'true' && inputs.confirm_acceptance))
-    runs-on: [self-hosted, linux, sec-recorder]
-    environment: sec-recorder
-    timeout-minutes: 60
+      inputs.confirm_acceptance &&
+      vars.AQL_ACCEPTANCE_ENABLED == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 70
+    environment: azure-production
+    permissions:
+      contents: read
+      id-token: write
+    env:
+      AZURE_SUBSCRIPTION_ID: ccc5a11c-86d7-40f1-b02c-58660a2582a7
     steps:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
         with:
           persist-credentials: false
-      - uses: astral-sh/setup-uv@6b9c6063abd6010835644d4c2e1bef4cf5cd0fca # v6.0.1
-        with:
-          version: "0.12.13"
-          enable-cache: false
-      - run: uv sync --locked --no-dev --python 3.12
-      - name: Record and reconcile, then send success heartbeat
+      - name: Check nonsecret OIDC configuration
         env:
-          DATABASE_URL: ${{ secrets.RECORDER_DATABASE_URL }}
-          HEARTBEAT_URL: ${{ secrets.RECORDER_HEARTBEAT_URL }}
-          SEC_USER_AGENT: ${{ vars.SEC_USER_AGENT }}
-          UNIVERSE_CIKS: ${{ vars.UNIVERSE_CIKS }}
-          INGEST_CIKS: ${{ vars.INGEST_CIKS || vars.UNIVERSE_CIKS }}
-          CATCHUP_START: ${{ vars.CATCHUP_START }}
-          LEDGER_PATH: ${{ vars.LEDGER_PATH }}
-          RECORDER_GIT_SHA: ${{ github.sha }}
-          RECORDER_RUN_MODE: ${{ github.event_name == 'schedule' && 'scheduled' || 'acceptance' }}
+          AQL_CLIENT_ID: ${{ vars.AQL_AZURE_CLIENT_ID }}
+          AQL_TENANT_ID: ${{ vars.AQL_AZURE_TENANT_ID }}
         run: |
-          set -euo pipefail
-          umask 077
-          case "$LEDGER_PATH" in
-            /*) ;;
-            *) echo "LEDGER_PATH must be an absolute durable path"; exit 1 ;;
-          esac
-          LEDGER_PATH="$(realpath -m "$LEDGER_PATH")"
-          export LEDGER_PATH
-          case "$LEDGER_PATH" in
-            "$GITHUB_WORKSPACE"|"$GITHUB_WORKSPACE"/*)
-              echo "Ledger must be outside the ephemeral checkout"; exit 1 ;;
-          esac
-          test -d "$(dirname "$LEDGER_PATH")"
-          test -n "$HEARTBEAT_URL"
-          .venv/bin/quant-recorder record
+          python3 - <<'PY'
+          import os
+          import uuid
+          for key in ("AQL_CLIENT_ID", "AQL_TENANT_ID"):
+              uuid.UUID(os.environ[key])
+          PY
+      - uses: azure/login@a457da9ea143d694b1b9c7c869ebb04ebe844ef5 # v2.3.0
+        with:
+          client-id: ${{ vars.AQL_AZURE_CLIENT_ID }}
+          tenant-id: ${{ vars.AQL_AZURE_TENANT_ID }}
+          subscription-id: ccc5a11c-86d7-40f1-b02c-58660a2582a7
+          enable-AzPSSession: false
+      - name: Start and await the existing manual Azure job
+        env:
+          AQL_COMMAND: ${{ inputs.command }}
+        run: python3 infra/azure/scripts/job.py --command "$AQL_COMMAND" --apply --wait
+      - name: Describe the verification boundary
+        if: always()
+        run: |
+          printf '%s\n' \
+            '### Azure Phase-0 acceptance' \
+            'Manual job only; no build, deployment, database password, or Blob data permission in GitHub.' \
+            'Job Succeeded is not ingestion proof. Verify aql.recorder.completed, remote chain, database reconciliation, and actual alert delivery separately.' \
+            'Scheduled recording and live execution remain disabled.' >> "$GITHUB_STEP_SUMMARY"

@@ -1,0 +1,19 @@
+// The typed empty leg keeps the no-table/no-row case evaluable before the first job run.
+let AqlLogs =
+    union isfuzzy=true withsource=SourceTable
+        (datatable(TimeGenerated:datetime, Log_s:string) []),
+        ContainerAppConsoleLogs_CL, ContainerAppSystemLogs_CL,
+        ContainerAppConsoleLogs, ContainerAppSystemLogs
+    | where tostring(column_ifexists("JobName_s", "")) == "__JOB_NAME__"
+        or tostring(column_ifexists("JobName", "")) == "__JOB_NAME__"
+        or tostring(column_ifexists("ContainerAppJobName_s", "")) == "__JOB_NAME__"
+        or tostring(column_ifexists("ContainerAppName_s", "")) == "__JOB_NAME__"
+        or tostring(column_ifexists("ContainerAppName", "")) == "__JOB_NAME__"
+        or tostring(column_ifexists("ContainerGroupName_s", "")) startswith "__JOB_NAME__-"
+        or tostring(column_ifexists("ContainerGroupName", "")) startswith "__JOB_NAME__-"
+    | extend Payload = parse_json(coalesce(
+        tostring(column_ifexists("Log_s", "")), tostring(column_ifexists("Log", "")))),
+        PlatformReason = coalesce(
+            tostring(column_ifexists("Reason_s", "")), tostring(column_ifexists("Reason", ""))),
+        PlatformType = coalesce(
+            tostring(column_ifexists("Type_s", "")), tostring(column_ifexists("Type", "")));

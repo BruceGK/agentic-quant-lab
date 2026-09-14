@@ -1,0 +1,10 @@
+AqlLogs
+| where SourceTable contains "ConsoleLogs"
+| where tostring(Payload.event) == "aql.recorder.completed"
+    and tostring(Payload.status) == "success"
+    and tostring(Payload.ledger_backend) == "azure"
+    and tostring(Payload.reconciliation) == "passed"
+    and tostring(Payload.command) in ("record", "catch-up")
+| project TimeGenerated, Command = tostring(Payload.command),
+    Sequence = tolong(Payload.sequence), Head = tostring(Payload.hash)
+| order by TimeGenerated desc

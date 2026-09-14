@@ -1,0 +1,13 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "administratorObjectId": { "value": "REPLACE_WITH_CURRENT_OPERATOR_OBJECT_ID" },
+    "administratorPrincipalName": { "value": "aql_migration_admin" },
+    "postgresLocation": { "value": "centralus" },
+    "operatorIpv4Addresses": { "value": ["REPLACE_WITH_APPROVED_OPERATOR_PUBLIC_IPV4"] },
+    "environmentOutboundIpv4Addresses": { "value": [] },
+    "createTestDatabase": { "value": false },
+    "staleAfterMinutes": { "value": 1440 }
+  }
+}

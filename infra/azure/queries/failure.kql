@@ -1,0 +1,10 @@
+AqlLogs
+| where TimeGenerated >= ago(15m)
+| where tostring(Payload.status) == "failed"
+    or PlatformReason in~ ("BackoffLimitExceeded", "DeadlineExceeded", "ContainerCreateFailure",
+        "ErrImagePull", "ImagePullBackOff", "ContainerCrashing", "JobFailed", "ExecutionFailed", "Failed")
+    or (SourceTable contains "SystemLogs" and PlatformType =~ "Error")
+| extend Signal = case(
+    tostring(Payload.event) == "aql.monitor.acceptance.failure", "manual-alert-acceptance",
+    tostring(Payload.status) == "failed", "recorder-failure", "platform-failure")
+| summarize Failures = count(), Signals = make_set(Signal)
