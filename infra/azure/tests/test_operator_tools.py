@@ -1,18 +1,27 @@
 import hashlib
 import json
 import os
+from datetime import UTC, date, datetime
+from email.message import Message
 from pathlib import Path
 from types import SimpleNamespace
 from unittest.mock import MagicMock, Mock
+from urllib.error import HTTPError
 
 import bootstrap
 import common
 import deploy
+import inspect_evidence
 import job
+import live_sec_acceptance
 import monitor
 import psycopg
 import pytest
 import runtime_diagnostics
+import sec_diagnostics
+
+from agentic_quant_lab.config import BlobSettings, Settings
+from agentic_quant_lab.ledger import LedgerError, digest, make_record
 
 REAL_AZ = common._az
 
@@ -322,6 +331,241 @@ def test_contact_reference_is_preserved_even_when_get_hides_secret_names(secrets
     existing = approved_job()
     existing["properties"]["configuration"]["secrets"] = secrets
     assert deploy.contact_is_configured(existing)
+
+
+def test_existing_secret_can_be_mapped_without_reading_any_contact_value(monkeypatch):
+    existing = approved_job()
+    existing["properties"]["configuration"]["secrets"] = [{"name": "sec-user-agent"}]
+    existing["properties"]["template"]["containers"][0]["env"] = []
+    environment = Mock()
+    environment.get.side_effect = AssertionError("Reference mode must not read a contact value")
+    with monkeypatch.context() as isolated:
+        isolated.setattr(deploy.os, "environ", environment)
+        assert deploy.runtime_contact({"useExistingSecUserAgentSecret": True}, existing) == ""
+
+
+@pytest.mark.parametrize(
+    "existing", [None, {"properties": {"configuration": {}, "template": {"containers": []}}}]
+)
+def test_reference_mode_fails_without_an_existing_job_secret(existing):
+    with pytest.raises(common.SafeError, match="must be provisioned"):
+        deploy.runtime_contact({"useExistingSecUserAgentSecret": True}, existing)
+
+
+def test_configured_secret_cannot_be_implicitly_unmapped(monkeypatch):
+    monkeypatch.delenv("SEC_USER_AGENT", raising=False)
+    with pytest.raises(common.SafeError, match="useExistingSecUserAgentSecret=true"):
+        deploy.runtime_contact({}, approved_job())
+
+
+def test_reference_only_bicep_omits_secret_declarations():
+    template = (common.AZURE_DIR / "runtime.bicep").read_text()
+    assert "param useExistingSecUserAgentSecret bool = false" in template
+    assert "union(runtimeConfiguration, empty(secUserAgent) ? {} : {" in template
+    assert "empty(secUserAgent) && !useExistingSecUserAgentSecret ? []" in template
+    assert "secretRef: 'sec-user-agent'" in template
+    assert "if (!useExistingSecUserAgentSecret)" in template
+    assert "output existingSecretRuntimePatch object" in template
+
+
+def test_reference_runtime_patch_never_reads_or_writes_secret_values(monkeypatch):
+    existing = approved_job()
+    existing["properties"]["provisioningState"] = "Succeeded"
+    properties = {name: existing["properties"][name] for name in ("configuration", "template")}
+    monkeypatch.setattr(job, "read_job", lambda: existing)
+    monkeypatch.setattr(job, "executions", lambda: [])
+    calls = []
+
+    def request(*arguments):
+        calls.append(arguments)
+        return existing
+
+    monkeypatch.setattr(deploy, "arm", request)
+    deploy.patch_existing_secret_runtime(
+        {"existingSecretRuntimePatch": {"value": {"properties": properties}}}
+    )
+    assert calls[0][0:3] == ("patch", common.JOB_ID, common.JOB_API)
+    assert "secrets" not in calls[0][3]["properties"]["configuration"]
+    assert calls[1] == ("get", common.JOB_ID, common.JOB_API)
+
+
+def test_reference_runtime_patch_rejects_secret_collection(monkeypatch):
+    existing = approved_job()
+    existing["properties"]["configuration"]["secrets"] = [{"name": "sec-user-agent"}]
+    monkeypatch.setattr(job, "read_job", lambda: existing)
+    monkeypatch.setattr(job, "executions", lambda: [])
+    request = Mock()
+    monkeypatch.setattr(deploy, "arm", request)
+    with pytest.raises(common.SafeError, match="omit secrets"):
+        deploy.patch_existing_secret_runtime(
+            {
+                "existingSecretRuntimePatch": {
+                    "value": {
+                        "properties": {
+                            name: existing["properties"][name]
+                            for name in ("configuration", "template")
+                        }
+                    }
+                }
+            }
+        )
+    request.assert_not_called()
+
+
+def test_reference_runtime_patch_waits_for_the_requested_image(monkeypatch):
+    existing = approved_job()
+    existing["properties"]["provisioningState"] = "Succeeded"
+    desired = approved_job()
+    desired["properties"]["provisioningState"] = "Succeeded"
+    desired["properties"]["template"]["containers"][0]["image"] = (
+        "riskpulseacr12345.azurecr.io/aql-recorder@sha256:" + "b" * 64
+    )
+    monkeypatch.setattr(job, "read_job", lambda: existing)
+    monkeypatch.setattr(job, "executions", lambda: [])
+    request = Mock(side_effect=[None, existing, desired])
+    monkeypatch.setattr(deploy, "arm", request)
+    sleep = Mock()
+    monkeypatch.setattr(deploy.time, "sleep", sleep)
+    deploy.patch_existing_secret_runtime(
+        {
+            "existingSecretRuntimePatch": {
+                "value": {
+                    "properties": {
+                        name: desired["properties"][name] for name in ("configuration", "template")
+                    }
+                }
+            }
+        }
+    )
+    assert request.call_count == 3
+    sleep.assert_called_once_with(5)
+
+
+def test_sec_diagnostics_log_status_not_contact_headers_or_error_body(monkeypatch, capsys):
+    sentinel = "private-contact-sentinel"
+    monkeypatch.setattr(
+        sec_diagnostics.Settings,
+        "from_env",
+        lambda: SimpleNamespace(
+            sec_user_agent=sentinel, catchup_start=date(2026, 9, 10), ingestion_scope=("320193",)
+        ),
+    )
+    client = Mock()
+    client.get.side_effect = HTTPError("https://www.sec.gov/", 403, sentinel, Message(), None)
+    monkeypatch.setattr(sec_diagnostics, "SecClient", lambda user_agent: client)
+    with pytest.raises(SystemExit) as exited:
+        sec_diagnostics.main()
+    assert exited.value.code == 1
+    output = capsys.readouterr()
+    assert sentinel not in output.out + output.err
+    records = [json.loads(line) for line in output.out.splitlines()]
+    assert len(records) == 9
+    assert all(record["httpStatus"] == 403 for record in records)
+    assert all(record["status"] == "failed" for record in records)
+
+
+def test_evidence_inspection_is_read_only_and_excludes_raw_payload(monkeypatch, capsys):
+    recorder = MagicMock()
+    recorder.__enter__.return_value = recorder
+    recorder.ledger.records = [
+        {
+            "kind": "filing",
+            "sequence": 2,
+            "hash": "a" * 64,
+            "prev_hash": "b" * 64,
+            "payload": dict.fromkeys(inspect_evidence.FIELDS, "safe")
+            | {"content_base64": "raw-content-sentinel"},
+        }
+    ]
+    factory = Mock(return_value=recorder)
+    monkeypatch.setattr(inspect_evidence, "Recorder", factory)
+    monkeypatch.setattr(inspect_evidence.Settings, "from_env", lambda **kwargs: Mock())
+    inspect_evidence.main()
+    assert factory.call_args.kwargs == {"replay": False}
+    output = capsys.readouterr().out
+    assert "raw-content-sentinel" not in output
+    assert "aql.recorder.completed" not in output
+
+
+def test_missed_interval_uses_isolated_projection_and_no_latest_feed(monkeypatch, tmp_path, capsys):
+    settings = Settings(
+        "dbname=aql",
+        tmp_path / "unused",
+        "private-contact-sentinel",
+        catchup_start=date(2026, 9, 10),
+        azure_ledger=BlobSettings("https://aqltest.blob.core.windows.net"),
+    )
+    payload = {"source": "sec", "ciks": ["320193"]}
+    baseline = make_record([], "universe", {**payload, "universe_hash": digest(payload)})
+    records = [
+        baseline,
+        {
+            "kind": "filing",
+            "hash": "a" * 64,
+            "payload": {
+                "external_id": "0000000001-26-000001",
+                "first_seen_at": "2026-09-14T00:00:01+00:00",
+                "fetched_at": "2026-09-14T00:00:02+00:00",
+                "decision_eligible_at": "2026-09-14T00:00:02+00:00",
+            },
+        },
+    ]
+    production, empty, recorder = MagicMock(), MagicMock(), MagicMock()
+    production.__enter__.return_value.records = [baseline]
+    empty.__enter__.return_value.records = []
+    recorder.__enter__.return_value = recorder
+    recorder.ledger.records = records
+    recorder.catch_up.side_effect = [1, 0]
+    connection, projection, container, credential = (MagicMock() for _ in range(4))
+    monkeypatch.setattr(live_sec_acceptance.Settings, "from_env", lambda: settings)
+    monkeypatch.setattr(live_sec_acceptance, "BlobLedger", Mock(side_effect=[production, empty]))
+    monkeypatch.setattr(live_sec_acceptance, "connect_database", Mock(return_value=connection))
+    monkeypatch.setattr(live_sec_acceptance, "Projection", Mock(return_value=projection))
+    monkeypatch.setattr(live_sec_acceptance, "ContainerClient", Mock(return_value=container))
+    monkeypatch.setattr(live_sec_acceptance, "azure_credential", Mock(return_value=credential))
+    factory = Mock(return_value=recorder)
+    monkeypatch.setattr(live_sec_acceptance, "Recorder", factory)
+    monkeypatch.setattr(live_sec_acceptance, "utc_now", lambda: datetime(2026, 9, 14, tzinfo=UTC))
+    live_sec_acceptance.main()
+    target = factory.call_args.args[0]
+    assert target.database_url == "dbname=aql_test"
+    assert target.azure_ledger.prefix == "acceptance/missed-sec-2026-09-10"
+    projection.reconcile.assert_called_once_with([baseline])
+    container.__enter__.return_value.upload_blob.assert_called_once()
+    assert container.__enter__.return_value.upload_blob.call_args.kwargs["overwrite"] is False
+    recorder.record.assert_not_called()
+    output = capsys.readouterr().out
+    assert "private-contact-sentinel" not in output
+    result = json.loads(output)
+    assert result["recovered_filings"] == 1
+    assert result["rerun_new_filings"] == 0
+    assert result["latest_feed_used"] is False
+
+
+def test_missed_interval_refuses_nonbaseline_database_before_writing(monkeypatch, tmp_path, capsys):
+    settings = Settings(
+        "dbname=aql",
+        tmp_path / "unused",
+        "",
+        catchup_start=date(2026, 9, 10),
+        azure_ledger=BlobSettings("https://aqltest.blob.core.windows.net"),
+    )
+    payload = {"source": "sec", "ciks": ["320193"]}
+    baseline = make_record([], "universe", {**payload, "universe_hash": digest(payload)})
+    production = MagicMock()
+    production.__enter__.return_value.records = [baseline]
+    projection = MagicMock()
+    projection.reconcile.side_effect = LedgerError("private-driver-sentinel")
+    monkeypatch.setattr(live_sec_acceptance.Settings, "from_env", lambda: settings)
+    monkeypatch.setattr(live_sec_acceptance, "BlobLedger", Mock(return_value=production))
+    monkeypatch.setattr(live_sec_acceptance, "connect_database", Mock(return_value=MagicMock()))
+    monkeypatch.setattr(live_sec_acceptance, "Projection", Mock(return_value=projection))
+    upload = Mock()
+    monkeypatch.setattr(live_sec_acceptance, "ContainerClient", upload)
+    with pytest.raises(SystemExit):
+        live_sec_acceptance.main()
+    upload.assert_not_called()
+    assert "private-driver-sentinel" not in capsys.readouterr().err
 
 
 def test_deadman_query_includes_never_successful_and_qualified_completion():

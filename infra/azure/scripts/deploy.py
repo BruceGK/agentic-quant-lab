@@ -5,6 +5,7 @@ import ipaddress
 import json
 import os
 import re
+import time
 from datetime import date
 from pathlib import Path
 from typing import Any
@@ -49,6 +50,7 @@ RUNTIME_KEYS = {
     "ingestCiks",
     "replicaTimeout",
     "githubRunnerEnabled",
+    "useExistingSecUserAgentSecret",
 }
 
 
@@ -142,6 +144,10 @@ def validate_runtime(values: dict[str, Any]) -> None:
         type(values.get("githubRunnerEnabled", False)) is bool,
         "githubRunnerEnabled must be a boolean.",
     )
+    require(
+        type(values.get("useExistingSecUserAgentSecret", False)) is bool,
+        "useExistingSecUserAgentSecret must be a boolean.",
+    )
 
 
 def check_group() -> bool:
@@ -183,6 +189,67 @@ def contact_is_configured(job: dict[str, Any]) -> bool:
     return any(secret["name"] == "sec-user-agent" for secret in secrets) or any(
         variable["name"] == "SEC_USER_AGENT" for variable in variables
     )
+
+
+def runtime_contact(values: dict[str, Any], current: dict[str, Any] | None) -> str:
+    if values.get("useExistingSecUserAgentSecret", False):
+        require(
+            current is not None and contact_is_configured(current),
+            "The existing SEC job secret must be provisioned before referencing it.",
+        )
+        # Do not inspect even a locally exported identity in reference-only mode.
+        return ""
+    contact = os.environ.get("SEC_USER_AGENT", "")
+    require(
+        not any(character in contact for character in "\r\n\x00"),
+        "SEC_USER_AGENT must be a single-line genuine operator contact.",
+    )
+    require(
+        current is None or not contact_is_configured(current) or bool(contact),
+        "Use useExistingSecUserAgentSecret=true to preserve the configured job secret.",
+    )
+    return contact
+
+
+def patch_existing_secret_runtime(outputs: dict[str, Any]) -> None:
+    from job import TERMINAL, executions, read_job
+
+    read_job()
+    require(
+        all(item.get("properties", {}).get("status") in TERMINAL for item in executions()),
+        "An AQL execution is active; wait before updating its runtime.",
+    )
+    body = outputs["existingSecretRuntimePatch"]["value"]
+    properties = body["properties"]
+    require(
+        set(body) == {"properties"}
+        and set(properties) == {"configuration", "template"}
+        and "secrets" not in properties["configuration"]
+        and properties["configuration"]["triggerType"] == "Manual",
+        "Reference-only PATCH must omit secrets and preserve manual execution.",
+    )
+    containers = properties["template"]["containers"]
+    require(
+        len(containers) == 1
+        and [item for item in containers[0]["env"] if item["name"] == "SEC_USER_AGENT"]
+        == [{"name": "SEC_USER_AGENT", "secretRef": "sec-user-agent"}],
+        "Reference-only PATCH must map SEC_USER_AGENT to its existing secret.",
+    )
+    arm("patch", JOB_ID, JOB_API, body)
+    for _ in range(60):
+        current = arm("get", JOB_ID, JOB_API)
+        state = current["properties"]["provisioningState"]
+        if state == "Succeeded":
+            actual = current["properties"]["template"]["containers"]
+            matches = len(actual) == 1 and all(
+                actual[0].get(key) == value for key, value in containers[0].items()
+            )
+            if matches:
+                read_job()
+                return
+        require(state not in ("Failed", "Canceled"), "Azure runtime PATCH failed.")
+        time.sleep(5)
+    raise SafeError("Azure runtime PATCH did not finish within five minutes.")
 
 
 def revoke_disabled_github_runner(outputs: dict[str, Any]) -> None:
@@ -278,11 +345,6 @@ def main() -> None:
         if args.phase == "runtime":
             values["storageAccountName"] = outputs["storageAccountName"]
     if args.phase == "runtime":
-        contact = os.environ.get("SEC_USER_AGENT", "")
-        require(
-            not any(character in contact for character in "\r\n\x00"),
-            "SEC_USER_AGENT must be a single-line genuine operator contact.",
-        )
         jobs = azure(
             "resource",
             "list",
@@ -293,13 +355,10 @@ def main() -> None:
             "--query",
             "[?name=='aql-recorder'].id",
         )
-        if jobs:
-            current = arm("get", JOB_ID, JOB_API)
-            require(
-                not contact_is_configured(current) or bool(contact),
-                "Existing contact would be cleared. Supply SEC_USER_AGENT on every redeployment.",
-            )
-        values["secUserAgent"] = contact
+        current = arm("get", JOB_ID, JOB_API) if jobs else None
+        contact = runtime_contact(values, current)
+        if contact:
+            values["secUserAgent"] = contact
     template = AZURE_DIR / f"{args.phase}.bicep"
     parameter_file = LOCAL / f"deployment-{args.phase}-{os.getpid()}.parameters.json"
     require(not parameter_file.exists(), "An intermediate parameter file already exists.")
@@ -334,6 +393,8 @@ def main() -> None:
                 result["subscriptionId"]["value"] == SUBSCRIPTION, "Unexpected deployment scope."
             )
             require(result["resourceGroupName"]["value"] == GROUP, "Unexpected deployment group.")
+            if args.phase == "runtime" and values.get("useExistingSecUserAgentSecret", False):
+                patch_existing_secret_runtime(result)
             output_path = args.outputs or LOCAL / f"{args.phase}.outputs.json"
             write_json(output_path, result)
             if args.phase == "foundation":
@@ -349,7 +410,12 @@ def main() -> None:
                     "outputs": str(local_path(output_path).relative_to(AZURE_DIR.parent.parent)),
                     "recording": "manual-acceptance-only",
                     **(
-                        {"secUserAgentConfigured": bool(contact)} if args.phase == "runtime" else {}
+                        {
+                            "secUserAgentConfigured": bool(contact)
+                            or values.get("useExistingSecUserAgentSecret", False)
+                        }
+                        if args.phase == "runtime"
+                        else {}
                     ),
                 }
             )
@@ -366,6 +432,10 @@ def main() -> None:
                     "providersToRegisterOnApply": providers,
                     "githubRunnerRevocationOnApply": (
                         args.phase == "runtime" and not values.get("githubRunnerEnabled", False)
+                    ),
+                    "existingSecretRuntimePatchOnApply": (
+                        args.phase == "runtime"
+                        and values.get("useExistingSecUserAgentSecret", False)
                     ),
                     "applied": False,
                 }

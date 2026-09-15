@@ -30,6 +30,9 @@ param githubRunnerEnabled bool = false
 @description('Optional genuine SEC contact. Empty means recording MUST fail until configured. Never a build argument.')
 param secUserAgent string = ''
 
+@description('Reference the existing job secret without reading, replacing, or redeclaring its value.')
+param useExistingSecUserAgentSecret bool = false
+
 @allowed([
   1800
   3600
@@ -69,7 +72,100 @@ var tags = {
   managedBy: 'aql-bicep'
 }
 
-resource job 'Microsoft.App/jobs@2025-01-01' = {
+var runtimeConfiguration = {
+  triggerType: 'Manual'
+  replicaRetryLimit: 0
+  replicaTimeout: replicaTimeout
+  manualTriggerConfig: {
+    parallelism: 1
+    replicaCompletionCount: 1
+  }
+  registries: [
+    {
+      server: registry.properties.loginServer
+      identity: runtime.id
+    }
+  ]
+}
+
+var runtimeTemplate = {
+  containers: [
+    {
+      name: 'recorder'
+      image: imageRef
+      args: [
+        'record'
+      ]
+      resources: {
+        cpu: json('0.5')
+        memory: '1Gi'
+      }
+      env: concat([
+        {
+          name: 'LEDGER_BACKEND'
+          value: 'azure'
+        }
+        {
+          name: 'AZURE_STORAGE_ACCOUNT_URL'
+          value: 'https://${storage.name}.blob.${environment().suffixes.storage}'
+        }
+        {
+          name: 'AZURE_STORAGE_CONTAINER'
+          value: 'aql-audit-ledger'
+        }
+        {
+          name: 'AZURE_LEDGER_PREFIX'
+          value: 'sec'
+        }
+        {
+          name: 'DATABASE_AUTH'
+          value: 'azure'
+        }
+        {
+          name: 'DATABASE_URL'
+          value: databaseUrl
+        }
+        {
+          name: 'AZURE_CLIENT_ID'
+          value: runtime.properties.clientId
+        }
+        {
+          name: 'AZURE_SUBSCRIPTION_ID'
+          value: subscription().subscriptionId
+        }
+        {
+          name: 'UNIVERSE_CIKS'
+          value: universeCiks
+        }
+        {
+          name: 'INGEST_CIKS'
+          value: ingestCiks
+        }
+        {
+          name: 'CATCHUP_START'
+          value: catchupStart
+        }
+        {
+          name: 'RECORDER_GIT_SHA'
+          value: recorderGitSha
+        }
+        {
+          name: 'RECORDER_RUN_MODE'
+          value: 'acceptance'
+        }
+      ], empty(secUserAgent) && !useExistingSecUserAgentSecret ? [] : [
+        {
+          name: 'SEC_USER_AGENT'
+          secretRef: 'sec-user-agent'
+        }
+      ])
+    }
+  ]
+}
+
+// A full ARM PUT can clear external secrets. The operator applies these same
+// nonsecret configuration/template outputs via PATCH when reusing the secret.
+resource job 'Microsoft.App/jobs@2025-01-01' = if (!useExistingSecUserAgentSecret) {
   name: 'aql-recorder'
   location: location
   tags: tags
@@ -82,101 +178,15 @@ resource job 'Microsoft.App/jobs@2025-01-01' = {
   properties: {
     environmentId: managedEnvironment.id
     workloadProfileName: 'Consumption'
-    configuration: {
-      triggerType: 'Manual'
-      replicaRetryLimit: 0
-      replicaTimeout: replicaTimeout
-      manualTriggerConfig: {
-        parallelism: 1
-        replicaCompletionCount: 1
-      }
-      registries: [
-        {
-          server: registry.properties.loginServer
-          identity: runtime.id
-        }
-      ]
-      secrets: empty(secUserAgent) ? [] : [
+    configuration: union(runtimeConfiguration, empty(secUserAgent) ? {} : {
+      secrets: [
         {
           name: 'sec-user-agent'
           value: secUserAgent
         }
       ]
-    }
-    template: {
-      containers: [
-        {
-          name: 'recorder'
-          image: imageRef
-          args: [
-            'record'
-          ]
-          resources: {
-            cpu: json('0.5')
-            memory: '1Gi'
-          }
-          env: concat([
-            {
-              name: 'LEDGER_BACKEND'
-              value: 'azure'
-            }
-            {
-              name: 'AZURE_STORAGE_ACCOUNT_URL'
-              value: 'https://${storage.name}.blob.${environment().suffixes.storage}'
-            }
-            {
-              name: 'AZURE_STORAGE_CONTAINER'
-              value: 'aql-audit-ledger'
-            }
-            {
-              name: 'AZURE_LEDGER_PREFIX'
-              value: 'sec'
-            }
-            {
-              name: 'DATABASE_AUTH'
-              value: 'azure'
-            }
-            {
-              name: 'DATABASE_URL'
-              value: databaseUrl
-            }
-            {
-              name: 'AZURE_CLIENT_ID'
-              value: runtime.properties.clientId
-            }
-            {
-              name: 'AZURE_SUBSCRIPTION_ID'
-              value: subscription().subscriptionId
-            }
-            {
-              name: 'UNIVERSE_CIKS'
-              value: universeCiks
-            }
-            {
-              name: 'INGEST_CIKS'
-              value: ingestCiks
-            }
-            {
-              name: 'CATCHUP_START'
-              value: catchupStart
-            }
-            {
-              name: 'RECORDER_GIT_SHA'
-              value: recorderGitSha
-            }
-            {
-              name: 'RECORDER_RUN_MODE'
-              value: 'acceptance'
-            }
-          ], empty(secUserAgent) ? [] : [
-            {
-              name: 'SEC_USER_AGENT'
-              secretRef: 'sec-user-agent'
-            }
-          ])
-        }
-      ]
-    }
+    })
+    template: runtimeTemplate
   }
 }
 
@@ -229,3 +239,9 @@ output githubClientId string = github.properties.clientId
 output githubPrincipalId string = github.properties.principalId
 output githubRunnerEnabled bool = githubRunnerEnabled
 output githubRoleAssignmentId string = extensionResourceId(job.id, 'Microsoft.Authorization/roleAssignments', guid(job.id, github.id, jobRunnerRole.id))
+output existingSecretRuntimePatch object = useExistingSecUserAgentSecret ? {
+  properties: {
+    configuration: runtimeConfiguration
+    template: runtimeTemplate
+  }
+} : {}

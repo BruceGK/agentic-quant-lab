@@ -325,6 +325,19 @@ universe; review before any later scope expansion.
 
 Configure/update the contact out of band; it becomes a job secret named `sec-user-agent`:
 
+If this secret already exists, set `useExistingSecUserAgentSecret` to `true` in
+the runtime parameters, then run the runtime what-if/apply commands above.
+This mode reads only ordinary job metadata and emits `SEC_USER_AGENT` with
+`secretRef: sec-user-agent`. Bicep resolves the desired nonsecret configuration and
+template, and the helper applies them using the job PATCH API, omitting the secret
+collection. It deliberately skips a full job PUT because Azure what-if shows that
+PUT could delete externally configured secrets. Use the helper, not a direct ARM
+deployment, to apply reference-only updates. It does not call `listSecrets`, read the contact from local environment,
+or require supplying the identity again. The job must already contain the secret.
+
+Only for initial provisioning or an explicitly requested secret-value update,
+leave the flag false and supply the contact privately:
+
 ```bash
 set +x
 read -r -s -p 'Genuine SEC user-agent/contact: ' SEC_USER_AGENT
@@ -339,9 +352,10 @@ unset SEC_USER_AGENT
 
 The deploy helper creates a mode-0600 parameter file under ignored `.local/`, passes only
 its filename to Azure CLI, suppresses provider output, and removes the file in `finally`.
-Do not terminate it with SIGKILL or enable shell/CLI debug logging. Supply the contact
-again on **every later runtime redeployment**: the script refuses to implicitly clear
-an already configured secret. Never commit it or put it in GitHub variables/build args.
+Do not terminate it with SIGKILL or enable shell/CLI debug logging. On subsequent
+deployments, use reference-only mode rather than supplying the contact again.
+The script refuses to implicitly unmap an already configured secret.
+Never commit it or put it in GitHub variables/build args.
 No database password or heartbeat webhook is needed. Alerting uses stdout completion
 events and the existing workspace, not a secret-bearing HTTP hook.
 

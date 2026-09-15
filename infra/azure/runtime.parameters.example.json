@@ -8,6 +8,7 @@
     "universeCiks": { "value": "320193" },
     "ingestCiks": { "value": "320193" },
     "replicaTimeout": { "value": 1800 },
-    "githubRunnerEnabled": { "value": false }
+    "githubRunnerEnabled": { "value": false },
+    "useExistingSecUserAgentSecret": { "value": false }
   }
 }

@@ -5,6 +5,7 @@ import copy
 import re
 import time
 from datetime import date
+from pathlib import Path
 from typing import Any
 
 from common import (
@@ -19,6 +20,7 @@ from common import (
     emit,
     require,
     run_safely,
+    write_json,
 )
 
 TERMINAL = {"Succeeded", "Failed", "Stopped", "Canceled", "Cancelled"}
@@ -31,6 +33,10 @@ COMMANDS = (
     "verify-blob",
     "probe-egress",
     "probe-connections",
+    "probe-sec",
+    "probe-sec-directory",
+    "inspect-evidence",
+    "accept-missed-interval",
 )
 
 
@@ -139,6 +145,19 @@ def start_execution(
     if arguments == ["probe-connections"]:
         container["command"] = ["python"]
         container["args"] = ["-c", (AZURE_DIR / "scripts/runtime_diagnostics.py").read_text()]
+    if arguments in (["probe-sec"], ["probe-sec-directory"]):
+        container["command"] = ["python"]
+        container["args"] = ["-c", (AZURE_DIR / "scripts/sec_diagnostics.py").read_text()]
+        if arguments == ["probe-sec-directory"]:
+            container["args"].append("--directory-only")
+    if arguments == ["inspect-evidence"]:
+        container["command"] = ["python"]
+        container["args"] = ["-c", (AZURE_DIR / "scripts/inspect_evidence.py").read_text()]
+    if arguments == ["accept-missed-interval"]:
+        container["command"] = ["python"]
+        container["args"] = ["-c", (AZURE_DIR / "scripts/live_sec_acceptance.py").read_text()]
+    if arguments in (["probe-connections"], ["inspect-evidence"]):
+        container["env"] = [item for item in container["env"] if item["name"] != "SEC_USER_AGENT"]
     if arguments == ["probe-egress"]:
         container["env"] = []
         container["command"] = ["python"]
@@ -208,6 +227,7 @@ def main() -> None:
     parser.add_argument("--end")
     parser.add_argument("--wait", action=argparse.BooleanOptionalAction, default=True)
     parser.add_argument("--apply", action="store_true")
+    parser.add_argument("--receipt", type=Path)
     args = parser.parse_args()
     arguments = command_arguments(args.command, args.start, args.end)
     if not args.apply:
@@ -221,6 +241,8 @@ def main() -> None:
         )
         return
     result = start_execution(arguments, wait=args.wait)
+    if args.receipt is not None:
+        write_json(args.receipt, result)
     emit(result)
     if args.wait:
         require(
