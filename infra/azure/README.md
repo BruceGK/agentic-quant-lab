@@ -332,8 +332,9 @@ This mode reads only ordinary job metadata and emits `SEC_USER_AGENT` with
 template, and the helper applies them using the job PATCH API, omitting the secret
 collection. It deliberately skips a full job PUT because Azure what-if shows that
 PUT could delete externally configured secrets. Use the helper, not a direct ARM
-deployment, to apply reference-only updates. It does not call `listSecrets`, read the contact from local environment,
-or require supplying the identity again. The job must already contain the secret.
+deployment, to apply reference-only updates. It does not call `listSecrets`, read
+the contact from the local environment, or require supplying the identity again.
+The job must already contain the secret.
 
 Only for initial provisioning or an explicitly requested secret-value update,
 leave the flag false and supply the contact privately:
@@ -370,6 +371,8 @@ python3 infra/azure/scripts/job.py --command verify-blob --apply
 python3 infra/azure/scripts/job.py --command snapshot --apply
 python3 infra/azure/scripts/job.py --command reconcile --apply
 python3 infra/azure/scripts/job.py --command record --apply
+# Read-only metadata inspection: the execution does not receive SEC_USER_AGENT.
+python3 infra/azure/scripts/job.py --command inspect-evidence --apply
 # Explicit one-off catch-up, not a recurring trigger:
 python3 infra/azure/scripts/job.py --command catch-up \
   --start "$REVIEWED_START" --end "$REVIEWED_END" --apply
@@ -380,6 +383,16 @@ job definition. They reject active/unknown executions and wait for terminal stat
 default (`--no-wait` only submits). GitHub concurrency and job parallelism do not lock
 two independent executions against one another; the existing database advisory lock is
 the final single-writer guard.
+
+Optional `--receipt infra/azure/.local/execution.json` retains only the execution ID
+and status, including on failure. `probe-sec` and `probe-sec-directory` perform bounded
+diagnostic requests inside the job, returning only parser counts, public index metadata
+and HTTP status codes, never contact values, headers or response bodies.
+`accept-missed-interval` is a **one-time** isolated acceptance operation: `aql_test`
+must contain only the verified initial universe baseline, and its distinct
+`acceptance/missed-sec-<date>` Blob prefix must be unused. It recovers a real
+filing without calling the latest feed, then repeats catch-up to assert zero duplicates.
+Do not clear an existing projection or prefix to rerun this acceptance helper.
 
 **`Succeeded` is not ingestion proof.** Only `aql.recorder.completed` with
 `status=success`, `ledger_backend=azure`, `reconciliation=passed`, and command
@@ -575,3 +588,7 @@ Current credit and actual billing-meter applicability remain operator cost check
 Use [the deployment report](../../docs/azure-deployment-report.md) for exact live results;
 no “Phase 0 complete,” recurring
 activation or Phase-1/live-execution claim follows from infrastructure validation.
+
+The later [SEC acceptance report](../../docs/sec-acceptance-report.md) documents
+the genuine official-filing gates passing after the secret was configured.
+It does not authorize recurring activation; the job remains Manual.

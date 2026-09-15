@@ -175,9 +175,9 @@ if necessary. A 404 on a known weekend/federal holiday is allowed without a
 completion checkpoint. SEC also returns 403 for some nonexistent weekend objects:
 only on a known closure, a successfully fetched and validated official quarter
 directory proving that exact index absent permits skipping it without a checkpoint.
-Listed indexes, weekday 403s, malformed/unavailable directories,
-other missing indexes, extraordinary closures and source errors
-and failed fetches fail the run and suppress the success heartbeat.
+Listed-but-inaccessible indexes, weekday 403s, malformed/unavailable directories,
+other unexplained missing indexes, extraordinary closures and failed fetches
+fail the run and suppress the success heartbeat.
 Independent filings/dates are still attempted after source failures so one
 unavailable submission cannot starve the rest of the universe. Ledger or
 database write failures, by contrast, abort immediately.
@@ -196,6 +196,11 @@ for actual resources, costs, tests and remaining gates. It reuses discovered sha
 infrastructure without redeploying RiskPulse applications. PostgreSQL and the Blob namespace are
 isolated AQL state. The production container has no build/development tools,
 runs as a non-root user, and performs no dependency installation at startup.
+
+The [real SEC acceptance report](docs/sec-acceptance-report.md) records successful
+official ingestion, prospective timestamps, duplicate-free reruns, missed-interval
+recovery and independent filing-bearing replay. This is manual acceptance only;
+the scheduler and live-execution policy remain disabled.
 
 Azure uses managed identity for Blob and PostgreSQL. A separate Entra
 migration administrator owns the schema; the recorder has only the evidence

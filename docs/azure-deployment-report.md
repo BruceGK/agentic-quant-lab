@@ -1,6 +1,10 @@
 # Azure deployment and external acceptance - 2026-09-14
 
-**Deployment is persistent; Phase 0 is NOT COMPLETE.**
+**Update, 2026-09-15:** The secret mapping and real SEC acceptance are now verified.
+See the [SEC acceptance report](sec-acceptance-report.md). The original results below
+are retained as the deployment-time record; scheduling remains disabled.
+
+**Original deployment-time status: persistent infrastructure; Phase 0 was NOT COMPLETE.**
 The private Azure recorder can persist, reconcile and restore evidence, but no
 official SEC filing was ingested because the real `SEC_USER_AGENT` is unavailable.
 Successful maintenance commands are not substitutes for successful SEC recording.
