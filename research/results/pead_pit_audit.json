@@ -22,6 +22,7 @@
   },
   "evidence_classes": {
     "DIRECT": "Actual response observed during this investigation; not necessarily PIT-qualified.",
+    "DIRECT_SCHEMA": "Provider-owned SDK/reference retrieved through GitHub; schema/documentation evidence, not returned financial observations.",
     "INDEXED": "Public documentation or issuer facts found through web search; not a returned API observation.",
     "BLOCKED": "No usable response obtained; environmental DNS failure does not establish provider entitlement.",
     "UNVERIFIED": "No adequate evidence for the asserted data property."
@@ -128,6 +129,122 @@
       "outcome": "HTML_RECEIVED",
       "evidence_class": "DIRECT",
       "note": "Body identified as Microsoft HTML; detailed event extraction and repeat observations are recorded separately. No consensus API observation."
+    }
+  ],
+  "provider_probe_summary": {
+    "retrieval_date_utc": "2026-09-15",
+    "individual_request_timestamps": null,
+    "common_outcome": "DNS_RESOLUTION_FAILED",
+    "http_status": null,
+    "historical_api_records_observed": 0,
+    "note": "Representative research-agent requests below failed before HTTP. Zero observed records is not an API response saying the dataset is empty. Published demo parameters are not private credentials or verified entitlements.",
+    "requests": [
+      {
+        "provider": "Alpha Vantage",
+        "url": "https://www.alphavantage.co/query?function=EARNINGS_ESTIMATES&symbol=IBM&apikey=demo"
+      },
+      {
+        "provider": "Financial Modeling Prep",
+        "url": "https://financialmodelingprep.com/stable/earnings?symbol=AAPL&apikey=demo"
+      },
+      {
+        "provider": "Financial Modeling Prep",
+        "url": "https://financialmodelingprep.com/stable/analyst-estimates?symbol=AAPL&period=annual&page=0&limit=10&apikey=demo"
+      },
+      {
+        "provider": "Finnhub",
+        "url": "https://finnhub.io/api/v1/stock/eps-estimate?symbol=AAPL&freq=quarterly"
+      },
+      {
+        "provider": "Finnhub",
+        "url": "https://finnhub.io/api/v1/calendar/earnings?from=2010-01-01&to=2010-01-31&symbol=AAPL"
+      },
+      {
+        "provider": "EODHD",
+        "url": "https://eodhd.com/api/calendar/earnings?api_token=demo&from=2010-01-01&to=2010-01-31&fmt=json"
+      },
+      {
+        "provider": "EODHD",
+        "url": "https://eodhd.com/api/calendar/trends?api_token=demo&symbols=AAPL.US&fmt=json"
+      },
+      {
+        "provider": "EODHD",
+        "url": "https://eodhd.com/api/fundamentals/AAPL.US?api_token=demo&filter=Earnings&fmt=json"
+      },
+      {
+        "provider": "EODHD",
+        "url": "https://eodhd.com/api/eod/AAPL.US?from=2010-01-01&to=2010-01-31&api_token=demo&fmt=json"
+      },
+      {
+        "provider": "Tiingo",
+        "url": "https://api.tiingo.com/tiingo/daily/aapl/prices?startDate=2010-01-04&endDate=2010-01-05"
+      },
+      {
+        "provider": "Sharadar",
+        "url": "https://data.nasdaq.com/api/v3/datatables/SHARADAR/SEP.json?ticker=AAPL&date.gte=2010-01-04&date.lte=2010-01-05&qopts.per_page=2"
+      },
+      {
+        "provider": "Intrinio",
+        "url": "https://api-v2.intrinio.com/zacks/eps_estimates?identifier=AAPL&start_date=2010-01-01&end_date=2010-12-31&page_size=2"
+      },
+      {
+        "provider": "Intrinio",
+        "url": "https://api-v2.intrinio.com/zacks/eps_surprises?start_date=2010-01-01&end_date=2010-12-31&page_size=2"
+      },
+      {
+        "provider": "Nasdaq Data Link / Zacks",
+        "url": "https://data.nasdaq.com/api/v3/datatables/ZACKS/EEH/metadata.json",
+        "note": "Proposed metadata route only; table code not verified because no metadata returned."
+      },
+      {
+        "provider": "Stooq",
+        "url": "https://stooq.com/q/d/l/?s=aapl.us&i=d&d1=20100104&d2=20100105"
+      },
+      {
+        "provider": "IEX legacy",
+        "url": "https://cloud.iexapis.com/stable/stock/aapl/earnings?period=quarter&last=1"
+      }
+    ],
+    "repeated_failed_requests": [
+      "Alpha Vantage EARNINGS and EARNINGS_ESTIMATES",
+      "FMP earnings",
+      "EODHD calendar and trends"
+    ],
+    "repeated_failures_are_not_successful_vintage_comparisons": true
+  },
+  "direct_schema_provenance": [
+    {
+      "provider": "Alpha Vantage",
+      "repository": "alphavantage/alpha_vantage_mcp",
+      "commit": "18465ac2ecc05f125e5460e4e0909f32dcab92cf",
+      "commit_date": "2026-08-25",
+      "source_url": "https://github.com/alphavantage/alpha_vantage_mcp/blob/18465ac2ecc05f125e5460e4e0909f32dcab92cf/api/src/av_api/tools/fundamental_data.py",
+      "finding": "EARNINGS_ESTIMATES exists and claims EPS/revenue/counts/revisions; symbol-only wrapper does not establish a historical-vintage archive."
+    },
+    {
+      "provider": "Finnhub",
+      "repository": "Finnhub-Stock-API/finnhub-go",
+      "commit": "8071bcd46ca5101adcef7a844c96b81a3eceb76e",
+      "commit_date": "2026-06-22",
+      "source_url": "https://github.com/Finnhub-Stock-API/finnhub-go/blob/8071bcd46ca5101adcef7a844c96b81a3eceb76e/model_earnings_estimates_info.go",
+      "finding": "Fiscal period and analyst count; average includes proprietary estimates; no effective consensus timestamp in inspected model."
+    },
+    {
+      "provider": "EODHD",
+      "repository": "EodHistoricalData/EODHD-MCP-Server",
+      "commit": "1b38b8ecd669dc93b04738d2f6f7458539edada6",
+      "commit_date": "2026-09-09",
+      "source_url": "https://github.com/EodHistoricalData/EODHD-MCP-Server/blob/1b38b8ecd669dc93b04738d2f6f7458539edada6/app/resources/references/general/fundamentals-faq.md",
+      "finding": "FAQ states exact estimate-change timestamps not recorded and two fundamental-data versions not retained."
+    },
+    {
+      "provider": "Intrinio",
+      "repository": "intrinio/python-sdk",
+      "source_url": "https://github.com/intrinio/python-sdk/blob/master/docs/ZacksEPSEstimate.md",
+      "returned_git_blob_sha": "b0da9302d8c98052c0a763da85470d6405cd1485",
+      "last_file_change_commit_reported": "2c967211ceeadaf117b1b4df2a2b51a738c14247",
+      "last_file_change_date": "2020-04-15",
+      "finding": "Estimate date means period end, not independently identified consensus vintage; current live sample still required."
     }
   ],
   "issuer_spot_checks": [
@@ -338,5 +455,44 @@
       "Original release must not be overwritten by a later restatement.",
       "Missing delisting or acquisition outcome must not be dropped silently."
     ]
-  }
+  },
+  "cost_candidate": {
+    "provider": "EODHD",
+    "products": [
+      {
+        "name": "Calendar Feed",
+        "published_variable_monthly_price_usd": 19.99,
+        "documented_endpoints": [
+          "calendar/earnings",
+          "calendar/trends"
+        ]
+      },
+      {
+        "name": "EOD Historical Data All World",
+        "published_variable_monthly_price_usd": 19.99,
+        "documented_role": "EOD prices and split/dividend data, separate from calendar"
+      }
+    ],
+    "combined_published_variable_monthly_price_usd": 39.98,
+    "source_evidence_class": "DIRECT_SCHEMA",
+    "source_url": "https://github.com/EodHistoricalData/EODHD-MCP-Server/tree/1b38b8ecd669dc93b04738d2f6f7458539edada6/app/resources/references/subscriptions",
+    "licence_scope": "Advertised self-serve personal use; business internal research needs separate confirmation.",
+    "current_checkout_verified": false,
+    "historical_2010_2026_coverage_verified": false,
+    "pit_consensus_solved": false,
+    "qualified_dataset": false,
+    "purchase_authorized": false,
+    "interpretation": "Cheapest endpoint-supported qualification candidate substantiated here, not a globally cheapest or PIT-certified dataset."
+  },
+  "verdicts": {
+    "price_based_pead": "LOW-COST DATA REQUIRED",
+    "consensus_surprise_pead": "BLOCKED",
+    "revision_momentum": "BLOCKED",
+    "guidance_text_pead": "LOW-COST DATA REQUIRED"
+  },
+  "verdict_definition": "LOW-COST DATA REQUIRED means a plausible retail acquisition route, not a passed dataset. BLOCKED means required historical PIT evidence absent, not proof commercial data cannot solve it.",
+  "overall_recommendation": "DEFER PEAD",
+  "unblock_price_baseline": "Obtain authorized actual historical event sessions plus original-source checks and inactive-inclusive price/action/identity samples; validate exchange sessions, corporate actions, retention rights and contamination controls before any backtest.",
+  "unblock_consensus_variants": "Obtain a licensed historical archive with multiple pre-release availability dates for the same fiscal period, analyst counts, original/corrected versions and matched EPS/revenue basis; verify exact current SKU and licence.",
+  "production_ready": false
 }

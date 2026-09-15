@@ -3,6 +3,13 @@
 Research date: **2026-09-15 UTC**. This is a data-acquisition decision, not an
 alpha test or a production-readiness assessment.
 
+**Answer:** a low-cost **price-response** baseline has a plausible acquisition
+route without analyst consensus. A clean 2010–2026 joined dataset was **not**
+obtained or certified. Historical consensus surprise and revision momentum
+remain gated by actual vintage evidence, not merely API price. Original
+guidance text is recoverable, but a broad timed, versioned event/price join is
+still unqualified. No strategy performance is reported.
+
 ## Scope and isolation
 
 The assigned branch, `copilot/researchpead-data-feasibility`, was fast-forwarded
@@ -28,6 +35,9 @@ tournament's survivor-selected stock panel as a substitute.
 - **DIRECT:** an HTTP response actually retrieved during this investigation.
   A successfully retrieved issuer page is not a successfully retrieved vendor
   consensus history.
+- **DIRECT_SCHEMA:** provider-owned SDK/reference files retrieved through
+  GitHub. This verifies what the inspected documentation says, not historical
+  data population, current API behavior or a purchased entitlement.
 - **INDEXED:** primary-source documentation surfaced by web search, not a
   downloaded historical observation. Search synthesis, sample JSON and
   marketing examples are not observations.
@@ -41,6 +51,76 @@ A record containing an old fiscal date is not necessarily a historical
 information vintage. A current `last_updated` field is not an archive of
 earlier values. Two identical downloads today cannot establish what a row
 contained before a historical announcement.
+
+## Provider findings and source matrix
+
+The complete matrix is
+`/home/runner/work/agentic-quant-lab/agentic-quant-lab/research/results/pead_data_source_matrix.csv`.
+It records **all requested dimensions for every provider**, including explicit
+unknowns, source URLs, licensing, free/paid boundaries, and actual observations.
+The companion audit is
+`/home/runner/work/agentic-quant-lab/agentic-quant-lab/research/results/pead_pit_audit.json`.
+Both are research evidence, not backtest-ready input data.
+
+| Provider | Most important finding | Recommended role / limitation |
+| --- | --- | --- |
+| SEC | Original filings, reported accounting facts and guidance text; no analyst expectations. Direct SEC requests blocked here. | Original-document provenance; acceptance is not earliest earnings time. |
+| Alpha Vantage | Official implementation now documents **EARNINGS_ESTIMATES**, including revenue/EPS estimates, counts and revisions. Reviewed query is symbol-only; historical vintages unproven. | Do not incorrectly say the endpoint does not exist; do not infer PIT from its name. Forward-looking earnings calendar is not historical event history. |
+| Massive / Polygon | Indexed Benzinga Earnings documentation advertises event time/date, EPS/revenue actual/estimate and history from **2010-04-30**. Separate guidance feed starts **2011-09-12**. | Retail timestamp-feed candidate. `last_updated` is not an as-of archive; no data rows retrieved. Stock prices require their own history entitlement. |
+| Nasdaq public website | Calendar/earnings display; upcoming dates can be algorithmic. | Spot discovery only; not the separately licensed Zacks historical product or a bulk-use licence. |
+| Financial Modeling Prep | Indexed stable earnings/analyst-estimate schemas include actuals, estimates, counts and `lastUpdated`. | No accepted original-vintage or release-session evidence; stable versus legacy schemas must not be mixed. |
+| Finnhub | Official calendar schema includes BMO/AMC/during-market category and fiscal year/quarter; estimate models include counts. | Useful session/period schema, but no consensus-effective timestamp in inspected models; estimates explicitly include Finnhub proprietary estimates. |
+| EODHD | Official reference distinguishes announcement date, fiscal-period date and nullable session. FAQ says exact estimate-change timestamps are not recorded and two fundamental versions are not retained. | Inexpensive **calendar/price qualification candidate**, not an acceptable historical consensus-revision archive. |
+| Tiingo | EOD raw/adjusted prices and actions are relevant documented leads; inactive completeness not observed. | Alternative price backbone, not an earnings-consensus source. Current eligible price not verified. |
+| Sharadar | Price/fundamental/event products are distinct from Zacks consensus. Historical prices/inactive securities are relevant leads. | Alternative price/security backbone; accounting/report dates do not prove announcement session. Current full-history contract unverified. |
+| Intrinio / Zacks | Official surprise schema explicitly calls EPS consensus **pre-earnings release**, with time/session and count. Ordinary estimate `date` explicitly means **period end**. | Strongest inspected event-consensus schema; still needs original-freeze/correction policy and entitled historical samples. |
+| Nasdaq Data Link / Zacks | ZEEH historical consensus, ZET trends, ZES surprises; ZREV/ZAR also surfaced as leads. | Commercial historical-vintage acquisition shortlist. Exact table coverage, licence and price unverified; no inference from Nasdaq's free calendar. |
+| IEX / legacy | Official legacy SDK is unmaintained; estimates code describes **latest next-period consensus**. | Not a new 2026 IEX Cloud acquisition route. Only already lawfully held archives merit inspection; IEX Exchange data is a different product. |
+| Stooq | Public historical-price download identified, but direct sample failed. | Cross-check only until action methodology, inactive outcomes and rights are known. No earnings or expectations. |
+| Kaggle/public uploads | Historical NASDAQ EPS and U.S. price dataset cards found; files and upstream provenance not established. | No accepted public PIT dataset. Upload date/card licence does not establish original collection time or upstream rights. |
+| Company IR | Three MSFT quarters and two guidance calls directly read. | Spot verification only, never the bulk historical source. |
+
+### Strongest directly inspected provider evidence
+
+1. **Alpha Vantage:** pinned official
+   [earnings/estimates/calendar implementation](https://github.com/alphavantage/alpha_vantage_mcp/blob/18465ac2ecc05f125e5460e4e0909f32dcab92cf/api/src/av_api/tools/fundamental_data.py#L185-L282)
+   and [transcript interface](https://github.com/alphavantage/alpha_vantage_mcp/blob/18465ac2ecc05f125e5460e4e0909f32dcab92cf/api/src/av_api/tools/alpha_intelligence.py#L45-L67).
+   Transcript history is claimed since 2010Q1; that is not proof of original
+   transcript publication time or structured guidance.
+2. **Finnhub:** official
+   [EPS model](https://github.com/Finnhub-Stock-API/finnhub-go/blob/8071bcd46ca5101adcef7a844c96b81a3eceb76e/model_earnings_estimates_info.go#L17-L33),
+   [revenue model](https://github.com/Finnhub-Stock-API/finnhub-go/blob/8071bcd46ca5101adcef7a844c96b81a3eceb76e/model_revenue_estimates_info.go#L17-L33)
+   and [calendar model](https://github.com/Finnhub-Stock-API/finnhub-go/blob/8071bcd46ca5101adcef7a844c96b81a3eceb76e/model_earning_release.go#L17-L37).
+   A schema field can be nullable/unpopulated historically; no returned rows
+   were observed.
+3. **EODHD:** official
+   [fundamentals FAQ](https://github.com/EodHistoricalData/EODHD-MCP-Server/blob/1b38b8ecd669dc93b04738d2f6f7458539edada6/app/resources/references/general/fundamentals-faq.md#L128-L158)
+   and [version-retention statement](https://github.com/EodHistoricalData/EODHD-MCP-Server/blob/1b38b8ecd669dc93b04738d2f6f7458539edada6/app/resources/references/general/fundamentals-faq.md#L208-L210).
+   [Calendar queries](https://github.com/EodHistoricalData/EODHD-MCP-Server/blob/1b38b8ecd669dc93b04738d2f6f7458539edada6/app/resources/references/endpoints/upcoming-earnings.md)
+   with `symbols` ignore `from`/`to`: such a query cannot certify a requested
+   2010 window. Rolling 7/30/60/90-day trend values are not dated revisions.
+   [EOD fields](https://github.com/EodHistoricalData/EODHD-MCP-Server/blob/1b38b8ecd669dc93b04738d2f6f7458539edada6/app/resources/references/endpoints/historical-stock-prices.md#L57-L74)
+   distinguish raw OHLC, adjusted close and **split-adjusted volume**; reconstruct
+   contemporaneous raw volume before raw-dollar liquidity calculations.
+4. **Intrinio:** official [EPS estimate schema](https://github.com/intrinio/python-sdk/blob/master/docs/ZacksEPSEstimate.md#L14-L30)
+   versus [EPS surprise schema](https://github.com/intrinio/python-sdk/blob/master/docs/ZacksEPSSurprise.md#L19-L30)
+   and [sales surprise schema](https://github.com/intrinio/python-sdk/blob/master/docs/ZacksSalesSurprise.md#L19-L30).
+   `actual_reported_code` includes BTO/DTM/AMC; EPS actual is Zacks-interpreted
+   **non-GAAP**. Timezone, original freeze and correction retention still need
+   verification. Sales schema mentions a count in prose without separately
+   listing that property. Endpoint prose mentioning guidance is not evidence
+   that the inspected models deliver guidance ranges/versions. These SDK
+   documents are older than the inquiry; current API samples must resolve
+   discrepancies.
+5. **IEX:** official [unmaintained SDK notice](https://github.com/iexcloud/iexjs/blob/main/README.md)
+   and [latest-estimate semantics](https://github.com/iexcloud/iexjs/blob/main/src/js/stocks/estimates.js#L17-L45).
+   The reported 2024-08-31 Cloud shutdown was not verified from its original
+   notice; the inspected legacy code is not evidence of a current service.
+
+Missing PIT fields in a reviewed SDK do not prove that a provider has no
+separate custom product. Conversely, access to provider code grants no licence
+to its data. No provider's general “20+ years” statement certifies populated
+earnings timestamps, inactive issuers or consensus vintages for that interval.
 
 ## What a qualifying event must preserve
 
@@ -242,3 +322,165 @@ no synthetic timestamp or hash was supplied. Documentation claims are
 separate from these live results. Search results occasionally equated
 `last_updated` with PIT or supplied sample/future earnings values; neither
 was accepted.
+
+## Cost answer: free, retail, or institutional?
+
+### A. Free data
+
+**Not enough was verified for a credible broad 2010–2026 backtest.** SEC offers
+free reported facts and original-document evidence; issuer pages can corroborate
+individual events. Free price downloads or a small survivor cohort do not
+automatically solve historical identities, corporate actions, terminal outcomes,
+release timing or licensing. A manually verified event example is feasible,
+but is not a research-grade market-wide test. This is not a proof that every
+possible free archive is unusable.
+
+Free prospective snapshots could eventually build a new history if the chosen
+API's licence permits retention. They cannot recreate unrecorded 2010–2026
+consensus revisions. Hashing a download today freezes today's vintage, not
+the historical one.
+
+### B. Low-cost retail data
+
+The cheapest **endpoint-supported qualification candidate substantiated here**
+is **EODHD Calendar Feed + EOD All World**, advertised in provider-owned
+reference files at **$19.99 + $19.99 = $39.98/month** for personal use.
+This is **not a qualified PIT dataset, a checkout quote, or a claim of global
+cheapest price**. The source explicitly allows prices to vary.
+
+| Candidate | Price evidence / entitlement | What it would solve; what it would not |
+| --- | --- | --- |
+| EODHD Calendar Feed | Provider-source published **$19.99/month**; earnings **and trends** endpoints listed | Candidate event/fiscal dates, nullable session, EPS fields. Does not supply immutable consensus revisions, guaranteed original timing or revenue actuals. |
+| EODHD EOD All World | Provider-source published **$19.99/month**, separate from calendar | Candidate OHLC, adjusted close, splits/dividends and volume. Inactive identities/terminal outcomes and raw-volume reconstruction still need audit. |
+| EODHD Fundamentals + EOD | Published **$59.99 + $19.99 = $79.98/month**; fundamentals excludes EOD | Adds accounting statements/revenue; **does not fix restatement/vintage loss**. Unnecessary for the first price-only signal. |
+| EODHD All-In-One | Published **$99.99/month** | Broader endpoint bundle, not a PIT guarantee. |
+| Massive Benzinga Earnings | **Indexed-only $99/month**; event history from April 30, 2010 | Alternative event-session source if cheaper calendar fails. No certified original consensus freeze; no complete January–April 2010 history. |
+| Massive Corporate Guidance | **Indexed-only separate $99/month**; history from September 12, 2011 | Structured ranges candidate, not proof of textual/original-version history; does not cover 2010. |
+| Massive stock history | **Indexed-only** Starter $29/5 years; Developer $79/10 years; Advanced $199/20+ years | A 10-year entitlement in 2026 cannot cover 2010. Event add-on is separate; no full-stack acceptance was performed. |
+| Finnhub dedicated estimates | **Indexed-only** Estimate-1 $75/month/market, 10 years; Estimate-2 $200, 20+ years | History-depth lead only. Billing commitment, current checkout and dated consensus archive not verified. |
+| FMP plans | **Indexed-only** Starter $22/month equivalent billed annually; Premium $59; Ultimate $149 | Generic plan prices do not identify the minimum tier for the exact historical fields or establish PIT. |
+| Alpha Vantage; Tiingo; Sharadar | Exact current eligible paid price **unverified** | Do not quote remembered prices or equate generic market-data plans with consensus history. |
+
+Price sources: EODHD pinned
+[Calendar Feed](https://github.com/EodHistoricalData/EODHD-MCP-Server/blob/1b38b8ecd669dc93b04738d2f6f7458539edada6/app/resources/references/subscriptions/calendar-feed.md),
+[EOD](https://github.com/EodHistoricalData/EODHD-MCP-Server/blob/1b38b8ecd669dc93b04738d2f6f7458539edada6/app/resources/references/subscriptions/eod-historical-data-all-world.md),
+[Fundamentals](https://github.com/EodHistoricalData/EODHD-MCP-Server/blob/1b38b8ecd669dc93b04738d2f6f7458539edada6/app/resources/references/subscriptions/fundamentals-data-feed.md),
+[All-In-One](https://github.com/EodHistoricalData/EODHD-MCP-Server/blob/1b38b8ecd669dc93b04738d2f6f7458539edada6/app/resources/references/subscriptions/all-in-one.md)
+and [plan/licensing distinctions](https://github.com/EodHistoricalData/EODHD-MCP-Server/blob/1b38b8ecd669dc93b04738d2f6f7458539edada6/app/resources/references/general/pricing-and-plans.md).
+Indexed leads: [Massive earnings](https://massive.com/docs/rest/partners/benzinga/earnings),
+[guidance](https://massive.com/docs/rest/partners/benzinga/corporate-guidance),
+[stocks](https://massive.com/pricing),
+[Finnhub estimates](https://finnhub.io/pricing-stock-estimates),
+[FMP](https://site.financialmodelingprep.com/developer/docs/pricing).
+
+No paid endpoint was exercised; no checkout was completed. No minimum paid
+tier **with demonstrated historical PIT behavior** was verified. For business
+internal research, do not assume personal-plan prices apply. Confirm
+archival retention, derived outputs, publication and redistribution separately.
+Only source references and selected factual findings—not raw vendor datasets—
+are committed here.
+
+### C. Institutional-grade/commercial consensus
+
+Historical analyst consensus is **a commercial-data acquisition problem in this
+investigation**, rather than something SEC can reconstruct. It is **not proven
+to be institution-only**: commercial Zacks/Intrinio/Nasdaq products are relevant
+leads, and login-gated pricing does not establish either institutional exclusivity
+or unaffordability. No cheapest credible full-PIT consensus offering or current
+price can honestly be named from the available evidence.
+
+Prioritize [Nasdaq ZEEH](https://data.nasdaq.com/databases/ZEEH/documentation?anchor=column-definitions)
+and [Zacks directly](https://zacksdata.com/datasets/consensus-data/) for historical
+consensus snapshots; independently assess
+[ZREV](https://data.nasdaq.com/databases/ZREV/documentation) for dated estimate
+revisions and Intrinio's Zacks surprise product for frozen pre-release
+consensus/actual pairs. **ZAR recommendations are not EPS/revenue revisions.**
+The indexed ZEEH EPS-history-since-1979 claim is unverified; do not extend it to
+revenue history, intraday availability or all delivery partners. A daily archive
+can work with conservative lagging only after its publication cutoff and
+correction semantics are known.
+
+If an institution already has an appropriate historical-consensus licence,
+incremental cost might differ, but no such entitlement was available or assumed.
+Paying more does not waive any integrity gate.
+
+## Variant decisions and the exact unblocking acquisition
+
+| Variant | Feasibility finding |
+| --- | --- |
+| A. Pure price-based earnings drift | Does **not** require consensus. Credible if historical event sessions, original-source checks and an active/inactive price/action join qualify. Cheapest candidate stack is retail-sized, but not yet demonstrated. |
+| B. Fundamental surprise | Needs original same-basis actual versus **pre-release frozen consensus**. Current estimates and unexplained historical surprise percentages are rejected. |
+| C. Analyst revision momentum | Needs multiple dated observations for the same target period, not today's rolling change statistics or analyst recommendations. No accepted archive obtained. |
+| D. Guidance revision/text | Original SEC releases/exhibits can provide free text and ranges; compare the **same target period** with its previously available guidance, including withdrawal/no-guidance. Transcript publication lags, incomplete capture and corporate-action/price joins still need qualification. No LLM strategy is justified yet. |
+| E. Combined structured PEAD | Price confirmation and liquidity are feasible components, but adding them cannot repair a contaminated surprise input. Inherits the unmet B/C gates. |
+
+**Before any baseline implementation/backtest, acquire and accept this bounded
+qualification bundle, without an automatic purchase:**
+
+1. Restore permitted public SEC/archive access and obtain provider-authorized
+   historical event samples for AAPL, MSFT, FB/META and ATVI, plus a sample
+   selected without knowing its subsequent returns across early, middle and
+   recent years. Include BMO, AMC, intraday, unknown-session and inactive cases.
+   Require actual—not projected—release session/time, timezone, fiscal-period
+   identifiers and original-release provenance. If EODHD cannot establish
+   historical actual sessions, evaluate Massive's earnings sample or a
+   publisher-licensed timestamp archive; do not infer them from prices.
+2. Obtain matching 2010-to-cutoff OHLCV/action/security-identity samples from the
+   candidate EOD package, or a full-history Tiingo/Sharadar entitlement if its
+   inactive/action coverage is better. Use the existing stock audit's
+   acquisition requirements instead of reopening its momentum research.
+   Include acquisition/delisting outcomes through each requested horizon.
+   Require an exchange calendar, missingness report and permission to retain
+   original responses. No present-day constituents or unpriced terminal exits.
+3. Require paired original/corrected examples, documented timestamp semantics
+   and unchanged historical decisions under the contamination tests above.
+   Downloading twice today only checks short-interval stability; reconstruct
+   historical revisions from retained source vintages or a documented provider
+   archive. Audit missingness across years/issuer status before generalizing.
+4. Only for surprise/revision variants, obtain an explicitly licensed ZEEH,
+   Zacks or Intrinio historical extract containing **multiple pre-event
+   availability dates for the same fiscal period**, analyst counts and
+   original/corrected versions, plus EPS/revenue accounting-basis mappings.
+   Verify the exact archive SKU, current price, retention rights and inactive
+   coverage. If the provider cannot deliver those fields, remain blocked.
+5. For guidance, pair original SEC documents for the **same forecast period**
+   and retain metric/range, issue/raise/lower/withdraw status and earliest
+   defensible availability. A delayed SEC-filing overlay must be labeled as
+   such, not passed off as a trade at the earlier press-release time.
+
+If steps 1–3 pass, the first experiment should be **price-only, long-only and
+daily-bar**: a predeclared positive event-session abnormal-return signal,
+trailing liquidity filter, decision after E close, entry at E+1 open and a
+single predeclared multiweek holding period (for example 20 sessions), with
+costs and corporate actions. Report continuous signal/return diagnostics before
+any tuning; no surprise proxy, LLM or parameter search. This is the simplest
+conditional next baseline, not authorization to build/run it now.
+
+The reason to defer today is **no qualified event/price join**, not the absence
+of analyst consensus alone. Access failures also prevent certification of the
+otherwise plausible low-cost route. This report resolves the acquisition
+decision and records those limits; it does not pretend the inaccessible
+historical observations were verified.
+
+## Final verdicts
+
+Here, “LOW-COST DATA REQUIRED” identifies a plausible retail acquisition route,
+**not** a passed dataset or guaranteed full coverage. “BLOCKED” means the
+required historical PIT evidence is absent; it does not mean commercial data
+cannot solve it.
+
+Price-based PEAD: **LOW-COST DATA REQUIRED**
+
+Consensus-surprise PEAD: **BLOCKED**
+
+Revision momentum: **BLOCKED**
+
+Guidance-text PEAD: **LOW-COST DATA REQUIRED**
+
+Overall recommendation: **DEFER PEAD**
+
+Unblock the price-only baseline with the authorized historical event-session
+and inactive-inclusive price/action qualification bundle in steps 1–3.
+Acquire dated, retained consensus vintages separately before enabling surprise
+or revision research. Do not purchase anything or declare production readiness
+on this report alone.
