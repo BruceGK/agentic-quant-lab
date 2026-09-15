@@ -160,6 +160,7 @@ def episode_events(
         for spell in relevant or [None]:
             after_exit_to_episode_trough = None
             rebound_missed = None
+            full_trough_rebound = None
             if spell is not None:
                 exit_date = pd.Timestamp(spell["exit_execution"])
                 reentry = pd.Timestamp(spell["end"])
@@ -169,7 +170,11 @@ def episode_events(
                         prices.SPY.loc[endpoint] / prices.SPY.loc[exit_date] - 1
                     )
                 if reentry >= trough and not spell["open_right_censored"]:
-                    rebound_missed = float(prices.SPY.loc[reentry] / prices.SPY.loc[trough] - 1)
+                    full_trough_rebound = float(
+                        prices.SPY.loc[reentry] / prices.SPY.loc[trough] - 1
+                    )
+                    reference = max(trough, exit_date)
+                    rebound_missed = float(prices.SPY.loc[reentry] / prices.SPY.loc[reference] - 1)
             result.append(
                 {
                     "model": experiment.model,
@@ -181,7 +186,8 @@ def episode_events(
                     "exit_execution": spell["exit_execution"] if spell else None,
                     "reentry_execution": spell["reentry_execution"] if spell else None,
                     "spy_return_after_exit_until_trough_or_reentry": after_exit_to_episode_trough,
-                    "spy_rebound_trough_to_reentry": rebound_missed,
+                    "spy_rebound_while_defensive_after_trough": rebound_missed,
+                    "full_spy_trough_to_reentry_rebound_not_all_missed": full_trough_rebound,
                     "no_defensive_spell_during_episode": spell is None,
                 }
             )

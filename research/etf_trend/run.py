@@ -75,7 +75,6 @@ def main() -> None:
     records, annual_rows, regimes, decisions = [], [], [], []
     spell_rows, event_rows, attribution_rows = [], [], []
     return_series: dict[str, pd.Series] = {}
-    pnl_series: dict[str, pd.Series] = {}
     episodes = equity_drawdowns(p.SPY.loc[START:])
     (OUTPUT / "equity_drawdowns.json").write_text(json.dumps(episodes, indent=2) + "\n")
     for defense in ("BIL", "ZERO_CASH"):
@@ -85,6 +84,15 @@ def main() -> None:
                 name = f"{model}_{defense}_{cost}bps"
                 record = metrics(result, rf, benchmark)
                 record["classification"] = source_manifest["classification"]
+                evaluation = result.run.returns.loc[START:]
+                wealth = (1 + evaluation).cumprod()
+                high = wealth.cummax().clip(lower=1.0)
+                drawdown = wealth / high - 1
+                trough_date = drawdown.idxmin()
+                prefix = wealth.loc[:trough_date]
+                peak_date = prefix.idxmax()
+                record["max_drawdown_peak"] = str(peak_date)
+                record["max_drawdown_trough"] = str(trough_date)
                 records.append(record)
                 selected = result.run.returns.loc[START:]
                 return_series[name] = selected
@@ -127,9 +135,8 @@ def main() -> None:
                     spells = defensive_spells(result, p)
                     spell_rows.extend(spells)
                     event_rows.extend(episode_events(result, episodes, spells, p))
-                    pnl, attr = attribution(result, p)
+                    _, attr = attribution(result, p)
                     attribution_rows.append(attr)
-                    pnl_series[name] = pnl.defensive_total_return_pnl
     pd.DataFrame(records).to_csv(OUTPUT / "metrics.csv", index=False, float_format="%.10g")
     pd.DataFrame(annual_rows).to_csv(
         OUTPUT / "calendar_returns.csv", index=False, float_format="%.10g"
@@ -139,6 +146,40 @@ def main() -> None:
     pd.DataFrame(spell_rows).to_csv(
         OUTPUT / "defensive_spells.csv", index=False, float_format="%.10g"
     )
+    spell_frame = pd.DataFrame(spell_rows)
+    spell_summary = []
+    for (model, defense, cost), group in spell_frame.groupby(["model", "defense", "cost_bps"]):
+        ratios = np.log1p(group.net_relative_wealth_vs_staying_spy.to_numpy())
+        whipsaw = group.whipsaw.to_numpy(dtype=bool)
+        name = f"{model}_{defense}_{cost}bps"
+        spy_name = f"SPY_{defense}_{cost}bps"
+        total_relative = float(
+            np.log1p(return_series[name]).sum() - np.log1p(return_series[spy_name]).sum()
+        )
+        residual = total_relative - float(ratios.sum())
+        if abs(residual) > 1e-8:
+            raise ArithmeticError(
+                "Whole-sample timing loss does not equal nonoverlapping spell losses"
+            )
+        spell_summary.append(
+            {
+                "model": model,
+                "defense": defense,
+                "cost_bps": cost,
+                "completed_defensive_spells": int((~group.open_right_censored).sum()),
+                "whipsaw_spells": int(whipsaw.sum()),
+                "short_whipsaw_spells": int(
+                    (group.whipsaw & group.short_spell_at_most_3_calendar_months).sum()
+                ),
+                "defensive_sessions": int(group.defensive_sessions.sum()),
+                "total_log_relative_wealth": total_relative,
+                "whipsaw_log_relative_wealth": float(ratios[whipsaw].sum()),
+                "other_spells_log_relative_wealth": float(ratios[~whipsaw].sum()),
+                "relative_terminal_wealth_vs_spy": float(np.expm1(total_relative)),
+                "spell_accounting_residual": residual,
+            }
+        )
+    pd.DataFrame(spell_summary).to_csv(OUTPUT / "whipsaw_summary.csv", index=False)
     pd.DataFrame(event_rows).to_csv(
         OUTPUT / "drawdown_events.csv", index=False, float_format="%.10g"
     )

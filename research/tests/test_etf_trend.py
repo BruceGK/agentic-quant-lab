@@ -3,6 +3,7 @@ import pandas as pd
 import pytest
 
 from research.engine import Plan, row_at, simulate
+from research.etf_trend.data import dated_table, payable_total_return, total_return
 from research.etf_trend.decompose import (
     attribution,
     defensive_spells,
@@ -205,3 +206,66 @@ def test_changing_later_prices_cannot_change_an_earlier_calendar_month_signal():
         a = frozen_plan(original, model)
         b = frozen_plan(changed, model)
         pd.testing.assert_frame_equal(a.weights.loc[:"2016-12-31"], b.weights.loc[:"2016-12-31"])
+
+
+def test_bil_reverse_split_is_not_an_investment_gain():
+    index = pd.to_datetime(["2017-11-29", "2017-11-30", "2017-12-01"])
+    nav = pd.Series([45.0, 90.0, 89.9], index=index)
+    split = pd.Series([1.0, 0.5, 1.0], index=index)
+    dividend = pd.Series([0.0, 0.0, 0.1], index=index)
+    result = total_return(nav, dividend, split)
+    assert result.total_return.to_numpy() == pytest.approx([0, 0, 0])
+    assert result.total_return_level.to_numpy() == pytest.approx([100, 100, 100])
+
+
+def test_dividend_is_receivable_until_payment_not_prematurely_reinvested():
+    index = pd.bdate_range("2016-01-04", periods=3)
+    nav = pd.Series([100.0, 99.0, 109.0], index=index)
+    events = pd.DataFrame(
+        {"distribution": [1.0], "PAYABLE DATE": [index[2]]}, index=pd.DatetimeIndex([index[1]])
+    )
+    result = payable_total_return(nav, events, pd.Series(1.0, index=index))
+    assert result.total_return_level.to_numpy() == pytest.approx([100, 100, 110])
+    assert result.unpaid_distribution_value.to_numpy() == pytest.approx([0, 1, 0])
+    assert result.reinvested_units.iloc[1] == 1
+    assert result.reinvested_units.iloc[2] == pytest.approx(1 + 1 / 109)
+
+
+def test_issuer_footer_is_not_data_but_bad_numeric_date_is_not_ignored():
+    frame = pd.DataFrame({"Date": ["04-Jan-2016", "issuer footer"], "NAV": [100.0, np.nan]})
+    assert len(dated_table(frame, "NAV")) == 1
+    frame.loc[1, "NAV"] = 50.0
+    with pytest.raises(ValueError, match="numeric issuer observation"):
+        dated_table(frame, "NAV")
+
+
+def test_first_day_purchase_does_not_claim_prior_holder_distribution_or_split():
+    index = pd.bdate_range("2017-11-30", periods=3)
+    nav = pd.Series(90.0, index=index)
+    splits = pd.Series([0.5, 1.0, 1.0], index=index)
+    events = pd.DataFrame(
+        {"distribution": [1.0], "PAYABLE DATE": [index[1]]}, index=pd.DatetimeIndex([index[0]])
+    )
+    result = payable_total_return(nav, events, splits)
+    assert result.total_return_level.to_numpy() == pytest.approx([100, 100, 100])
+
+
+def test_exit_after_crisis_trough_does_not_claim_the_owned_rebound_was_missed():
+    experiment, p = spell_run()
+    p["SPY"] = [100.0, 60.0, 80.0, 90.0, 100.0, 110.0, 100.0, 110.0]
+    targets = experiment.decisions[["SPY", "DEFENSIVE"]].reindex(p.index)
+    updated = simulate(
+        p,
+        Plan(targets, pd.Series(p.index, index=p.index)),
+        pd.Series(0.0, index=p.index),
+        fee_bps=0,
+    )
+    experiment = ExperimentRun("ABS12", "BIL", 0, updated, experiment.decisions)
+    episodes = equity_drawdowns(p.SPY)
+    spells = defensive_spells(experiment, p, start=p.index[1])
+    rows = episode_events(experiment, episodes, spells, p)
+    assert rows[0]["spy_return_after_exit_until_trough_or_reentry"] is None
+    assert rows[0]["spy_rebound_while_defensive_after_trough"] == pytest.approx(110 / 80 - 1)
+    assert rows[0]["full_spy_trough_to_reentry_rebound_not_all_missed"] == pytest.approx(
+        110 / 60 - 1
+    )
