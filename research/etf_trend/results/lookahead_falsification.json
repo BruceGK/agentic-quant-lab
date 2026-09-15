@@ -1,0 +1,10 @@
+[
+  {
+    "model": "ABS12",
+    "future_month_signal": "REJECTED_LOOKAHEAD"
+  },
+  {
+    "model": "SMA10",
+    "future_month_signal": "REJECTED_LOOKAHEAD"
+  }
+]

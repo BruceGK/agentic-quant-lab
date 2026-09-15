@@ -1,0 +1,89 @@
+{
+  "retrieved_at": "2026-09-15T22:23:16.434200+00:00",
+  "audit_status": "EXPLORATORY_LIMITATIONS",
+  "classification": "EXPLORATORY_NAV_PROXY_NOT_EXECUTABLE_CLOSE",
+  "sources": [
+    {
+      "url": "https://www.ssga.com/library-content/products/fund-data/etfs/us/navhist-us-en-spy.xlsx",
+      "path": ".cache/etf_trend/SPY_nav.xlsx",
+      "sha256": "5a7534591fa05b5add4ed7c912964d7af817b32220d14857d80bd87deabfaaa4",
+      "bytes": 276952
+    },
+    {
+      "url": "https://www.ssga.com/library-content/products/fund-data/etfs/us/navhist-us-en-bil.xlsx",
+      "path": ".cache/etf_trend/BIL_nav.xlsx",
+      "sha256": "6da83878756dd5e2765bbf7eb1fe4f324dda299761108963876f86e4ec81ff3c",
+      "bytes": 222168
+    },
+    {
+      "url": "https://www.ssga.com/library-content/products/fund-data/etfs/us/spdr-etf-historical-distributions.xlsx",
+      "path": ".cache/etf_trend/distributions.xlsx",
+      "sha256": "18ae096941de56b8cb7e9f9d8041d23665c5aa99813163e578546e406c5fa137",
+      "bytes": 575420
+    },
+    {
+      "url": "https://www.ssga.com/library-content/products/fund-data/etfs/us/pdhist-us-en-spy.xlsx",
+      "path": ".cache/etf_trend/SPY_premium.xlsx",
+      "sha256": "3b6274f4163cf43554bddcebc5bce129d1ff5cb7e83fe37a0ba5008959db457e",
+      "bytes": 30253
+    },
+    {
+      "url": "https://www.ssga.com/library-content/products/fund-data/etfs/us/pdhist-us-en-bil.xlsx",
+      "path": ".cache/etf_trend/BIL_premium.xlsx",
+      "sha256": "75a94baecd39c9cfd726a5b08361bd03e7081299f0a17720e2a19514e67f720d",
+      "bytes": 30022
+    },
+    {
+      "url": "https://www.ssga.com/library-content/products/factsheets/etfs/us/factsheet-us-en-spy.pdf",
+      "path": ".cache/etf_trend/SPY_factsheet.pdf",
+      "sha256": "920347cf84e218ebb3fc1a962de24a0f2deb694e94b7415711ac5b7531ce9d58",
+      "bytes": 230430
+    },
+    {
+      "url": "https://www.ssga.com/library-content/products/factsheets/etfs/us/factsheet-us-en-bil.pdf",
+      "path": ".cache/etf_trend/BIL_factsheet.pdf",
+      "sha256": "e931ac7bbf1c1947770e8d40f4564454533a67920a29af0fd832d6c34ef0a568",
+      "bytes": 126013
+    },
+    {
+      "url": "https://www.splithistory.com/bil/",
+      "path": ".cache/etf_trend/BIL_split.html",
+      "sha256": "ae66ea68ecbea468e5fe943a322e516e6aabe3ad79b8aa7c84eeacf9498e4c4f",
+      "bytes": 53422
+    },
+    {
+      "url": "https://www.ssga.com/us/en/individual/etfs/spdr-sp-500-etf-trust-spy",
+      "path": ".cache/etf_trend/SPY_page.html",
+      "sha256": "a4dade69afba127abc8c5b0acd1f4c891b712d2c62f6c3c27d9042e9a9723925",
+      "bytes": 232245
+    },
+    {
+      "url": "https://www.ssga.com/us/en/individual/etfs/state-street-spdr-bloomberg-1-3-month-t-bill-etf-bil",
+      "path": ".cache/etf_trend/BIL_page.html",
+      "sha256": "ba948b1476be94e8da702282114315452deeb5080c2f47349687c092f1acc696",
+      "bytes": 239994
+    },
+    {
+      "path": ".cache/ff_daily.zip",
+      "sha256": "1916d331c2c51d2aee3d00215897d2b8e5995cb387f1f4569ba46bff5fb049a8",
+      "bytes": 178044,
+      "url": "https://mba.tuck.dartmouth.edu/pages/faculty/ken.french/ftp/F-F_Research_Data_Factors_daily_CSV.zip"
+    }
+  ],
+  "panel_path": ".cache/etf_trend/audited_panel.csv",
+  "panel_sha256": "47f4bff97807708c2a2c4c811cfdd6aca1c3e7a9ace424be00f7fb5e0ae10f9e",
+  "corporate_actions": {
+    "BIL": {
+      "2017-11-30": 0.5
+    },
+    "SPY": {}
+  },
+  "defensive_proxy_splicing": false,
+  "limitations": [
+    "Official NAV, not exchange closing transactions; next-session NAV is a proxy.",
+    "Ex-date receivables reinvest at payment; total-return units are not tradable shares.",
+    "Switching whole total-return units ignores small unpaid-distribution constraints; this is not a broker simulation.",
+    "Revised issuer vintage; split source and issuer return checkpoints cross-checked.",
+    "Fund expenses already in NAV; only external transaction costs are added."
+  ]
+}

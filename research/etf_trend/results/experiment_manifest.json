@@ -1,0 +1,38 @@
+{
+  "protocol_sha256": "211c0ab3f0038088b6b3e9a918d1f5af7cf7249a358fdb5924ce25cc430b3f06",
+  "source_manifest_sha256": "b316996bf3bda2d515f9f33ed17d66c65403f0af42616f5ff6626daf9914f7df",
+  "code_sha256": {
+    "__init__.py": "07ffa18e57e3b1fd523ecbcb1328e64984e49f2e9d62aee77e2835c86323f31c",
+    "data.py": "ff6913e731eed50eb3ac9a5fc0190f96454537974792f219a2f914400c4c8a46",
+    "decompose.py": "e2e6dcbbf716fc1ff020d1cb109b175d954fa23c4cf5ad1e3f7a2b4d95762401",
+    "experiment.py": "c78f5a5394f861277310bf19d4c2c630cb7f812fb690e05e8e2024b566487405",
+    "run.py": "df171fdb8568c1a9ced83f53f674615f6c94396deedc7ca86e504fd85ce8e28d"
+  },
+  "shared_engine_sha256": "b50119715fe4d4e84d8c3586780057071dd3ffa3e1381847d0f44bbe4997122b",
+  "results_sha256": {
+    "attribution.csv": "8dadeccac3fd349cc6113a9315b70b4507466985d7ca7e52078ec33cda66e06f",
+    "calendar_returns.csv": "2a39a1ae086c06d3972aac695d1341f9b52cf51bee4a859aa4bc1bacaf7637d0",
+    "crisis_contributions.csv": "d7d2c3787ef6ea0a6f4736b6af5919192b1bac68489f772374a0e8bb9396d548",
+    "daily_returns.csv": "ac50305b57a8dca58a4a50307d2244140b8b4949cb853053c211c99afe289293",
+    "decisions.csv": "2a0c01fbbaa8f7cb460750b00abf9fea958c7111d39220cc1e7a26a2461eabf7",
+    "defensive_spells.csv": "fb6581f6fab254e250539c6462cba00f39b269a10eb5f305c76e22270be8bd1d",
+    "drawdown_events.csv": "8885df75eb4e1da0635b5b91beec1264562fce6b96c78036277a1db718c40e9e",
+    "issuer_return_crosschecks.csv": "e33df40197b8f33ccea45dddd7ab0200dfec3b31e700cb1f2474b3c37b45dc4a",
+    "metrics.csv": "13664db4d9d3ac55e260f20a1ea3a2b77fb0661c4c2b879e2d0a538f6563e915",
+    "regimes.csv": "bc33d4fcef6f4cf5cbfaa79625ef3a38f5e6b66d0feed6a98ebd885154a2d973",
+    "rule_agreement.csv": "4a99e68014bcc06cc5b2bffbb9e6a4775a354a2531292d211a298aab66f2befc",
+    "whipsaw_summary.csv": "50508ee4305abd86e613cbb6ae951a811ad231f7451ede91fab7f8f0531ce618"
+  },
+  "scenario_count": 36,
+  "fixed_rules_only": true,
+  "lookahead_versions_rejected": [
+    {
+      "model": "ABS12",
+      "future_month_signal": "REJECTED_LOOKAHEAD"
+    },
+    {
+      "model": "SMA10",
+      "future_month_signal": "REJECTED_LOOKAHEAD"
+    }
+  ]
+}

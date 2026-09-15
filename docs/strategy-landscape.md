@@ -2,9 +2,16 @@
 
 **Research date: 2026-09-15. Classification: EXPLORATORY. No strategy is production-ready.**
 
+**Narrow ETF follow-up:** the later [fixed-rule modern validation](etf-trend-validation.md)
+uses official 2016-July 2026 SPY/BIL NAV and distribution data, exact calendar-month
+rules and 0/10/20 bps costs. Its decision is **RESEARCH MORE; no paper/shadow promotion**.
+The NAV-proxy trend results are weak versus static 80/20 and 70/30, and full-period
+exchange closes remain unverified. This supersedes the ETF build-priority conclusion
+below; the original wider tournament is retained as historical research evidence.
+
 ## Decision
 
-Build a **paper-only, deterministic liquid-ETF trend experiment first**, with
+The original tournament proposed a **paper-only, deterministic liquid-ETF trend experiment first**, with
 12-month absolute momentum and 10-month moving-average timing as separate frozen
 rules. Its plausible value is reducing prolonged drawdowns, **not reliably beating
 buy-and-hold**. Keep a static ETF/cash benchmark capable of winning the comparison.
@@ -228,7 +235,7 @@ Do not assume uninvested Agentic cash earns the full academic T-bill return.
 
 | Rank | Candidate | Why / confidence | Complexity |
 | --- | --- | --- | --- |
-| **BUILD FIRST** | Simple liquid-ETF absolute12 and SMA10, cash/Treasury fallback | Medium confidence in defensive purpose; low confidence in excess return. Robust drawdown reduction, cheap/transparent, but stale actual ETF data and static exposure competition | Low |
+| **RESEARCH MORE — no ETF paper/shadow promotion** | Frozen calendar-month absolute12 and SMA10, SPY/BIL or zero cash | Modern issuer-NAV follow-up is weak versus static 80/20 and 70/30; full-period exchange-close execution remains unverified. Verify those same rules, do not retune | Low rule complexity; unresolved execution-data audit |
 | **BUILD SECOND** | Quality-oriented ETF diversifier versus market and trend, conditional on clean ETF data | Medium-low: long-quality evidence consistent enough to compare, low turnover plausible, high market correlation limits diversification | Low-medium |
 | **RESEARCH MORE** | Large/liquid 12-1 stock momentum, monthly, modest breadth and fixed buffer | Strong literature, weak personal implementation evidence here. Need delisting-aware historical universe and realistic after-tax costs | Medium |
 | **RESEARCH MORE** | Momentum + one quality filter **separately** from a composite | No legitimate interaction backtest without joined PIT features. Require incremental net benefit over pure momentum or discard | Medium-high |
@@ -269,8 +276,10 @@ risk limits or unapproved order execution.
 
 ## What should and should not be built
 
-Build only a research/paper specification for the simple ETF rules and static comparator,
-with explicit prices, corporate actions, cash treatment, next-session timing and costs.
+For ETF trend, finish only the execution-data verification of the now-tested frozen
+rules and static comparators; do not promote a paper/shadow implementation yet.
+Any later specification must retain explicit prices, corporate actions, cash treatment,
+next-session timing and costs.
 Keep the present small harness; no dashboard, database, feature store, allocator,
 agent orchestrator, broker connector or further cloud resources.
 
@@ -280,7 +289,7 @@ or preserve complexity because it sounds sophisticated. If simple static exposur
 wins on the properly audited modern sample, accept it rather than rescue trend
 through a parameter search.
 
-## Single next experiment
+## Original next experiment (subsequently investigated)
 
 **Independently audit modern SPY and a short-Treasury ETF total-return/corporate-action
 data for 2016-2026, then run the already fixed absolute12 and SMA10 rules against
@@ -290,6 +299,11 @@ execution, zero-yield-cash sensitivity and 20 bps one-way stress costs.**
 No rule retuning after seeing the modern period. Judge drawdown reduction alongside
 CAGR sacrifice and settlement/fractional feasibility; if the simple static comparator
 dominates, stop promoting trend. This remains paper research, not broker integration.
+
+That fixed-rule follow-up has now been run using auditable issuer NAV proxies.
+See [its report](etf-trend-validation.md) for all six comparisons, whipsaws and
+the nine requested answers. The remaining ETF action is **actual-close data
+verification of those same frozen rules**, not retuning or new strategy families.
 
 ## Reproduction, evidence and boundaries
 

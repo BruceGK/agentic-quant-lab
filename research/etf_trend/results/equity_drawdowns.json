@@ -1,0 +1,37 @@
+[
+  {
+    "peak": "2018-01-26",
+    "trough": "2018-02-08",
+    "recovery": "2018-08-06",
+    "spy_drawdown": -0.10072735006136702,
+    "recovery_censored": false
+  },
+  {
+    "peak": "2018-09-20",
+    "trough": "2018-12-24",
+    "recovery": "2019-04-12",
+    "spy_drawdown": -0.19286632992679875,
+    "recovery_censored": false
+  },
+  {
+    "peak": "2020-02-19",
+    "trough": "2020-03-23",
+    "recovery": "2020-08-10",
+    "spy_drawdown": -0.33684692464213417,
+    "recovery_censored": false
+  },
+  {
+    "peak": "2022-01-03",
+    "trough": "2022-10-12",
+    "recovery": "2023-12-13",
+    "spy_drawdown": -0.24474194560466433,
+    "recovery_censored": false
+  },
+  {
+    "peak": "2025-02-19",
+    "trough": "2025-04-08",
+    "recovery": "2025-06-26",
+    "spy_drawdown": -0.18705957447834087,
+    "recovery_censored": false
+  }
+]

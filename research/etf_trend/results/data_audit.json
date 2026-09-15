@@ -1,0 +1,44 @@
+[
+  {
+    "symbol": "SPY",
+    "source_type": "issuer NAV, not exchange closing transactions",
+    "first_date": "2014-01-02",
+    "last_date": "2026-07-31",
+    "sessions": 3163,
+    "matched_independent_rf_calendar": true,
+    "excluded_nonexchange_valuation_dates": [
+      "2014-04-18"
+    ],
+    "distribution_events": 50,
+    "explicit_zero_distributions": 0,
+    "max_payment_lag_days": 47,
+    "max_abs_adjusted_daily_return": 0.11923098880540461,
+    "maximum_unpaid_distribution_fraction": 0.006479557982636538,
+    "exdate_vs_paydate_reinvestment_endpoint_difference": 0.004540676008338185,
+    "premium_history_first": "2025-01-02",
+    "premium_history_last": "2026-09-14",
+    "premium_rows": 425,
+    "split_event": "none observed"
+  },
+  {
+    "symbol": "BIL",
+    "source_type": "issuer NAV, not exchange closing transactions",
+    "first_date": "2014-01-02",
+    "last_date": "2026-07-31",
+    "sessions": 3163,
+    "matched_independent_rf_calendar": true,
+    "excluded_nonexchange_valuation_dates": [
+      "2014-04-18"
+    ],
+    "distribution_events": 150,
+    "explicit_zero_distributions": 57,
+    "max_payment_lag_days": 11,
+    "max_abs_adjusted_daily_return": 0.0008596901164237281,
+    "maximum_unpaid_distribution_fraction": 0.004598774120821295,
+    "exdate_vs_paydate_reinvestment_endpoint_difference": 0.00012446985221092888,
+    "premium_history_first": "2025-01-02",
+    "premium_history_last": "2026-09-14",
+    "premium_rows": 425,
+    "split_event": "2017-11-30 1 new for 2 old"
+  }
+]
