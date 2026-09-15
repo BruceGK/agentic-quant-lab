@@ -536,7 +536,10 @@ JSON/CSV structure and cross-artifact status consistency are checked locally;
 `git diff --check` and a diff against the requested tournament base check scope.
 No documentation-specific test suite exists, and no executable adapter or new
 dependency was added. These checks validate the artifacts, not market data.
-Secret scanning and automated review are run before finalizing.
+Secret scanning found no secrets. The validation tool was invoked: CodeQL skipped
+the documentation-only changes, and its automated review binary was unavailable.
+A separate read-only review of the three-file diff against the tournament base
+found no significant issues. Neither result upgrades the unpassed data gates.
 
 Phase 0 source, migrations, infrastructure, production workflows, broker code,
 the strategy landscape and existing research results are unchanged relative to
