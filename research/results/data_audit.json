@@ -1,0 +1,795 @@
+[
+  {
+    "dataset": "ff_monthly",
+    "start": "1926-07-31",
+    "end": "2026-07-31",
+    "rows": 1201,
+    "columns": [
+      "Mkt-RF",
+      "SMB",
+      "HML",
+      "RF"
+    ],
+    "blocks": [
+      "The annual TBill return is compounded from the monthly T-bill rates from January to December."
+    ],
+    "missing_cells": 0
+  },
+  {
+    "dataset": "ff_daily",
+    "start": "1926-07-01",
+    "end": "2026-07-31",
+    "rows": 26296,
+    "columns": [
+      "Mkt-RF",
+      "SMB",
+      "HML",
+      "RF"
+    ],
+    "blocks": [
+      "compounds to 1-month TBill rate. The 1-month TBill rate data until 202405 are from Ibbotson Associates. Starting from 202406, the 1-month TBill rate is from ICE BofA US 1-Month Treasury Bill Index."
+    ],
+    "missing_cells": 0
+  },
+  {
+    "dataset": "momentum6",
+    "start": "1927-01-31",
+    "end": "2026-07-31",
+    "rows": 1195,
+    "columns": [
+      "SMALL LoPRIOR",
+      "ME1 PRIOR2",
+      "SMALL HiPRIOR",
+      "BIG LoPRIOR",
+      "ME2 PRIOR2",
+      "BIG HiPRIOR"
+    ],
+    "blocks": [
+      "Average Value Weighted Returns -- Monthly"
+    ],
+    "missing_cells": 0
+  },
+  {
+    "dataset": "profitability6",
+    "start": "1963-07-31",
+    "end": "2026-07-31",
+    "rows": 757,
+    "columns": [
+      "SMALL LoOP",
+      "ME1 OP2",
+      "SMALL HiOP",
+      "BIG LoOP",
+      "ME2 OP2",
+      "BIG HiOP"
+    ],
+    "blocks": [
+      "Average Value Weighted Returns -- Monthly"
+    ],
+    "missing_cells": 0
+  },
+  {
+    "dataset": "value6",
+    "start": "1926-07-31",
+    "end": "2026-07-31",
+    "rows": 1201,
+    "columns": [
+      "SMALL LoBM",
+      "ME1 BM2",
+      "SMALL HiBM",
+      "BIG LoBM",
+      "ME2 BM2",
+      "BIG HiBM"
+    ],
+    "blocks": [
+      "Average Value Weighted Returns -- Monthly"
+    ],
+    "missing_cells": 0
+  },
+  {
+    "dataset": "value_quality25",
+    "start": "1963-07-31",
+    "end": "2026-07-31",
+    "rows": 757,
+    "columns": [
+      "LoBM LoOP",
+      "BM1 OP2",
+      "BM1 OP3",
+      "BM1 OP4",
+      "LoBM HiOP",
+      "BM2 OP1",
+      "BM2 OP2",
+      "BM2 OP3",
+      "BM2 OP4",
+      "BM2 OP5",
+      "BM3 OP1",
+      "BM3 OP2",
+      "BM3 OP3",
+      "BM3 OP4",
+      "BM3 OP5",
+      "BM4 OP1",
+      "BM4 OP2",
+      "BM4 OP3",
+      "BM4 OP4",
+      "BM4 OP5",
+      "HiBM LoOP",
+      "BM5 OP2",
+      "BM5 OP3",
+      "BM5 OP4",
+      "HiBM HiOP"
+    ],
+    "blocks": [
+      "Average Value Weighted Returns -- Monthly"
+    ],
+    "missing_cells": 0
+  },
+  {
+    "dataset": "industry10",
+    "start": "1926-07-31",
+    "end": "2026-07-31",
+    "rows": 1201,
+    "columns": [
+      "NoDur",
+      "Durbl",
+      "Manuf",
+      "Enrgy",
+      "HiTec",
+      "Telcm",
+      "Shops",
+      "Hlth",
+      "Utils",
+      "Other"
+    ],
+    "blocks": [
+      "Average Value Weighted Returns -- Monthly"
+    ],
+    "missing_cells": 0
+  },
+  {
+    "dataset": "etfs/SPY",
+    "start": "2000-01-03",
+    "end": "2016-01-04",
+    "rows": 4026,
+    "missing_cells": 0,
+    "adjustment_ratio_min": 0.7276344264049955,
+    "largest_abs_return": 0.1451977201984267
+  },
+  {
+    "dataset": "etfs/AGG",
+    "start": "2006-11-01",
+    "end": "2016-10-13",
+    "rows": 2505,
+    "missing_cells": 0,
+    "adjustment_ratio_min": 0.7132694073414465,
+    "largest_abs_return": 0.06839495842474985
+  },
+  {
+    "dataset": "stocks/AAPL",
+    "start": "2000-02-01",
+    "end": "2012-09-12",
+    "rows": 3175,
+    "missing_cells": 0,
+    "adjustment_ratio_min": 0.2488779174147217,
+    "largest_abs_return": 0.5187687687687688
+  },
+  {
+    "dataset": "stocks/MSFT",
+    "start": "2000-02-01",
+    "end": "2012-09-12",
+    "rows": 3175,
+    "missing_cells": 0,
+    "adjustment_ratio_min": 0.38227684346701163,
+    "largest_abs_return": 0.19555330975240026
+  },
+  {
+    "dataset": "stocks/IBM",
+    "start": "2000-02-01",
+    "end": "2012-09-12",
+    "rows": 3175,
+    "missing_cells": 0,
+    "adjustment_ratio_min": 0.85724043715847,
+    "largest_abs_return": 0.15534979423868323
+  },
+  {
+    "dataset": "stocks/ORCL",
+    "start": "2000-02-01",
+    "end": "2012-09-12",
+    "rows": 3175,
+    "missing_cells": 0,
+    "adjustment_ratio_min": 0.48570972377454896,
+    "largest_abs_return": 0.21350507416081177
+  },
+  {
+    "dataset": "stocks/INTC",
+    "start": "2000-02-01",
+    "end": "2012-09-12",
+    "rows": 3175,
+    "missing_cells": 0,
+    "adjustment_ratio_min": 0.40122239747634075,
+    "largest_abs_return": 0.22012960712839214
+  },
+  {
+    "dataset": "stocks/CSCO",
+    "start": "2000-02-01",
+    "end": "2012-09-12",
+    "rows": 3175,
+    "missing_cells": 0,
+    "adjustment_ratio_min": 0.4885833121127239,
+    "largest_abs_return": 0.24413145539906123
+  },
+  {
+    "dataset": "stocks/QCOM",
+    "start": "2000-02-01",
+    "end": "2012-09-12",
+    "rows": 3169,
+    "missing_cells": 0,
+    "adjustment_ratio_min": 0.4424710424710425,
+    "largest_abs_return": 0.18670309653916206
+  },
+  {
+    "dataset": "stocks/TXN",
+    "start": "2000-02-01",
+    "end": "2012-09-12",
+    "rows": 3169,
+    "missing_cells": 0,
+    "adjustment_ratio_min": 0.4415526282133265,
+    "largest_abs_return": 0.24056459036514255
+  },
+  {
+    "dataset": "stocks/NVDA",
+    "start": "2000-02-01",
+    "end": "2012-09-12",
+    "rows": 3175,
+    "missing_cells": 0,
+    "adjustment_ratio_min": 0.083248730964467,
+    "largest_abs_return": 0.4221311475409837
+  },
+  {
+    "dataset": "stocks/ADP",
+    "start": "2000-02-01",
+    "end": "2012-09-12",
+    "rows": 3174,
+    "missing_cells": 0,
+    "adjustment_ratio_min": 0.7047927761055801,
+    "largest_abs_return": 0.23590955113061085
+  },
+  {
+    "dataset": "stocks/GILD",
+    "start": "2000-02-01",
+    "end": "2012-09-12",
+    "rows": 3169,
+    "missing_cells": 0,
+    "adjustment_ratio_min": 0.06238489871086556,
+    "largest_abs_return": 0.2509225092250924
+  },
+  {
+    "dataset": "stocks/AMGN",
+    "start": "2000-02-01",
+    "end": "2012-09-12",
+    "rows": 3175,
+    "missing_cells": 0,
+    "adjustment_ratio_min": 0.9851225204200701,
+    "largest_abs_return": 0.1509786989061599
+  },
+  {
+    "dataset": "stocks/BIIB",
+    "start": "2000-02-01",
+    "end": "2012-09-12",
+    "rows": 3169,
+    "missing_cells": 0,
+    "adjustment_ratio_min": 0.33321714883234577,
+    "largest_abs_return": 0.4255350772889418
+  },
+  {
+    "dataset": "stocks/JNJ",
+    "start": "2000-02-01",
+    "end": "2012-09-12",
+    "rows": 3175,
+    "missing_cells": 0,
+    "adjustment_ratio_min": 0.36833333333333335,
+    "largest_abs_return": 0.15835312747426766
+  },
+  {
+    "dataset": "stocks/PFE",
+    "start": "2000-02-01",
+    "end": "2012-09-12",
+    "rows": 3175,
+    "missing_cells": 0,
+    "adjustment_ratio_min": 0.6612405276452427,
+    "largest_abs_return": 0.1115421920465568
+  },
+  {
+    "dataset": "stocks/MRK",
+    "start": "2000-02-01",
+    "end": "2012-09-12",
+    "rows": 3175,
+    "missing_cells": 0,
+    "adjustment_ratio_min": 0.5991934434759985,
+    "largest_abs_return": 0.26779026217228463
+  },
+  {
+    "dataset": "stocks/BMY",
+    "start": "2000-02-01",
+    "end": "2012-09-12",
+    "rows": 3175,
+    "missing_cells": 0,
+    "adjustment_ratio_min": 0.5629694323144104,
+    "largest_abs_return": 0.21766304347826082
+  },
+  {
+    "dataset": "stocks/ABT",
+    "start": "2000-02-01",
+    "end": "2012-09-12",
+    "rows": 3175,
+    "missing_cells": 0,
+    "adjustment_ratio_min": 0.6744109947643979,
+    "largest_abs_return": 0.16146158650843223
+  },
+  {
+    "dataset": "stocks/MDT",
+    "start": "2000-02-01",
+    "end": "2012-09-12",
+    "rows": 3169,
+    "missing_cells": 0,
+    "adjustment_ratio_min": 0.8581159984429739,
+    "largest_abs_return": 0.13237063778580027
+  },
+  {
+    "dataset": "stocks/UNH",
+    "start": "2000-02-01",
+    "end": "2012-09-12",
+    "rows": 3174,
+    "missing_cells": 0,
+    "adjustment_ratio_min": 0.12027623249568385,
+    "largest_abs_return": 0.3480333730631704
+  },
+  {
+    "dataset": "stocks/WMT",
+    "start": "2000-02-01",
+    "end": "2012-09-12",
+    "rows": 3175,
+    "missing_cells": 0,
+    "adjustment_ratio_min": 0.8308747143153958,
+    "largest_abs_return": 0.11061946902654873
+  },
+  {
+    "dataset": "stocks/COST",
+    "start": "2000-02-01",
+    "end": "2012-09-12",
+    "rows": 3175,
+    "missing_cells": 0,
+    "adjustment_ratio_min": 0.9096863150637711,
+    "largest_abs_return": 0.21558020016229373
+  },
+  {
+    "dataset": "stocks/TGT",
+    "start": "2000-02-01",
+    "end": "2012-09-12",
+    "rows": 3175,
+    "missing_cells": 0,
+    "adjustment_ratio_min": 0.4336764705882353,
+    "largest_abs_return": 0.17794651700231112
+  },
+  {
+    "dataset": "stocks/HD",
+    "start": "2000-02-01",
+    "end": "2012-09-12",
+    "rows": 3175,
+    "missing_cells": 0,
+    "adjustment_ratio_min": 0.7895412844036698,
+    "largest_abs_return": 0.28729994837377393
+  },
+  {
+    "dataset": "stocks/LOW",
+    "start": "2000-02-01",
+    "end": "2012-09-12",
+    "rows": 3175,
+    "missing_cells": 0,
+    "adjustment_ratio_min": 0.22214926679798644,
+    "largest_abs_return": 0.18355065195586762
+  },
+  {
+    "dataset": "stocks/MCD",
+    "start": "2000-02-01",
+    "end": "2012-09-12",
+    "rows": 3175,
+    "missing_cells": 0,
+    "adjustment_ratio_min": 0.7551674982181041,
+    "largest_abs_return": 0.1280817799158147
+  },
+  {
+    "dataset": "stocks/SBUX",
+    "start": "2000-02-01",
+    "end": "2012-09-12",
+    "rows": 3174,
+    "missing_cells": 0,
+    "adjustment_ratio_min": 0.24026562028373075,
+    "largest_abs_return": 0.18406285072951745
+  },
+  {
+    "dataset": "stocks/NKE",
+    "start": "2000-02-01",
+    "end": "2012-09-12",
+    "rows": 3169,
+    "missing_cells": 0,
+    "adjustment_ratio_min": 0.421830985915493,
+    "largest_abs_return": 0.1946692051404093
+  },
+  {
+    "dataset": "stocks/DIS",
+    "start": "2000-02-01",
+    "end": "2012-09-12",
+    "rows": 3175,
+    "missing_cells": 0,
+    "adjustment_ratio_min": 0.8758553274682306,
+    "largest_abs_return": 0.18365384615384617
+  },
+  {
+    "dataset": "stocks/AMZN",
+    "start": "2000-02-01",
+    "end": "2012-09-12",
+    "rows": 3168,
+    "missing_cells": 0,
+    "adjustment_ratio_min": 1.0,
+    "largest_abs_return": 0.3447136563876654
+  },
+  {
+    "dataset": "stocks/KO",
+    "start": "2000-02-01",
+    "end": "2012-09-12",
+    "rows": 3175,
+    "missing_cells": 0,
+    "adjustment_ratio_min": 0.37092682926829273,
+    "largest_abs_return": 0.13914455874390907
+  },
+  {
+    "dataset": "stocks/PEP",
+    "start": "2000-02-01",
+    "end": "2012-09-12",
+    "rows": 3174,
+    "missing_cells": 0,
+    "adjustment_ratio_min": 0.7632344386271087,
+    "largest_abs_return": 0.1490112994350281
+  },
+  {
+    "dataset": "stocks/PG",
+    "start": "2000-02-01",
+    "end": "2012-09-12",
+    "rows": 3175,
+    "missing_cells": 0,
+    "adjustment_ratio_min": 0.36854660078377915,
+    "largest_abs_return": 0.3022029165373875
+  },
+  {
+    "dataset": "stocks/CL",
+    "start": "2000-02-01",
+    "end": "2012-09-12",
+    "rows": 3169,
+    "missing_cells": 0,
+    "adjustment_ratio_min": 0.7780433983082016,
+    "largest_abs_return": 0.19964296340374887
+  },
+  {
+    "dataset": "stocks/KMB",
+    "start": "2000-02-01",
+    "end": "2012-09-12",
+    "rows": 3169,
+    "missing_cells": 0,
+    "adjustment_ratio_min": 0.6633493479752917,
+    "largest_abs_return": 0.10909090909090913
+  },
+  {
+    "dataset": "stocks/XOM",
+    "start": "2000-02-01",
+    "end": "2012-09-12",
+    "rows": 3175,
+    "missing_cells": 0,
+    "adjustment_ratio_min": 0.3753728671996182,
+    "largest_abs_return": 0.17182252077072668
+  },
+  {
+    "dataset": "stocks/CVX",
+    "start": "2000-02-01",
+    "end": "2012-09-12",
+    "rows": 3175,
+    "missing_cells": 0,
+    "adjustment_ratio_min": 0.3283783783783784,
+    "largest_abs_return": 0.20849880857823666
+  },
+  {
+    "dataset": "stocks/COP",
+    "start": "2000-02-01",
+    "end": "2012-09-12",
+    "rows": 3175,
+    "missing_cells": 0,
+    "adjustment_ratio_min": 0.26099778815433766,
+    "largest_abs_return": 0.16608112424145638
+  },
+  {
+    "dataset": "stocks/SLB",
+    "start": "2000-02-01",
+    "end": "2012-09-12",
+    "rows": 3175,
+    "missing_cells": 0,
+    "adjustment_ratio_min": 0.42672268907563027,
+    "largest_abs_return": 0.18405589963474667
+  },
+  {
+    "dataset": "stocks/OXY",
+    "start": "2000-02-01",
+    "end": "2012-09-12",
+    "rows": 3174,
+    "missing_cells": 0,
+    "adjustment_ratio_min": 0.3646095717884131,
+    "largest_abs_return": 0.18499379909053337
+  },
+  {
+    "dataset": "stocks/CAT",
+    "start": "2000-02-01",
+    "end": "2012-09-12",
+    "rows": 3175,
+    "missing_cells": 0,
+    "adjustment_ratio_min": 0.3655117693731817,
+    "largest_abs_return": 0.1470435684647302
+  },
+  {
+    "dataset": "stocks/DE",
+    "start": "2000-02-01",
+    "end": "2012-09-12",
+    "rows": 3169,
+    "missing_cells": 0,
+    "adjustment_ratio_min": 0.3902702702702703,
+    "largest_abs_return": 0.1602023608768972
+  },
+  {
+    "dataset": "stocks/MMM",
+    "start": "2000-02-01",
+    "end": "2012-09-12",
+    "rows": 3175,
+    "missing_cells": 0,
+    "adjustment_ratio_min": 0.3688144038047786,
+    "largest_abs_return": 0.11052366565961735
+  },
+  {
+    "dataset": "stocks/GE",
+    "start": "2000-02-01",
+    "end": "2012-09-12",
+    "rows": 3175,
+    "missing_cells": 0,
+    "adjustment_ratio_min": 0.2300452356632132,
+    "largest_abs_return": 0.19672131147540983
+  },
+  {
+    "dataset": "stocks/HON",
+    "start": "2000-02-01",
+    "end": "2012-09-12",
+    "rows": 3175,
+    "missing_cells": 0,
+    "adjustment_ratio_min": 0.7352486187845304,
+    "largest_abs_return": 0.28218562874251485
+  },
+  {
+    "dataset": "stocks/UTX",
+    "start": "2000-02-01",
+    "end": "2012-09-12",
+    "rows": 3175,
+    "missing_cells": 0,
+    "adjustment_ratio_min": 0.3944868690631403,
+    "largest_abs_return": 0.2613253463122426
+  },
+  {
+    "dataset": "stocks/BA",
+    "start": "2000-02-01",
+    "end": "2012-09-12",
+    "rows": 3175,
+    "missing_cells": 0,
+    "adjustment_ratio_min": 0.7749342262616599,
+    "largest_abs_return": 0.17621401570223905
+  },
+  {
+    "dataset": "stocks/UPS",
+    "start": "2000-02-01",
+    "end": "2012-09-12",
+    "rows": 3168,
+    "missing_cells": 0,
+    "adjustment_ratio_min": 0.7615623467886911,
+    "largest_abs_return": 0.13070132417851887
+  },
+  {
+    "dataset": "stocks/FDX",
+    "start": "2000-02-01",
+    "end": "2012-09-12",
+    "rows": 3169,
+    "missing_cells": 0,
+    "adjustment_ratio_min": 0.9512870190977026,
+    "largest_abs_return": 0.14480761274306997
+  },
+  {
+    "dataset": "stocks/UNP",
+    "start": "2000-02-01",
+    "end": "2012-09-12",
+    "rows": 3175,
+    "missing_cells": 0,
+    "adjustment_ratio_min": 0.40166666666666667,
+    "largest_abs_return": 0.1400791602133884
+  },
+  {
+    "dataset": "stocks/CSX",
+    "start": "2000-02-01",
+    "end": "2012-09-12",
+    "rows": 3175,
+    "missing_cells": 0,
+    "adjustment_ratio_min": 0.13077274805669867,
+    "largest_abs_return": 0.16260162601626016
+  },
+  {
+    "dataset": "stocks/EMR",
+    "start": "2000-02-01",
+    "end": "2012-09-12",
+    "rows": 3169,
+    "missing_cells": 0,
+    "adjustment_ratio_min": 0.35299844236760125,
+    "largest_abs_return": 0.15415959252971145
+  },
+  {
+    "dataset": "stocks/JPM",
+    "start": "2000-02-01",
+    "end": "2012-09-12",
+    "rows": 3175,
+    "missing_cells": 0,
+    "adjustment_ratio_min": 0.4545781399808246,
+    "largest_abs_return": 0.2505827505827507
+  },
+  {
+    "dataset": "stocks/BAC",
+    "start": "2000-02-01",
+    "end": "2012-09-12",
+    "rows": 3175,
+    "missing_cells": 0,
+    "adjustment_ratio_min": 0.32685714285714285,
+    "largest_abs_return": 0.35344827586206895
+  },
+  {
+    "dataset": "stocks/WFC",
+    "start": "2000-02-01",
+    "end": "2012-09-12",
+    "rows": 3175,
+    "missing_cells": 0,
+    "adjustment_ratio_min": 0.35954500494559843,
+    "largest_abs_return": 0.32767762460233296
+  },
+  {
+    "dataset": "stocks/C",
+    "start": "2000-02-01",
+    "end": "2012-09-12",
+    "rows": 3175,
+    "missing_cells": 0,
+    "adjustment_ratio_min": 0.9980497318381276,
+    "largest_abs_return": 0.5783164624400641
+  },
+  {
+    "dataset": "stocks/GS",
+    "start": "2000-02-01",
+    "end": "2012-09-12",
+    "rows": 3169,
+    "missing_cells": 0,
+    "adjustment_ratio_min": 0.891604675876727,
+    "largest_abs_return": 0.2646250490773461
+  },
+  {
+    "dataset": "stocks/MS",
+    "start": "2000-02-01",
+    "end": "2012-09-12",
+    "rows": 3175,
+    "missing_cells": 0,
+    "adjustment_ratio_min": 0.6761977186311787,
+    "largest_abs_return": 0.8696604600219058
+  },
+  {
+    "dataset": "stocks/AXP",
+    "start": "2000-02-01",
+    "end": "2012-09-12",
+    "rows": 3175,
+    "missing_cells": 0,
+    "adjustment_ratio_min": 0.24750856431018375,
+    "largest_abs_return": 0.20656565656565662
+  },
+  {
+    "dataset": "stocks/USB",
+    "start": "2000-02-01",
+    "end": "2012-09-12",
+    "rows": 3175,
+    "missing_cells": 0,
+    "adjustment_ratio_min": 0.5109211775878443,
+    "largest_abs_return": 0.22863403944485028
+  },
+  {
+    "dataset": "stocks/PNC",
+    "start": "2000-02-01",
+    "end": "2012-09-12",
+    "rows": 3169,
+    "missing_cells": 0,
+    "adjustment_ratio_min": 0.6797492504769693,
+    "largest_abs_return": 0.41399662731871834
+  },
+  {
+    "dataset": "stocks/BK",
+    "start": "2000-02-01",
+    "end": "2012-09-12",
+    "rows": 3169,
+    "missing_cells": 0,
+    "adjustment_ratio_min": 0.8041050407485663,
+    "largest_abs_return": 0.2716711349419124
+  },
+  {
+    "dataset": "stocks/VZ",
+    "start": "2000-02-01",
+    "end": "2012-09-12",
+    "rows": 3175,
+    "missing_cells": 0,
+    "adjustment_ratio_min": 0.5436534586971121,
+    "largest_abs_return": 0.14643976712942242
+  },
+  {
+    "dataset": "stocks/T",
+    "start": "2000-02-01",
+    "end": "2012-09-12",
+    "rows": 3175,
+    "missing_cells": 0,
+    "adjustment_ratio_min": 0.5553047404063206,
+    "largest_abs_return": 0.162855549358617
+  },
+  {
+    "dataset": "stocks/CMCSA",
+    "start": "2000-02-01",
+    "end": "2012-09-12",
+    "rows": 3169,
+    "missing_cells": 0,
+    "adjustment_ratio_min": 0.6130890052356021,
+    "largest_abs_return": 0.24486571879936814
+  },
+  {
+    "dataset": "stocks/DUK",
+    "start": "2000-02-01",
+    "end": "2012-09-12",
+    "rows": 3175,
+    "missing_cells": 0,
+    "adjustment_ratio_min": 0.4829742876997915,
+    "largest_abs_return": 0.1614530776992935
+  },
+  {
+    "dataset": "stocks/SO",
+    "start": "2000-02-01",
+    "end": "2012-09-12",
+    "rows": 3169,
+    "missing_cells": 0,
+    "adjustment_ratio_min": 0.33038229376257544,
+    "largest_abs_return": 0.11090154658619378
+  },
+  {
+    "dataset": "stocks/D",
+    "start": "2000-02-01",
+    "end": "2012-09-12",
+    "rows": 3169,
+    "missing_cells": 0,
+    "adjustment_ratio_min": 0.2974232456140351,
+    "largest_abs_return": 0.12809624911535744
+  },
+  {
+    "dataset": "stocks/AEP",
+    "start": "2000-02-01",
+    "end": "2012-09-12",
+    "rows": 3174,
+    "missing_cells": 0,
+    "adjustment_ratio_min": 0.5262689225289404,
+    "largest_abs_return": 0.22807017543859653
+  },
+  {
+    "dataset": "stocks/XEL",
+    "start": "2000-02-01",
+    "end": "2012-09-12",
+    "rows": 3174,
+    "missing_cells": 0,
+    "adjustment_ratio_min": 0.5421245421245422,
+    "largest_abs_return": 0.3675099866844208
+  }
+]

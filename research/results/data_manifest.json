@@ -1,0 +1,484 @@
+{
+  "retrieved_at": "2026-09-15T08:00:39.730165+00:00",
+  "classification": "EXPLORATORY",
+  "sources": [
+    {
+      "url": "https://mba.tuck.dartmouth.edu/pages/faculty/ken.french/ftp/F-F_Research_Data_Factors_CSV.zip",
+      "path": ".cache/ff_monthly.zip",
+      "sha256": "b840dba55d319f4818fc7300e65c52eff5f64870c8d495fa58ff5d4cd749f5eb",
+      "bytes": 13067
+    },
+    {
+      "url": "https://mba.tuck.dartmouth.edu/pages/faculty/ken.french/ftp/F-F_Research_Data_Factors_daily_CSV.zip",
+      "path": ".cache/ff_daily.zip",
+      "sha256": "1916d331c2c51d2aee3d00215897d2b8e5995cb387f1f4569ba46bff5fb049a8",
+      "bytes": 178044
+    },
+    {
+      "url": "https://mba.tuck.dartmouth.edu/pages/faculty/ken.french/ftp/6_Portfolios_ME_Prior_12_2_CSV.zip",
+      "path": ".cache/momentum6.zip",
+      "sha256": "de72138105e55deda9b44e187c3119d93c4af6b190e514eb4b8bb1fed8a90110",
+      "bytes": 127559
+    },
+    {
+      "url": "https://mba.tuck.dartmouth.edu/pages/faculty/ken.french/ftp/6_Portfolios_ME_OP_2x3_CSV.zip",
+      "path": ".cache/profitability6.zip",
+      "sha256": "f96cdb010130d9991479f18fe9a8cafddefbce1c2038e0c5629587223efc06d5",
+      "bytes": 105808
+    },
+    {
+      "url": "https://mba.tuck.dartmouth.edu/pages/faculty/ken.french/ftp/6_Portfolios_2x3_CSV.zip",
+      "path": ".cache/value6.zip",
+      "sha256": "0b3f5ed2cb70809cbbc16cbb34355c5873b1076375bf45e3e6c6ddd9c5cb3e9c",
+      "bytes": 149252
+    },
+    {
+      "url": "https://mba.tuck.dartmouth.edu/pages/faculty/ken.french/ftp/25_Portfolios_BEME_OP_5x5_CSV.zip",
+      "path": ".cache/value_quality25.zip",
+      "sha256": "dcc3945b6470b0e745c560f33fd28a37bdaa372c67a66c452d1c7ad498edd302",
+      "bytes": 382876
+    },
+    {
+      "url": "https://mba.tuck.dartmouth.edu/pages/faculty/ken.french/ftp/10_Industry_Portfolios_CSV.zip",
+      "path": ".cache/industry10.zip",
+      "sha256": "9e0d9968f9c36a116ee6ee53905172e834448755b9c511c7d46bb4233ba7978f",
+      "bytes": 118889
+    },
+    {
+      "url": "https://raw.githubusercontent.com/quantstart/qstrader/e6d86a3ac3dc507b26e27b1f20c2949a69438ef7/data/SPY.csv",
+      "path": ".cache/etfs/SPY.csv",
+      "sha256": "0968f804c2594ec6fd2d0624e4271b8e351169946260f31e32c6048189ec8098",
+      "bytes": 291945
+    },
+    {
+      "url": "https://raw.githubusercontent.com/quantstart/qstrader/e6d86a3ac3dc507b26e27b1f20c2949a69438ef7/data/AGG.csv",
+      "path": ".cache/etfs/AGG.csv",
+      "sha256": "40884abfce659d6b0569d32b9e02f776a1c942e34b8db4640d7ba2f5f2210ad9",
+      "bytes": 175646
+    },
+    {
+      "url": "https://raw.githubusercontent.com/QuantSoftware/QuantSoftwareToolkit/0eb2c7a776c259a087fdcac1d3ff883eb0b5516c/QSTK/QSData/Yahoo/AAPL.csv",
+      "path": ".cache/stocks/AAPL.csv",
+      "sha256": "f47bedc82bbdf022c0387ac09918a5291f51ed18ce50432ee460ea7c7c75b206",
+      "bytes": 164327
+    },
+    {
+      "url": "https://raw.githubusercontent.com/QuantSoftware/QuantSoftwareToolkit/0eb2c7a776c259a087fdcac1d3ff883eb0b5516c/QSTK/QSData/Yahoo/MSFT.csv",
+      "path": ".cache/stocks/MSFT.csv",
+      "sha256": "05dc69349fc014aeb9c762b74ffe8e8b1325e083b8fa6940884ff5ae2081189e",
+      "bytes": 159207
+    },
+    {
+      "url": "https://raw.githubusercontent.com/QuantSoftware/QuantSoftwareToolkit/0eb2c7a776c259a087fdcac1d3ff883eb0b5516c/QSTK/QSData/Yahoo/IBM.csv",
+      "path": ".cache/stocks/IBM.csv",
+      "sha256": "788a36e0c9b8ba16763227e88b027b7d06b3ad22e700e173b8d065d7af5033af",
+      "bytes": 163906
+    },
+    {
+      "url": "https://raw.githubusercontent.com/QuantSoftware/QuantSoftwareToolkit/0eb2c7a776c259a087fdcac1d3ff883eb0b5516c/QSTK/QSData/Yahoo/ORCL.csv",
+      "path": ".cache/stocks/ORCL.csv",
+      "sha256": "ccf988a09a1efbf9492d6e962a2f303a2c70d21bf8922f597d5574f4f4e7c1c0",
+      "bytes": 158200
+    },
+    {
+      "url": "https://raw.githubusercontent.com/QuantSoftware/QuantSoftwareToolkit/0eb2c7a776c259a087fdcac1d3ff883eb0b5516c/QSTK/QSData/Yahoo/INTC.csv",
+      "path": ".cache/stocks/INTC.csv",
+      "sha256": "5223bcbc8246556380a7f6bb3203b031cd8c341b382a65cb9225f5d47d8571d0",
+      "bytes": 159454
+    },
+    {
+      "url": "https://raw.githubusercontent.com/QuantSoftware/QuantSoftwareToolkit/0eb2c7a776c259a087fdcac1d3ff883eb0b5516c/QSTK/QSData/Yahoo/CSCO.csv",
+      "path": ".cache/stocks/CSCO.csv",
+      "sha256": "df5b3b83b276e3ed14e658d06a3df7653426cab25cca0efcc2da54309c4be05a",
+      "bytes": 159108
+    },
+    {
+      "url": "https://raw.githubusercontent.com/QuantSoftware/QuantSoftwareToolkit/0eb2c7a776c259a087fdcac1d3ff883eb0b5516c/QSTK/QSData/Yahoo/QCOM.csv",
+      "path": ".cache/stocks/QCOM.csv",
+      "sha256": "2273cc3cf56d6b439b622722994e01533933ea0db71b43a38c1b085b25f631c0",
+      "bytes": 158548
+    },
+    {
+      "url": "https://raw.githubusercontent.com/QuantSoftware/QuantSoftwareToolkit/0eb2c7a776c259a087fdcac1d3ff883eb0b5516c/QSTK/QSData/Yahoo/TXN.csv",
+      "path": ".cache/stocks/TXN.csv",
+      "sha256": "280eb0f0f773e5ddaa7966859fae924bf48608ac7e9764e335466183f2f5c579",
+      "bytes": 157830
+    },
+    {
+      "url": "https://raw.githubusercontent.com/QuantSoftware/QuantSoftwareToolkit/0eb2c7a776c259a087fdcac1d3ff883eb0b5516c/QSTK/QSData/Yahoo/NVDA.csv",
+      "path": ".cache/stocks/NVDA.csv",
+      "sha256": "7d97fbe8e60a830203415639c189d6a14644a862e9be6df91d0b9d5d983f7f2a",
+      "bytes": 156525
+    },
+    {
+      "url": "https://raw.githubusercontent.com/QuantSoftware/QuantSoftwareToolkit/0eb2c7a776c259a087fdcac1d3ff883eb0b5516c/QSTK/QSData/Yahoo/ADP.csv",
+      "path": ".cache/stocks/ADP.csv",
+      "sha256": "b5f90f50e1456ff9c7685eb1e944acdf098ce6088150190769f15970970f9b2d",
+      "bytes": 155464
+    },
+    {
+      "url": "https://raw.githubusercontent.com/QuantSoftware/QuantSoftwareToolkit/0eb2c7a776c259a087fdcac1d3ff883eb0b5516c/QSTK/QSData/Yahoo/GILD.csv",
+      "path": ".cache/stocks/GILD.csv",
+      "sha256": "2542ab8e44b6bc087ba1b9fc3ad9145efe70165fbdeeec717feafc1a43598fba",
+      "bytes": 155624
+    },
+    {
+      "url": "https://raw.githubusercontent.com/QuantSoftware/QuantSoftwareToolkit/0eb2c7a776c259a087fdcac1d3ff883eb0b5516c/QSTK/QSData/Yahoo/AMGN.csv",
+      "path": ".cache/stocks/AMGN.csv",
+      "sha256": "1c00abfe8a8c59c8430888810bed925c8f50f95f3e9841f2bea5c4a96487e88c",
+      "bytes": 156585
+    },
+    {
+      "url": "https://raw.githubusercontent.com/QuantSoftware/QuantSoftwareToolkit/0eb2c7a776c259a087fdcac1d3ff883eb0b5516c/QSTK/QSData/Yahoo/BIIB.csv",
+      "path": ".cache/stocks/BIIB.csv",
+      "sha256": "f79efd8675d5c51bafa1d65b891f87eb9d7a45bc50e989124c9263cdcabd074f",
+      "bytes": 157260
+    },
+    {
+      "url": "https://raw.githubusercontent.com/QuantSoftware/QuantSoftwareToolkit/0eb2c7a776c259a087fdcac1d3ff883eb0b5516c/QSTK/QSData/Yahoo/JNJ.csv",
+      "path": ".cache/stocks/JNJ.csv",
+      "sha256": "482185235508b98fcabe36ec2009bc189ee28f866ce7e164c039d7c5484f9587",
+      "bytes": 156980
+    },
+    {
+      "url": "https://raw.githubusercontent.com/QuantSoftware/QuantSoftwareToolkit/0eb2c7a776c259a087fdcac1d3ff883eb0b5516c/QSTK/QSData/Yahoo/PFE.csv",
+      "path": ".cache/stocks/PFE.csv",
+      "sha256": "46d074217b98ccebe8013a4c85e46d23a14315d03b6c3b2a08658559357c4da7",
+      "bytes": 158649
+    },
+    {
+      "url": "https://raw.githubusercontent.com/QuantSoftware/QuantSoftwareToolkit/0eb2c7a776c259a087fdcac1d3ff883eb0b5516c/QSTK/QSData/Yahoo/MRK.csv",
+      "path": ".cache/stocks/MRK.csv",
+      "sha256": "53d1bd6531ace1b1d79258e5051deb69ff858356d8d3f934a785e7942974b9cb",
+      "bytes": 157131
+    },
+    {
+      "url": "https://raw.githubusercontent.com/QuantSoftware/QuantSoftwareToolkit/0eb2c7a776c259a087fdcac1d3ff883eb0b5516c/QSTK/QSData/Yahoo/BMY.csv",
+      "path": ".cache/stocks/BMY.csv",
+      "sha256": "5b8493c9baef15673d76dbe7e550bc29694664f08c18c17eae6b90a64aefa42e",
+      "bytes": 156711
+    },
+    {
+      "url": "https://raw.githubusercontent.com/QuantSoftware/QuantSoftwareToolkit/0eb2c7a776c259a087fdcac1d3ff883eb0b5516c/QSTK/QSData/Yahoo/ABT.csv",
+      "path": ".cache/stocks/ABT.csv",
+      "sha256": "9727af797d1d26303de139e54049e7fa57fbb15d8bc659989600e5437e5b5045",
+      "bytes": 155893
+    },
+    {
+      "url": "https://raw.githubusercontent.com/QuantSoftware/QuantSoftwareToolkit/0eb2c7a776c259a087fdcac1d3ff883eb0b5516c/QSTK/QSData/Yahoo/MDT.csv",
+      "path": ".cache/stocks/MDT.csv",
+      "sha256": "1d375fe86fb808a67be32c6ee753708d62099c3fcba4da952e437fb3d8417f3f",
+      "bytes": 155513
+    },
+    {
+      "url": "https://raw.githubusercontent.com/QuantSoftware/QuantSoftwareToolkit/0eb2c7a776c259a087fdcac1d3ff883eb0b5516c/QSTK/QSData/Yahoo/UNH.csv",
+      "path": ".cache/stocks/UNH.csv",
+      "sha256": "7ad90f9146507650019cea335ef102482da074943ffb0103fb973ec97309644e",
+      "bytes": 156328
+    },
+    {
+      "url": "https://raw.githubusercontent.com/QuantSoftware/QuantSoftwareToolkit/0eb2c7a776c259a087fdcac1d3ff883eb0b5516c/QSTK/QSData/Yahoo/WMT.csv",
+      "path": ".cache/stocks/WMT.csv",
+      "sha256": "450b439cd2ab28304b6cbecb447389d8dde68bc97009ace54d83bdb549cf08ca",
+      "bytes": 157412
+    },
+    {
+      "url": "https://raw.githubusercontent.com/QuantSoftware/QuantSoftwareToolkit/0eb2c7a776c259a087fdcac1d3ff883eb0b5516c/QSTK/QSData/Yahoo/COST.csv",
+      "path": ".cache/stocks/COST.csv",
+      "sha256": "719718ee60473f4a173a4062af2d991f4cd088c2e21e08bc2047e2ffb431712a",
+      "bytes": 155697
+    },
+    {
+      "url": "https://raw.githubusercontent.com/QuantSoftware/QuantSoftwareToolkit/0eb2c7a776c259a087fdcac1d3ff883eb0b5516c/QSTK/QSData/Yahoo/TGT.csv",
+      "path": ".cache/stocks/TGT.csv",
+      "sha256": "7a85c0ce1bc59706579ccb1dff77c78b3f537be37f5144835ffd9eee09d3c154",
+      "bytes": 156041
+    },
+    {
+      "url": "https://raw.githubusercontent.com/QuantSoftware/QuantSoftwareToolkit/0eb2c7a776c259a087fdcac1d3ff883eb0b5516c/QSTK/QSData/Yahoo/HD.csv",
+      "path": ".cache/stocks/HD.csv",
+      "sha256": "b3c7406e89a119dbf77070385a15bcd782442c7b3a889fe8a78de7e6bb7fec65",
+      "bytes": 157267
+    },
+    {
+      "url": "https://raw.githubusercontent.com/QuantSoftware/QuantSoftwareToolkit/0eb2c7a776c259a087fdcac1d3ff883eb0b5516c/QSTK/QSData/Yahoo/LOW.csv",
+      "path": ".cache/stocks/LOW.csv",
+      "sha256": "ca4f81b6e58cdfcb114690bfd649e838ee4286a8f11cdace96ced1d23abb7349",
+      "bytes": 157046
+    },
+    {
+      "url": "https://raw.githubusercontent.com/QuantSoftware/QuantSoftwareToolkit/0eb2c7a776c259a087fdcac1d3ff883eb0b5516c/QSTK/QSData/Yahoo/MCD.csv",
+      "path": ".cache/stocks/MCD.csv",
+      "sha256": "fb9f2274d636c49b1dadef73d811b25f13e3c4cc364d2381b0afd503af6f0649",
+      "bytes": 156129
+    },
+    {
+      "url": "https://raw.githubusercontent.com/QuantSoftware/QuantSoftwareToolkit/0eb2c7a776c259a087fdcac1d3ff883eb0b5516c/QSTK/QSData/Yahoo/SBUX.csv",
+      "path": ".cache/stocks/SBUX.csv",
+      "sha256": "702982286b0cbc48fcae36292aa65592cc2c8b9163d5fc599613fe922b859fb5",
+      "bytes": 155686
+    },
+    {
+      "url": "https://raw.githubusercontent.com/QuantSoftware/QuantSoftwareToolkit/0eb2c7a776c259a087fdcac1d3ff883eb0b5516c/QSTK/QSData/Yahoo/NKE.csv",
+      "path": ".cache/stocks/NKE.csv",
+      "sha256": "d603c7bb5d03e9e93f1a6c455818c3e6cdd535136020d9102466010ddd7ff51c",
+      "bytes": 156035
+    },
+    {
+      "url": "https://raw.githubusercontent.com/QuantSoftware/QuantSoftwareToolkit/0eb2c7a776c259a087fdcac1d3ff883eb0b5516c/QSTK/QSData/Yahoo/DIS.csv",
+      "path": ".cache/stocks/DIS.csv",
+      "sha256": "63e744986dee1a1ea0073e3ef94fe99afd6cd2da7a3fde36cb5c2457640e1979",
+      "bytes": 156792
+    },
+    {
+      "url": "https://raw.githubusercontent.com/QuantSoftware/QuantSoftwareToolkit/0eb2c7a776c259a087fdcac1d3ff883eb0b5516c/QSTK/QSData/Yahoo/AMZN.csv",
+      "path": ".cache/stocks/AMZN.csv",
+      "sha256": "257cdbcccdf797a2ab31ba8378f1844243dee541549537f8fc4da2088de9fe3b",
+      "bytes": 159153
+    },
+    {
+      "url": "https://raw.githubusercontent.com/QuantSoftware/QuantSoftwareToolkit/0eb2c7a776c259a087fdcac1d3ff883eb0b5516c/QSTK/QSData/Yahoo/KO.csv",
+      "path": ".cache/stocks/KO.csv",
+      "sha256": "a22bd0b5da37ba8c16123c84aa8d4a55659cf693d2547799d59127d51cd1eee8",
+      "bytes": 157895
+    },
+    {
+      "url": "https://raw.githubusercontent.com/QuantSoftware/QuantSoftwareToolkit/0eb2c7a776c259a087fdcac1d3ff883eb0b5516c/QSTK/QSData/Yahoo/PEP.csv",
+      "path": ".cache/stocks/PEP.csv",
+      "sha256": "d33a20f97649ce2ea2d967904f763087a756826c65bb7558c2b81888bbb4f038",
+      "bytes": 155782
+    },
+    {
+      "url": "https://raw.githubusercontent.com/QuantSoftware/QuantSoftwareToolkit/0eb2c7a776c259a087fdcac1d3ff883eb0b5516c/QSTK/QSData/Yahoo/PG.csv",
+      "path": ".cache/stocks/PG.csv",
+      "sha256": "6cd6e307dcd249505ec5741552b8ee208c3fa7a089471574c92e8c9c13d65105",
+      "bytes": 157154
+    },
+    {
+      "url": "https://raw.githubusercontent.com/QuantSoftware/QuantSoftwareToolkit/0eb2c7a776c259a087fdcac1d3ff883eb0b5516c/QSTK/QSData/Yahoo/CL.csv",
+      "path": ".cache/stocks/CL.csv",
+      "sha256": "5a3b4559585e62c15bfa66da3688107aea2cd28139590df58821cbcc522f6055",
+      "bytes": 155565
+    },
+    {
+      "url": "https://raw.githubusercontent.com/QuantSoftware/QuantSoftwareToolkit/0eb2c7a776c259a087fdcac1d3ff883eb0b5516c/QSTK/QSData/Yahoo/KMB.csv",
+      "path": ".cache/stocks/KMB.csv",
+      "sha256": "aaaaad57d75960422f78e813eeac570e1839096dda2659e0524947db485c6408",
+      "bytes": 155157
+    },
+    {
+      "url": "https://raw.githubusercontent.com/QuantSoftware/QuantSoftwareToolkit/0eb2c7a776c259a087fdcac1d3ff883eb0b5516c/QSTK/QSData/Yahoo/XOM.csv",
+      "path": ".cache/stocks/XOM.csv",
+      "sha256": "91d14c776fcc0e7384f1965394144ecd4fe171f768b28fd36bb13667dc4e17f3",
+      "bytes": 158347
+    },
+    {
+      "url": "https://raw.githubusercontent.com/QuantSoftware/QuantSoftwareToolkit/0eb2c7a776c259a087fdcac1d3ff883eb0b5516c/QSTK/QSData/Yahoo/CVX.csv",
+      "path": ".cache/stocks/CVX.csv",
+      "sha256": "a0deffe40514a1bfb1418fd606a162dbbc6180c46286acfa40c3a3a7764d02d6",
+      "bytes": 157974
+    },
+    {
+      "url": "https://raw.githubusercontent.com/QuantSoftware/QuantSoftwareToolkit/0eb2c7a776c259a087fdcac1d3ff883eb0b5516c/QSTK/QSData/Yahoo/COP.csv",
+      "path": ".cache/stocks/COP.csv",
+      "sha256": "501063097ac66c254b48ce33b8b02b78614dd46ab1ffc7ed176caf5b9854c472",
+      "bytes": 156854
+    },
+    {
+      "url": "https://raw.githubusercontent.com/QuantSoftware/QuantSoftwareToolkit/0eb2c7a776c259a087fdcac1d3ff883eb0b5516c/QSTK/QSData/Yahoo/SLB.csv",
+      "path": ".cache/stocks/SLB.csv",
+      "sha256": "e535697fd2f4ec7a967ae9334c70b9b1fc11a4d8f860cb4a21a84d6cbe3dbbb1",
+      "bytes": 157203
+    },
+    {
+      "url": "https://raw.githubusercontent.com/QuantSoftware/QuantSoftwareToolkit/0eb2c7a776c259a087fdcac1d3ff883eb0b5516c/QSTK/QSData/Yahoo/OXY.csv",
+      "path": ".cache/stocks/OXY.csv",
+      "sha256": "ee1bb40694cec7b96905b7e6e94333d06665b7e701aa881690b436b46247c3be",
+      "bytes": 156136
+    },
+    {
+      "url": "https://raw.githubusercontent.com/QuantSoftware/QuantSoftwareToolkit/0eb2c7a776c259a087fdcac1d3ff883eb0b5516c/QSTK/QSData/Yahoo/CAT.csv",
+      "path": ".cache/stocks/CAT.csv",
+      "sha256": "9536778023815c764f48c70016a2335f80c21355742017edd312475a4a1edb7c",
+      "bytes": 156944
+    },
+    {
+      "url": "https://raw.githubusercontent.com/QuantSoftware/QuantSoftwareToolkit/0eb2c7a776c259a087fdcac1d3ff883eb0b5516c/QSTK/QSData/Yahoo/DE.csv",
+      "path": ".cache/stocks/DE.csv",
+      "sha256": "d2759c0afe7ad07549854a5947d36c69e2eab5c88b64478fabebd5b98f2f14d6",
+      "bytes": 156217
+    },
+    {
+      "url": "https://raw.githubusercontent.com/QuantSoftware/QuantSoftwareToolkit/0eb2c7a776c259a087fdcac1d3ff883eb0b5516c/QSTK/QSData/Yahoo/MMM.csv",
+      "path": ".cache/stocks/MMM.csv",
+      "sha256": "da1d79a7ac770d22f005efefd78a222029b7f44b1767fadf264f1a4000f1580c",
+      "bytes": 158427
+    },
+    {
+      "url": "https://raw.githubusercontent.com/QuantSoftware/QuantSoftwareToolkit/0eb2c7a776c259a087fdcac1d3ff883eb0b5516c/QSTK/QSData/Yahoo/GE.csv",
+      "path": ".cache/stocks/GE.csv",
+      "sha256": "09ba3fee4027e70587fc0cd43ab77b57684a6f526b806d1490fa13993fad27a8",
+      "bytes": 159114
+    },
+    {
+      "url": "https://raw.githubusercontent.com/QuantSoftware/QuantSoftwareToolkit/0eb2c7a776c259a087fdcac1d3ff883eb0b5516c/QSTK/QSData/Yahoo/HON.csv",
+      "path": ".cache/stocks/HON.csv",
+      "sha256": "7588fcd592fe6ed1fecaaef2d3fbb1f404f4278f98060abcc1ad7418fe15ed97",
+      "bytes": 155715
+    },
+    {
+      "url": "https://raw.githubusercontent.com/QuantSoftware/QuantSoftwareToolkit/0eb2c7a776c259a087fdcac1d3ff883eb0b5516c/QSTK/QSData/Yahoo/UTX.csv",
+      "path": ".cache/stocks/UTX.csv",
+      "sha256": "7d12b3a65f27eb4fcb5e999db33d1e93e8c2150eaf5f75f435d945c90c445f65",
+      "bytes": 156138
+    },
+    {
+      "url": "https://raw.githubusercontent.com/QuantSoftware/QuantSoftwareToolkit/0eb2c7a776c259a087fdcac1d3ff883eb0b5516c/QSTK/QSData/Yahoo/BA.csv",
+      "path": ".cache/stocks/BA.csv",
+      "sha256": "043ea91ec075d8257106fb400b4a01d777ff4edabda49349ddf489e4b95e6bc3",
+      "bytes": 155919
+    },
+    {
+      "url": "https://raw.githubusercontent.com/QuantSoftware/QuantSoftwareToolkit/0eb2c7a776c259a087fdcac1d3ff883eb0b5516c/QSTK/QSData/Yahoo/UPS.csv",
+      "path": ".cache/stocks/UPS.csv",
+      "sha256": "62e97a6e449ab4c126eb996fa809ad8c6080acc5e566a1b415b259ccea7e9394",
+      "bytes": 155044
+    },
+    {
+      "url": "https://raw.githubusercontent.com/QuantSoftware/QuantSoftwareToolkit/0eb2c7a776c259a087fdcac1d3ff883eb0b5516c/QSTK/QSData/Yahoo/FDX.csv",
+      "path": ".cache/stocks/FDX.csv",
+      "sha256": "787c84ab5e3e72757d1a8732d9064c37f1b671d58eebd7ad76ae190b5b2a9557",
+      "bytes": 157235
+    },
+    {
+      "url": "https://raw.githubusercontent.com/QuantSoftware/QuantSoftwareToolkit/0eb2c7a776c259a087fdcac1d3ff883eb0b5516c/QSTK/QSData/Yahoo/UNP.csv",
+      "path": ".cache/stocks/UNP.csv",
+      "sha256": "e1aedad0d35ed808b786cbe816cfd8f7179a1859eb0fa0203181a0dee1b2e127",
+      "bytes": 158137
+    },
+    {
+      "url": "https://raw.githubusercontent.com/QuantSoftware/QuantSoftwareToolkit/0eb2c7a776c259a087fdcac1d3ff883eb0b5516c/QSTK/QSData/Yahoo/CSX.csv",
+      "path": ".cache/stocks/CSX.csv",
+      "sha256": "a3a03b99971526fd12e9b50bbffe489f2d19e6fcac562e1286bd0e9f45bc35c9",
+      "bytes": 155201
+    },
+    {
+      "url": "https://raw.githubusercontent.com/QuantSoftware/QuantSoftwareToolkit/0eb2c7a776c259a087fdcac1d3ff883eb0b5516c/QSTK/QSData/Yahoo/EMR.csv",
+      "path": ".cache/stocks/EMR.csv",
+      "sha256": "42d434b4b2991aacc2139dfc40f4e212dc338fd9f323d3a048bf2135b00f7bee",
+      "bytes": 155348
+    },
+    {
+      "url": "https://raw.githubusercontent.com/QuantSoftware/QuantSoftwareToolkit/0eb2c7a776c259a087fdcac1d3ff883eb0b5516c/QSTK/QSData/Yahoo/JPM.csv",
+      "path": ".cache/stocks/JPM.csv",
+      "sha256": "4637e3e9e7f26c99b76ecf125787f29c9a34987b0f25c56c66a2ae6c461c6bf7",
+      "bytes": 157742
+    },
+    {
+      "url": "https://raw.githubusercontent.com/QuantSoftware/QuantSoftwareToolkit/0eb2c7a776c259a087fdcac1d3ff883eb0b5516c/QSTK/QSData/Yahoo/BAC.csv",
+      "path": ".cache/stocks/BAC.csv",
+      "sha256": "69e3476278adac2c0e06ca6fe22de0a2a738a9f2c1228d692fc56b9ac04984da",
+      "bytes": 157263
+    },
+    {
+      "url": "https://raw.githubusercontent.com/QuantSoftware/QuantSoftwareToolkit/0eb2c7a776c259a087fdcac1d3ff883eb0b5516c/QSTK/QSData/Yahoo/WFC.csv",
+      "path": ".cache/stocks/WFC.csv",
+      "sha256": "761d0c527f85566089fa5d648b0897f0e02b083e2637614256074c1e4b74717f",
+      "bytes": 157530
+    },
+    {
+      "url": "https://raw.githubusercontent.com/QuantSoftware/QuantSoftwareToolkit/0eb2c7a776c259a087fdcac1d3ff883eb0b5516c/QSTK/QSData/Yahoo/C.csv",
+      "path": ".cache/stocks/C.csv",
+      "sha256": "a2b4e8e544a5d9277375e0d89cf718e6cb979f2f6cd2d37edb16f2777724f395",
+      "bytes": 156171
+    },
+    {
+      "url": "https://raw.githubusercontent.com/QuantSoftware/QuantSoftwareToolkit/0eb2c7a776c259a087fdcac1d3ff883eb0b5516c/QSTK/QSData/Yahoo/GS.csv",
+      "path": ".cache/stocks/GS.csv",
+      "sha256": "7bc9b8922c1500806c8291d20230d2be4cc7ff41094ad76c11cda76ced8653fd",
+      "bytes": 165350
+    },
+    {
+      "url": "https://raw.githubusercontent.com/QuantSoftware/QuantSoftwareToolkit/0eb2c7a776c259a087fdcac1d3ff883eb0b5516c/QSTK/QSData/Yahoo/MS.csv",
+      "path": ".cache/stocks/MS.csv",
+      "sha256": "5f2f7954893196c0891798b60f15bdbafcbc4cda0f4aca0764f9dd68d6b4128c",
+      "bytes": 156960
+    },
+    {
+      "url": "https://raw.githubusercontent.com/QuantSoftware/QuantSoftwareToolkit/0eb2c7a776c259a087fdcac1d3ff883eb0b5516c/QSTK/QSData/Yahoo/AXP.csv",
+      "path": ".cache/stocks/AXP.csv",
+      "sha256": "9bd361591a76c4151e1b9d63855c0572ce4c6bdd7c166de647e1b6a9c51b3530",
+      "bytes": 156550
+    },
+    {
+      "url": "https://raw.githubusercontent.com/QuantSoftware/QuantSoftwareToolkit/0eb2c7a776c259a087fdcac1d3ff883eb0b5516c/QSTK/QSData/Yahoo/USB.csv",
+      "path": ".cache/stocks/USB.csv",
+      "sha256": "3dd77c158c183564ef0a384e0e004146d1c36170f0ad1ca42676576cc8060fc8",
+      "bytes": 156627
+    },
+    {
+      "url": "https://raw.githubusercontent.com/QuantSoftware/QuantSoftwareToolkit/0eb2c7a776c259a087fdcac1d3ff883eb0b5516c/QSTK/QSData/Yahoo/PNC.csv",
+      "path": ".cache/stocks/PNC.csv",
+      "sha256": "e50a14c05888886cf9ae3e0185a49fcc0d9d5f5aaaf1844e424e44e0e3d76c24",
+      "bytes": 154614
+    },
+    {
+      "url": "https://raw.githubusercontent.com/QuantSoftware/QuantSoftwareToolkit/0eb2c7a776c259a087fdcac1d3ff883eb0b5516c/QSTK/QSData/Yahoo/BK.csv",
+      "path": ".cache/stocks/BK.csv",
+      "sha256": "fb879f6d75144475063a1c5ffe202c47cc5b6e6e83598121935abea8baae97e9",
+      "bytes": 155786
+    },
+    {
+      "url": "https://raw.githubusercontent.com/QuantSoftware/QuantSoftwareToolkit/0eb2c7a776c259a087fdcac1d3ff883eb0b5516c/QSTK/QSData/Yahoo/VZ.csv",
+      "path": ".cache/stocks/VZ.csv",
+      "sha256": "fb44a3bc353577b156469f1a2885f58b793b14beb00c3a178fb1fafac0a69ba8",
+      "bytes": 157190
+    },
+    {
+      "url": "https://raw.githubusercontent.com/QuantSoftware/QuantSoftwareToolkit/0eb2c7a776c259a087fdcac1d3ff883eb0b5516c/QSTK/QSData/Yahoo/T.csv",
+      "path": ".cache/stocks/T.csv",
+      "sha256": "c7a9dce7eed0f2b45947c0836127965ca28b554b38791f4bb1ae9021956d6e52",
+      "bytes": 157665
+    },
+    {
+      "url": "https://raw.githubusercontent.com/QuantSoftware/QuantSoftwareToolkit/0eb2c7a776c259a087fdcac1d3ff883eb0b5516c/QSTK/QSData/Yahoo/CMCSA.csv",
+      "path": ".cache/stocks/CMCSA.csv",
+      "sha256": "d93ef49f464088e54d3bd06697fdb496703157bf906e42258c48511e7d25f886",
+      "bytes": 156663
+    },
+    {
+      "url": "https://raw.githubusercontent.com/QuantSoftware/QuantSoftwareToolkit/0eb2c7a776c259a087fdcac1d3ff883eb0b5516c/QSTK/QSData/Yahoo/DUK.csv",
+      "path": ".cache/stocks/DUK.csv",
+      "sha256": "ede38e37ff07cd8a710c0722d065454cac8f1721a109bf11dd4b972c857c544f",
+      "bytes": 154969
+    },
+    {
+      "url": "https://raw.githubusercontent.com/QuantSoftware/QuantSoftwareToolkit/0eb2c7a776c259a087fdcac1d3ff883eb0b5516c/QSTK/QSData/Yahoo/SO.csv",
+      "path": ".cache/stocks/SO.csv",
+      "sha256": "652fd358df7b259a86813fed97fe0a8eaf66730d75850475aff392a85cafb024",
+      "bytes": 155124
+    },
+    {
+      "url": "https://raw.githubusercontent.com/QuantSoftware/QuantSoftwareToolkit/0eb2c7a776c259a087fdcac1d3ff883eb0b5516c/QSTK/QSData/Yahoo/D.csv",
+      "path": ".cache/stocks/D.csv",
+      "sha256": "c9ea93f7c167d8e687cc42f46991ace8d12bbef95a7a0cc00ad15a8894e7bed2",
+      "bytes": 155262
+    },
+    {
+      "url": "https://raw.githubusercontent.com/QuantSoftware/QuantSoftwareToolkit/0eb2c7a776c259a087fdcac1d3ff883eb0b5516c/QSTK/QSData/Yahoo/AEP.csv",
+      "path": ".cache/stocks/AEP.csv",
+      "sha256": "d0fe639be4e9ab41b492dfe1b6e7ba8b7715afe6e4674e13b84584afb4e9d191",
+      "bytes": 154989
+    },
+    {
+      "url": "https://raw.githubusercontent.com/QuantSoftware/QuantSoftwareToolkit/0eb2c7a776c259a087fdcac1d3ff883eb0b5516c/QSTK/QSData/Yahoo/XEL.csv",
+      "path": ".cache/stocks/XEL.csv",
+      "sha256": "3b21c1caeb5080040dcbd1910ad73c0b9b76d42c6ba44e7f0a0c4adebaaf3795",
+      "bytes": 154242
+    }
+  ],
+  "unavailable": [],
+  "price_bias": "Surviving fixed stock convenience panel; not historical index membership.",
+  "french_bias": "Revised academic baskets; constituents/internal trades/PIT vintages unavailable.",
+  "no_source_credentials": true
+}
