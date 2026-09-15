@@ -60,6 +60,10 @@ Daily decisions observe close t, trade at close t+1, and first earn t+1 to t+2.
 Monthly-only proxy timing waits an extra month to avoid pretending a closing price
 was known before trading at that same close. Costs use drifted pretrade weights and
 a self-financing solve; every buy and sale incurs a fee.
+Simulation starts before the evaluated slice to build lookback history. Existing
+positions can be inherited at a slice boundary; pre-boundary fees are not charged
+again, and a not-yet-eligible strategy remains cash until its first delayed rebalance.
+This is not a new-account launch simulation at each displayed period start.
 
 - ETF one-way friction: 2/5/20 bps, base 5.
 - Stock one-way friction: 5/15/50 bps, base 15.
@@ -314,5 +318,9 @@ fixes, strategy-specific decisions and exact scope. The
 [standardized candidate cards](../research/results/candidate_summary.csv) include
 all required metrics/compatibility/confidence fields, with explicit NA for untestable
 fundamental/event candidates.
+
+The unchanged repository [CI passed on the published research branch](https://github.com/BruceGK/agentic-quant-lab/actions/runs/35007001939).
+That CI validates Phase 0 and its production image; the optional research-specific
+tests/types were run explicitly as documented, not misrepresented as part of that job.
 
 `scheduled_recording_enabled = false`; `live_execution_enabled = false`.

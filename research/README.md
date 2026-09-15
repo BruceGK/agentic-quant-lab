@@ -54,6 +54,12 @@ one-way-equivalent turnover. Approximate holding duration excludes left-censored
 positions inherited at a report boundary and right-censored open positions.
 Daily best/worst complete years are checked against the source calendar.
 Near-zero excess-return variance yields no Sharpe rather than floating-point fiction.
+Simulations run through the lookback warmup before report slices are taken. A slice
+can inherit an already invested position, and fees paid before that slice are not
+charged again. Strategies whose first eligible monthly decision falls after the
+evaluation boundary remain in cash until execution; no position is backfilled.
+Thus the results are continuous-strategy period returns, not a separately reset
+new-account launch on every displayed start date.
 
 ## Evidence files
 

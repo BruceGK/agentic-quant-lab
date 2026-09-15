@@ -127,3 +127,8 @@ risk-parity or learned capital allocator was built.
 
 No Azure request, broker connection, credential access, paid data purchase or trade
 was made. Results support a research-backed shortlist, not production readiness.
+
+Published checkpoints: `a0a8895` (protocol), `00609a2` (engine/data audit),
+`6def113` (review fixes/falsification), `0b9915f` (complete results/shortlist).
+[Existing repository CI passed](https://github.com/BruceGK/agentic-quant-lab/actions/runs/35007001939)
+on `0b9915f`; optional research controls were separately executed locally.
