@@ -218,6 +218,9 @@ def momentum_plan(
     for decision in rebalance_dates(prices.index, frequency):
         score = row_at(scores, decision).where(row_at(eligible, decision)).dropna()
         if score.empty:
+            if row_at(scores, decision).notna().any():
+                targets.loc[decision] = 0.0
+                previous = []
             continue
         order = score.sort_values(ascending=False, kind="mergesort").index.tolist()
         if random_seed is not None:
@@ -250,7 +253,12 @@ def monthly(series: pd.Series, periods_per_year: int) -> pd.Series:
 
 
 def summary(
-    returns: pd.Series, cash: pd.Series, benchmark: pd.Series, periods_per_year: int
+    returns: pd.Series,
+    cash: pd.Series,
+    benchmark: pd.Series,
+    periods_per_year: int,
+    *,
+    source_calendar: pd.DatetimeIndex | None = None,
 ) -> dict[str, float | str | int | None]:
     if not returns.index.equals(cash.index) or not returns.index.equals(benchmark.index):
         raise ValueError("Metrics require aligned calendars; do not compare different samples")
@@ -279,6 +287,20 @@ def summary(
         and date_index(values.index)[0].month == 1
         and date_index(values.index)[-1].month == 12
     }
+    if periods_per_year == 252:
+        if source_calendar is None:
+            complete = {}
+        else:
+            complete = {
+                year: value
+                for year, value in complete.items()
+                if len(expected := source_calendar[source_calendar.year == year]) >= 240
+                and expected[0].month == 1
+                and expected[0].day <= 7
+                and expected[-1].month == 12
+                and expected[-1].day >= 24
+                and expected.equals(dates[dates.year == year])
+            }
     worst = min(complete, key=lambda y: complete[y]) if complete else None
     best = max(complete, key=lambda y: complete[y]) if complete else None
     maximum_dd = float(dd.min())
@@ -288,9 +310,11 @@ def summary(
         "observations": len(returns),
         "cagr": cagr,
         "annualized_volatility": vol,
-        "sharpe": float(excess.mean() / sigma * np.sqrt(periods_per_year)) if sigma > 0 else None,
+        "sharpe": float(excess.mean() / sigma * np.sqrt(periods_per_year))
+        if sigma > 1e-12
+        else None,
         "sortino": float(excess.mean() / downside * np.sqrt(periods_per_year))
-        if downside > 0
+        if downside > 1e-12
         else None,
         "max_drawdown": maximum_dd,
         "calmar": cagr / abs(maximum_dd) if maximum_dd < 0 else None,
@@ -309,20 +333,25 @@ def summary(
 
 
 def holding_spells(weights: pd.DataFrame, periods_per_year: int) -> dict[str, float | int | None]:
-    durations, censored = [], 0
+    durations, censored, left_censored = [], 0, 0
     for symbol in weights:
         start = None
+        inherited = False
         for i, held in enumerate(weights[symbol].to_numpy() > 1e-10):
             if held and start is None:
                 start = i
+                inherited = i == 0
+                left_censored += int(inherited)
             elif not held and start is not None:
-                durations.append(i - start)
+                if not inherited:
+                    durations.append(i - start)
                 start = None
         if start is not None:
             censored += 1
     return {
         "completed_holding_spells": len(durations),
         "censored_open_spells": censored,
+        "left_censored_spells": left_censored,
         "mean_completed_holding_months": float(np.mean(durations) / periods_per_year * 12)
         if durations
         else None,

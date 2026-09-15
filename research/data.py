@@ -52,6 +52,18 @@ SECTORS = {
 STOCK_SECTORS = {ticker: sector for sector, names in SECTORS.items() for ticker in names.split()}
 
 
+def verify_sources(root: Path = ROOT) -> str:
+    manifest = (root / "results/data_manifest.json").read_bytes()
+    for source in json.loads(manifest)["sources"]:
+        path = (root / source["path"]).resolve()
+        if not path.is_relative_to((root / ".cache").resolve()):
+            raise ValueError("Manifest source must stay in the local research cache")
+        raw = path.read_bytes()
+        if len(raw) != source["bytes"] or hashlib.sha256(raw).hexdigest() != source["sha256"]:
+            raise ValueError("Cached dataset changed since the frozen source manifest")
+    return hashlib.sha256(manifest).hexdigest()
+
+
 def fetch(url: str, path: Path, expected_hash: str | None = None) -> dict:
     if path.exists():
         raw = path.read_bytes()

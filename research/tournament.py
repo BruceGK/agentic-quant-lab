@@ -1,5 +1,6 @@
 """Run the predeclared exploratory comparisons; no strategy/parameter is chosen by Sharpe."""
 
+import hashlib
 import json
 from dataclasses import asdict, dataclass
 from itertools import product
@@ -7,7 +8,16 @@ from itertools import product
 import numpy as np
 import pandas as pd
 
-from research.data import CACHE, RESULTS, STOCK_SECTORS, french_returns, price_panel, read_prices
+from research.data import (
+    CACHE,
+    RESULTS,
+    ROOT,
+    STOCK_SECTORS,
+    french_returns,
+    price_panel,
+    read_prices,
+    verify_sources,
+)
 from research.engine import (
     Run,
     block_interval,
@@ -77,7 +87,13 @@ class Results:
             if len(selected) < ppy // 2:
                 continue
             ix = selected.index
-            values = summary(selected, cash.loc[ix], benchmark.loc[ix], ppy)
+            values = summary(
+                selected,
+                cash.loc[ix],
+                benchmark.loc[ix],
+                ppy,
+                source_calendar=date_index(run.returns.index),
+            )
             years = len(selected) / ppy
             w = run.weights.loc[ix]
             values |= {
@@ -498,7 +514,13 @@ def stock_experiments(results: Results) -> None:
         plan = momentum_plan(prices, raw, volume, random_seed=seed)
         run = simulate(prices, plan, rf, fee_bps=15)
         ix = run.returns.loc[evaluated:].index
-        metric = summary(run.returns.loc[ix], rf.loc[ix], spy.loc[ix], 252)
+        metric = summary(
+            run.returns.loc[ix],
+            rf.loc[ix],
+            spy.loc[ix],
+            252,
+            source_calendar=date_index(run.returns.index),
+        )
         random_rows.append({"seed": seed, **metric})
     pd.DataFrame(random_rows).to_csv(
         RESULTS / "random_portfolios.csv", index=False, float_format="%.9g"
@@ -608,6 +630,7 @@ def complementarity(results: Results) -> None:
 
 def main() -> None:
     RESULTS.mkdir(exist_ok=True)
+    source_manifest_hash = verify_sources()
     results = Results()
     print("Running predeclared long-horizon market and academic-sleeve tests", flush=True)
     long_horizon(results)
@@ -618,6 +641,34 @@ def main() -> None:
     print("Running fixed sleeve mixes and falsification summaries", flush=True)
     complementarity(results)
     results.save()
+    (RESULTS / "experiment_manifest.json").write_text(
+        json.dumps(
+            {
+                "classification": "EXPLORATORY",
+                "protocol_sha256": hashlib.sha256((ROOT / "protocol.md").read_bytes()).hexdigest(),
+                "data_manifest_sha256": source_manifest_hash,
+                "code_sha256": {
+                    path.name: hashlib.sha256(path.read_bytes()).hexdigest()
+                    for path in sorted(ROOT.glob("*.py"))
+                },
+                "runs": len(results.run_metadata),
+                "metric_rows": len(results.metrics),
+                "data_vintage": "French 202607; ETF/stock snapshots pinned in source manifest",
+                "no_broker_or_azure_access": True,
+                "result_files_sha256": {
+                    filename: hashlib.sha256((RESULTS / filename).read_bytes()).hexdigest()
+                    for filename in (
+                        "tournament.csv",
+                        "monthly_returns.csv",
+                        "random_portfolios.csv",
+                        "correlations.csv",
+                    )
+                },
+            },
+            indent=2,
+        )
+        + "\n"
+    )
     print(
         json.dumps(
             {

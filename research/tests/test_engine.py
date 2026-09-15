@@ -9,6 +9,7 @@ from research.engine import (
     Plan,
     block_interval,
     constant_plan,
+    holding_spells,
     momentum_plan,
     rebalance,
     simulate,
@@ -159,6 +160,54 @@ def test_planted_cross_sectional_signal_selects_winners_after_skip():
     last = plan.weights.dropna().iloc[-1]
     assert last[last > 0].index.tolist() == ["a4", "a5"]
     assert last.sum() == pytest.approx(1.0)
+
+
+def test_empty_eligible_universe_liquidates_instead_of_preserving_old_winners():
+    index = pd.bdate_range("2000-01-03", periods=350)
+    prices = pd.DataFrame(
+        {"a": 100 * 1.001 ** np.arange(350), "b": 100 * 0.999 ** np.arange(350)}, index=index
+    )
+    volume = pd.DataFrame(1_000_000.0, index=index, columns=prices.columns)
+    volume.iloc[200:] = 0.0
+    plan = momentum_plan(
+        prices, prices, volume, lookbacks=(126,), breadth=1, minimum_dollars=10_000
+    )
+    assert plan.weights.dropna().iloc[0].sum() == 1
+    assert plan.weights.dropna().iloc[-1].sum() == 0
+    run = simulate(prices, plan, pd.Series(0.0, index=index), fee_bps=15)
+    assert run.weights.iloc[-1].sum() == 0
+    assert run.costs.sum() > 0
+
+
+def test_inherited_position_is_left_censored_not_a_short_completed_spell():
+    dates = pd.date_range("2020-01-31", periods=6, freq="ME")
+    weights = pd.DataFrame({"a": [1.0, 1, 0, 0, 1, 0]}, index=dates)
+    counts = holding_spells(weights, 12)
+    assert counts["left_censored_spells"] == 1
+    assert counts["completed_holding_spells"] == 1
+    assert counts["mean_completed_holding_months"] == 1
+
+
+def test_partial_calendar_year_cannot_be_best_or_worst_complete_year():
+    calendar = pd.bdate_range("2020-01-01", "2020-12-31")
+    selected = calendar[
+        (calendar >= pd.Timestamp("2020-01-31")) & (calendar <= pd.Timestamp("2020-12-01"))
+    ]
+    r = pd.Series(0.001, index=selected)
+    metrics = summary(r, r * 0, r, 252, source_calendar=calendar)
+    assert metrics["best_year"] is None and metrics["worst_year"] is None
+    complete = pd.Series(0.001, index=calendar)
+    metrics = summary(complete, complete * 0, complete, 252, source_calendar=calendar)
+    assert metrics["best_year"] == 2020
+
+
+def test_cash_equal_to_rf_has_no_floating_point_sharpe():
+    dates = pd.date_range("2020-01-31", periods=12, freq="ME")
+    cash = pd.Series(0.002, index=dates)
+    returns = (1 + cash) - 1
+    metrics = summary(returns, cash, cash, 12)
+    assert metrics["sharpe"] is None
+    assert metrics["sortino"] is None
 
 
 def test_bootstrap_is_seeded_and_reports_uncertainty():
