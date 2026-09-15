@@ -26,6 +26,10 @@ dev = [
     "pytest==9.1.1",
     "ruff==0.16.7",
 ]
+research = [
+    "numpy==2.5.3",
+    "pandas==3.0.5",
+]
 
 [tool.ruff]
 target-version = "py312"
