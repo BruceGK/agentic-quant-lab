@@ -462,6 +462,17 @@ otherwise plausible low-cost route. This report resolves the acquisition
 decision and records those limits; it does not pretend the inaccessible
 historical observations were verified.
 
+## Artifact validation
+
+JSON syntax, the CSV's 15 provider rows / 21 populated columns, whitespace and
+changed-file isolation were checked; secret scanning found no secrets. Only the
+three PEAD artifacts differ from the requested research base. No executable
+code changed, so no build or strategy test was run. Automated validation was
+requested: CodeQL skipped these documentation/static-data changes, and code
+review could not actually run because its binary was unavailable. These checks
+do not validate the inaccessible vendor data or satisfy the PEAD acceptance
+tests.
+
 ## Final verdicts
 
 Here, “LOW-COST DATA REQUIRED” identifies a plausible retail acquisition route,
