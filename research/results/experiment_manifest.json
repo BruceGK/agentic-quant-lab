@@ -1,0 +1,23 @@
+{
+  "classification": "EXPLORATORY",
+  "protocol_sha256": "92bd1ef94baa6e613f18c7942ce0e60a1606ee74ace1cc96915490fa651b7699",
+  "data_manifest_sha256": "a37d4dbcac71f8271dda1c9ff741a4edb372a5e96a68cbc401174afef1e54a8f",
+  "code_sha256": {
+    "__init__.py": "ee7770111929f2a5ac541c3adac5567658bcab70a5d0a912c132029b6debf43e",
+    "data.py": "ee2a8796a6e83a8043e8bb440244ffacf5b69055b41bee9a2af7c59678743888",
+    "engine.py": "b50119715fe4d4e84d8c3586780057071dd3ffa3e1381847d0f44bbe4997122b",
+    "falsify.py": "8ac2d077a43605e5959c1fc3d60f906c106850124e386e14c9871662be3bc4a1",
+    "report.py": "39776de3f483dd8a5bbb99b7f24e7eb603b5346b691a0789af104c793cf4d1a2",
+    "tournament.py": "f7a965af44e25462dd3e07dd7cc1fc705b4d6c11388b9fd88ae62e0d27d8b0eb"
+  },
+  "runs": 481,
+  "metric_rows": 3396,
+  "data_vintage": "French 202607; ETF/stock snapshots pinned in source manifest",
+  "no_broker_or_azure_access": true,
+  "result_files_sha256": {
+    "tournament.csv": "0d883eb41a9a62086f7229c44af0fcbbcf4ccb336ced67087f5ecc07ca36ae67",
+    "monthly_returns.csv": "f560cba5b08c6960759e7d0e2615d4817054a461c5bc46106742733155042969",
+    "random_portfolios.csv": "e80c494ba33628e34257d997e75f256e40d1b0d43be17a8aff01754e71faf7c5",
+    "correlations.csv": "8ae441c3df388595c22a2fcec8705226fbada45dfd9622d3f0e91faa3e4d7000"
+  }
+}

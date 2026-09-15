@@ -1,0 +1,110 @@
+[
+  {
+    "capital": 1000,
+    "target_breadth": 10,
+    "date": "2012-08-31",
+    "fractional_names": 10,
+    "whole_share_names": 8,
+    "uninvested_due_to_rounding_fraction": 0.42294,
+    "before_costs_and_not_an_execution_simulation": true
+  },
+  {
+    "capital": 1000,
+    "target_breadth": 20,
+    "date": "2012-08-31",
+    "fractional_names": 20,
+    "whole_share_names": 11,
+    "uninvested_due_to_rounding_fraction": 0.55965,
+    "before_costs_and_not_an_execution_simulation": true
+  },
+  {
+    "capital": 1000,
+    "target_breadth": 30,
+    "date": "2012-08-31",
+    "fractional_names": 30,
+    "whole_share_names": 5,
+    "uninvested_due_to_rounding_fraction": 0.87423,
+    "before_costs_and_not_an_execution_simulation": true
+  },
+  {
+    "capital": 1000,
+    "target_breadth": 50,
+    "date": "2012-08-31",
+    "fractional_names": 50,
+    "whole_share_names": 0,
+    "uninvested_due_to_rounding_fraction": 1.0,
+    "before_costs_and_not_an_execution_simulation": true
+  },
+  {
+    "capital": 10000,
+    "target_breadth": 10,
+    "date": "2012-08-31",
+    "fractional_names": 10,
+    "whole_share_names": 10,
+    "uninvested_due_to_rounding_fraction": 0.07228800000000013,
+    "before_costs_and_not_an_execution_simulation": true
+  },
+  {
+    "capital": 10000,
+    "target_breadth": 20,
+    "date": "2012-08-31",
+    "fractional_names": 20,
+    "whole_share_names": 19,
+    "uninvested_due_to_rounding_fraction": 0.11414799999999992,
+    "before_costs_and_not_an_execution_simulation": true
+  },
+  {
+    "capital": 10000,
+    "target_breadth": 30,
+    "date": "2012-08-31",
+    "fractional_names": 30,
+    "whole_share_names": 29,
+    "uninvested_due_to_rounding_fraction": 0.13029899999999994,
+    "before_costs_and_not_an_execution_simulation": true
+  },
+  {
+    "capital": 10000,
+    "target_breadth": 50,
+    "date": "2012-08-31",
+    "fractional_names": 50,
+    "whole_share_names": 48,
+    "uninvested_due_to_rounding_fraction": 0.17007499999999998,
+    "before_costs_and_not_an_execution_simulation": true
+  },
+  {
+    "capital": 50000,
+    "target_breadth": 10,
+    "date": "2012-08-31",
+    "fractional_names": 10,
+    "whole_share_names": 10,
+    "uninvested_due_to_rounding_fraction": 0.011245400000000072,
+    "before_costs_and_not_an_execution_simulation": true
+  },
+  {
+    "capital": 50000,
+    "target_breadth": 20,
+    "date": "2012-08-31",
+    "fractional_names": 20,
+    "whole_share_names": 20,
+    "uninvested_due_to_rounding_fraction": 0.01942379999999999,
+    "before_costs_and_not_an_execution_simulation": true
+  },
+  {
+    "capital": 50000,
+    "target_breadth": 30,
+    "date": "2012-08-31",
+    "fractional_names": 30,
+    "whole_share_names": 30,
+    "uninvested_due_to_rounding_fraction": 0.02650180000000013,
+    "before_costs_and_not_an_execution_simulation": true
+  },
+  {
+    "capital": 50000,
+    "target_breadth": 50,
+    "date": "2012-08-31",
+    "fractional_names": 50,
+    "whole_share_names": 50,
+    "uninvested_due_to_rounding_fraction": 0.033621599999999696,
+    "before_costs_and_not_an_execution_simulation": true
+  }
+]

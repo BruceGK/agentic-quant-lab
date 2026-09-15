@@ -1,0 +1,106 @@
+{
+  "1964_1999": {
+    "market_sma10_rf_5bps": {
+      "market_sma10_rf_5bps": 1.0,
+      "long_momentum_drag0.015": 0.8190945189574402,
+      "long_quality_drag0.005": 0.7958407290288525,
+      "long_value_drag0.005": 0.7379826626252427
+    },
+    "long_momentum_drag0.015": {
+      "market_sma10_rf_5bps": 0.8190945189574402,
+      "long_momentum_drag0.015": 1.0,
+      "long_quality_drag0.005": 0.9305444314508695,
+      "long_value_drag0.005": 0.8155146334524571
+    },
+    "long_quality_drag0.005": {
+      "market_sma10_rf_5bps": 0.7958407290288525,
+      "long_momentum_drag0.015": 0.9305444314508695,
+      "long_quality_drag0.005": 1.0,
+      "long_value_drag0.005": 0.8406861635531225
+    },
+    "long_value_drag0.005": {
+      "market_sma10_rf_5bps": 0.7379826626252427,
+      "long_momentum_drag0.015": 0.8155146334524571,
+      "long_quality_drag0.005": 0.8406861635531225,
+      "long_value_drag0.005": 1.0
+    }
+  },
+  "2000_2009": {
+    "market_sma10_rf_5bps": {
+      "market_sma10_rf_5bps": 1.0,
+      "long_momentum_drag0.015": 0.7070025860869789,
+      "long_quality_drag0.005": 0.5269650867427991,
+      "long_value_drag0.005": 0.34577208164430573
+    },
+    "long_momentum_drag0.015": {
+      "market_sma10_rf_5bps": 0.7070025860869789,
+      "long_momentum_drag0.015": 1.0,
+      "long_quality_drag0.005": 0.8131430011258258,
+      "long_value_drag0.005": 0.6640176081320254
+    },
+    "long_quality_drag0.005": {
+      "market_sma10_rf_5bps": 0.5269650867427991,
+      "long_momentum_drag0.015": 0.8131430011258258,
+      "long_quality_drag0.005": 1.0,
+      "long_value_drag0.005": 0.8165555770931603
+    },
+    "long_value_drag0.005": {
+      "market_sma10_rf_5bps": 0.34577208164430573,
+      "long_momentum_drag0.015": 0.6640176081320254,
+      "long_quality_drag0.005": 0.8165555770931603,
+      "long_value_drag0.005": 1.0
+    }
+  },
+  "2010_2019": {
+    "market_sma10_rf_5bps": {
+      "market_sma10_rf_5bps": 1.0,
+      "long_momentum_drag0.015": 0.8382375540643152,
+      "long_quality_drag0.005": 0.8452433854571368,
+      "long_value_drag0.005": 0.7992196883543071
+    },
+    "long_momentum_drag0.015": {
+      "market_sma10_rf_5bps": 0.8382375540643152,
+      "long_momentum_drag0.015": 1.0,
+      "long_quality_drag0.005": 0.9277158445739506,
+      "long_value_drag0.005": 0.7815013997566115
+    },
+    "long_quality_drag0.005": {
+      "market_sma10_rf_5bps": 0.8452433854571368,
+      "long_momentum_drag0.015": 0.9277158445739506,
+      "long_quality_drag0.005": 1.0,
+      "long_value_drag0.005": 0.8443872404720515
+    },
+    "long_value_drag0.005": {
+      "market_sma10_rf_5bps": 0.7992196883543071,
+      "long_momentum_drag0.015": 0.7815013997566115,
+      "long_quality_drag0.005": 0.8443872404720515,
+      "long_value_drag0.005": 1.0
+    }
+  },
+  "2020_onward": {
+    "market_sma10_rf_5bps": {
+      "market_sma10_rf_5bps": 1.0,
+      "long_momentum_drag0.015": 0.7438329020136475,
+      "long_quality_drag0.005": 0.7500475742879417,
+      "long_value_drag0.005": 0.665635504471792
+    },
+    "long_momentum_drag0.015": {
+      "market_sma10_rf_5bps": 0.7438329020136475,
+      "long_momentum_drag0.015": 1.0,
+      "long_quality_drag0.005": 0.9008399654161646,
+      "long_value_drag0.005": 0.705125768820716
+    },
+    "long_quality_drag0.005": {
+      "market_sma10_rf_5bps": 0.7500475742879417,
+      "long_momentum_drag0.015": 0.9008399654161646,
+      "long_quality_drag0.005": 1.0,
+      "long_value_drag0.005": 0.7074753160262998
+    },
+    "long_value_drag0.005": {
+      "market_sma10_rf_5bps": 0.665635504471792,
+      "long_momentum_drag0.015": 0.705125768820716,
+      "long_quality_drag0.005": 0.7074753160262998,
+      "long_value_drag0.005": 1.0
+    }
+  }
+}
