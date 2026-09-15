@@ -1,3 +1,4 @@
+import json
 from datetime import UTC, date, datetime
 from email.message import Message
 from http.client import HTTPMessage, IncompleteRead
@@ -14,6 +15,8 @@ from agentic_quant_lab.sec import (
     Candidate,
     NoRedirect,
     SecClient,
+    SecIndexNotPublished,
+    closed_day_index_absent,
     parse_daily_index,
     parse_latest,
     scheduled_sec_closure,
@@ -208,6 +211,78 @@ def test_truncated_index_transfer_is_never_returned_as_complete() -> None:
     ):
         client.daily_index(date(2026, 9, 9))
     assert request.call_count == 4
+
+
+def directory_listing(*names: str, path: str = "daily-index/2026/QTR3/") -> bytes:
+    return json.dumps(
+        {"directory": {"name": path, "item": [{"name": name, "type": "file"} for name in names]}}
+    ).encode()
+
+
+def test_closed_day_403_requires_official_directory_absence() -> None:
+    client = SecClient("quant-tests test@example.invalid")
+    missing = HTTPError("https://www.sec.gov/", 403, "denied", Message(), None)
+    with patch.object(
+        client, "get", side_effect=[missing, directory_listing("master.20260911.idx")]
+    ) as request:
+        with pytest.raises(SecIndexNotPublished) as absent:
+            client.daily_index(date(2026, 9, 12))
+    assert absent.value.day == date(2026, 9, 12)
+    assert request.call_args_list[1].args == (
+        "https://www.sec.gov/Archives/edgar/daily-index/2026/QTR3/index.json",
+    )
+
+
+@pytest.mark.parametrize("day", [date(2026, 9, 10), date(2026, 9, 11)])
+def test_weekday_403_is_never_reclassified_as_missing(day: date) -> None:
+    client = SecClient("quant-tests test@example.invalid")
+    missing = HTTPError("https://www.sec.gov/", 403, "denied", Message(), None)
+    with patch.object(client, "get", side_effect=missing) as request, pytest.raises(HTTPError):
+        client.daily_index(day)
+    assert request.call_count == 1
+
+
+def test_listed_closed_day_index_access_denied_still_fails() -> None:
+    client = SecClient("quant-tests test@example.invalid")
+    denied = HTTPError("https://www.sec.gov/", 403, "denied", Message(), None)
+    with (
+        patch.object(client, "get", side_effect=[denied, directory_listing("master.20260912.idx")]),
+        pytest.raises(HTTPError) as error,
+    ):
+        client.daily_index(date(2026, 9, 12))
+    assert error.value is denied
+
+
+@pytest.mark.parametrize(
+    "body",
+    [
+        b"not-json",
+        directory_listing(),
+        directory_listing("unrelated.txt"),
+        directory_listing("master.20260911.idx", path="daily-index/2026/QTR2/"),
+        directory_listing("master.20260911.idx", "master.20260911.idx"),
+        directory_listing("master.20260630.idx"),
+        directory_listing("../master.20260911.idx"),
+    ],
+)
+def test_invalid_listing_cannot_explain_a_closed_day_403(body: bytes) -> None:
+    with pytest.raises(ValueError):
+        closed_day_index_absent(body, date(2026, 9, 12))
+
+
+def test_closure_directory_failure_is_not_suppressed() -> None:
+    client = SecClient("quant-tests test@example.invalid")
+    denied = HTTPError("https://www.sec.gov/", 403, "denied", Message(), None)
+    with (
+        patch.object(client, "get", side_effect=[denied, TimeoutError()]),
+        pytest.raises(TimeoutError),
+    ):
+        client.daily_index(date(2026, 9, 12))
+
+
+def test_directory_absence_never_certifies_a_weekday() -> None:
+    with pytest.raises(ValueError, match="business-day"):
+        closed_day_index_absent(directory_listing("master.20260910.idx"), date(2026, 9, 11))
 
 
 def test_configuration_requires_contact_and_normalizes_universe(

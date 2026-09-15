@@ -172,7 +172,11 @@ snapshot and trigger reconciliation for the new scope; they never delete
 earlier evidence. Pending discoveries remain eligible for retry even if a CIK
 is later removed. SEC indexes can be republished; rescan older dates explicitly
 if necessary. A 404 on a known weekend/federal holiday is allowed without a
-completion checkpoint; other missing indexes, extraordinary closures, 403s
+completion checkpoint. SEC also returns 403 for some nonexistent weekend objects:
+only on a known closure, a successfully fetched and validated official quarter
+directory proving that exact index absent permits skipping it without a checkpoint.
+Listed indexes, weekday 403s, malformed/unavailable directories,
+other missing indexes, extraordinary closures and source errors
 and failed fetches fail the run and suppress the success heartbeat.
 Independent filings/dates are still attempted after source failures so one
 unavailable submission cannot starve the rest of the universe. Ledger or

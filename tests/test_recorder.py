@@ -184,6 +184,17 @@ def test_index_404_only_allowed_for_known_closure(
         assert not any(r["kind"] == "reconciliation" for r in recorder.ledger.records)
 
 
+def test_confirmed_closed_day_index_does_not_create_checkpoint(settings: Settings) -> None:
+    from agentic_quant_lab.sec import SecIndexNotPublished
+
+    day = date(2026, 9, 6)
+    with Recorder(settings, FakeSec(), lambda: SEEN) as recorder:
+        with patch.object(recorder.client, "daily_index", side_effect=SecIndexNotPublished(day)):
+            assert recorder.catch_up(day, day) == 0
+        assert not any(r["kind"] == "reconciliation" for r in recorder.ledger.records)
+        recorder.reconcile()
+
+
 def test_new_universe_reconciles_old_completed_dates(settings: Settings) -> None:
     client = FakeSec()
     other = Candidate.from_url(

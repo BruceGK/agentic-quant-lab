@@ -1,3 +1,4 @@
+import json
 import re
 import time
 import xml.etree.ElementTree as ET
@@ -47,6 +48,51 @@ class Candidate:
 class NoRedirect(HTTPRedirectHandler):
     def redirect_request(self, req, fp, code, msg, headers, newurl):
         return None
+
+
+class SecIndexNotPublished(LookupError):
+    def __init__(self, day: date):
+        super().__init__("SEC directory confirms no daily index on a scheduled closure")
+        self.day = day
+
+
+def closed_day_index_absent(body: bytes, day: date) -> bool:
+    if not scheduled_sec_closure(day):
+        raise ValueError("Directory absence cannot certify a business-day gap")
+    relative = f"daily-index/{day.year}/QTR{(day.month - 1) // 3 + 1}"
+    document = json.loads(body)
+    if not isinstance(document, dict):
+        raise ValueError("Invalid SEC directory response")
+    directory = document.get("directory")
+    if (
+        not isinstance(directory, dict)
+        or not isinstance(directory.get("name"), str)
+        or directory["name"].rstrip("/") not in (relative, f"/Archives/edgar/{relative}")
+        or not isinstance(directory.get("item"), list)
+        or not directory["item"]
+    ):
+        raise ValueError("Invalid SEC index directory")
+    names: set[str] = set()
+    published_days: list[date] = []
+    for item in directory["item"]:
+        if not isinstance(item, dict) or not isinstance(item.get("name"), str):
+            raise ValueError("Invalid SEC directory item")
+        name = item["name"]
+        if not re.fullmatch(r"[A-Za-z0-9_.-]+", name) or name in names:
+            raise ValueError("Invalid or duplicate SEC directory filename")
+        names.add(name)
+        if match := re.fullmatch(r"master\.(\d{8})\.idx", name):
+            published = datetime.strptime(match[1], "%Y%m%d").date()
+            if (
+                item.get("type") != "file"
+                or published.year != day.year
+                or (published.month - 1) // 3 != (day.month - 1) // 3
+            ):
+                raise ValueError("Daily index belongs to a different directory")
+            published_days.append(published)
+    if not published_days:
+        raise ValueError("A directory without daily master indexes is not absence evidence")
+    return day not in published_days
 
 
 class SecClient:
@@ -99,10 +145,17 @@ class SecClient:
 
     def daily_index(self, day: date) -> bytes:
         quarter = (day.month - 1) // 3 + 1
-        return self.get(
-            f"{SEC_ORIGIN}/Archives/edgar/daily-index/{day.year}/QTR{quarter}/"
-            f"master.{day:%Y%m%d}.idx"
-        )
+        directory = f"{SEC_ORIGIN}/Archives/edgar/daily-index/{day.year}/QTR{quarter}"
+        try:
+            return self.get(f"{directory}/master.{day:%Y%m%d}.idx")
+        except HTTPError as error:
+            if error.code != 403 or not scheduled_sec_closure(day):
+                raise
+            # SEC can return 403 for nonexistent objects. A calendar alone is not
+            # permission to suppress it: require an authoritative directory response.
+            if closed_day_index_absent(self.get(f"{directory}/index.json"), day):
+                raise SecIndexNotPublished(day) from error
+            raise
 
     def full_index(self, year: int, quarter: int) -> bytes:
         if not 1994 <= year <= 9999 or quarter not in (1, 2, 3, 4):

@@ -18,6 +18,7 @@ from agentic_quant_lab.sec import (
     EASTERN,
     Candidate,
     SecClient,
+    SecIndexNotPublished,
     parse_daily_index,
     parse_full_index,
     scheduled_sec_closure,
@@ -213,6 +214,13 @@ class Recorder:
                 continue
             try:
                 content = self.client.daily_index(day)
+            except SecIndexNotPublished as exc:
+                if exc.day != day or not scheduled_sec_closure(day):
+                    raise ValueError(
+                        "SEC closure evidence does not match the requested date"
+                    ) from exc
+                day += timedelta(days=1)
+                continue
             except HTTPError as exc:
                 # Only a known closure may explain a missing index; other gaps fail closed.
                 if exc.code == 404 and scheduled_sec_closure(day):
