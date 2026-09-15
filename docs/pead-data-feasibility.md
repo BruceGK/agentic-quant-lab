@@ -109,8 +109,9 @@ surprise or analyst revision momentum.
 Historical reconstruction is explicitly counterfactual source availability.
 It must not overwrite the recorder's prospective invariant:
 `decision_eligible_at = fetched_at`, including catch-up
-(`src/agentic_quant_lab/recorder.py:129–145`;
-`migrations/001_evidence.sql:30–38`). SEC acceptance/publication times do not
+(`/home/runner/work/agentic-quant-lab/agentic-quant-lab/src/agentic_quant_lab/recorder.py:129–145`;
+`/home/runner/work/agentic-quant-lab/agentic-quant-lab/migrations/001_evidence.sql:30–38`).
+SEC acceptance/publication times do not
 backdate something the prospective recorder only fetched today.
 
 ## Price and timing contract for a future baseline
@@ -156,3 +157,88 @@ Before any performance calculation, acceptance tests must demonstrate:
 
 These are acceptance requirements, **not executed PEAD tests**. No PEAD
 implementation or smoke-test results are claimed in this report.
+
+## Historical spot checks
+
+### Directly retrieved issuer facts
+
+The following are **actual readable issuer responses**, not vendor examples.
+USD amounts below retain the release's accounting basis and precision.
+
+| Issuer / fiscal period | Period end; announcement date | Reported revenue | Diluted EPS | Timing and acceptance result |
+| --- | --- | --- | --- | --- |
+| MSFT FY2010 Q2 | 2009-12-31; 2010-01-28 | $19.02bn | $0.74 GAAP | Exact release time/session unverified; not admitted. |
+| MSFT FY2023 Q2 | 2022-12-31; 2023-01-24 | $52.747bn | $2.20 GAAP; $2.32 non-GAAP | Exact release time/session unverified; not admitted. |
+| MSFT FY2023 Q3 | 2023-03-31; 2023-04-25 | $52.857bn | $2.45 GAAP | Exact release time/session unverified; not admitted. |
+
+Sources: [FY2010 Q2](https://www.microsoft.com/en-us/Investor/earnings/FY-2010-Q2/press-release-webcast),
+[FY2023 Q2](https://www.microsoft.com/en-us/Investor/earnings/FY-2023-Q2/press-release-webcast),
+[FY2023 Q3](https://www.microsoft.com/en-us/Investor/earnings/FY-2023-Q3/press-release-webcast).
+
+The 2010 release also gives $17.31bn revenue / $0.60 EPS **excluding Windows 7
+deferred-revenue recognition**. Comparing $0.74 with an estimate on the
+alternative basis would manufacture a surprise. Its FY2010 operating-expense
+guidance is $26.2–26.5bn, not revenue guidance.
+
+Directly retrieved [FY2023 Q2 call text](https://www.microsoft.com/en-us/investor/events/fy-2023/earnings-fy-2023-q2)
+gives next-quarter segment revenue ranges of $16.9–17.2bn, $21.7–22.0bn and
+$11.9–12.3bn. The [Q3 call text](https://www.microsoft.com/en-us/investor/events/fy-2023/earnings-fy-2023-q3)
+gives next-quarter ranges of $17.9–18.2bn, $23.6–23.9bn and $13.35–13.75bn.
+These refer to **different target quarters**: their difference is not a
+same-period guidance revision. The calls were scheduled for 17:30 Eastern;
+that is not a verified earnings-release timestamp or transcript publication
+timestamp. Do not backdate call guidance to the earlier release.
+
+The FY2023 Q2 page was fetched twice with curl at **23:21:29Z and 23:21:30Z on
+2026-09-15**: HTTP 200, 626,094 bytes each, identical SHA-256
+`2b8647f009e9eb2dfd30ce7c501cdc8903a853adde5c01025ae8638ab2e92542`.
+An independent readable-body repeat also agreed on selected facts. This
+demonstrates same-session stability of an issuer page only—not original 2023
+bytes, a historical consensus vintage, or protection against later revisions.
+Raw HTML remains outside the repository.
+
+### Other requested cases: investigated, not certified
+
+| Case / purpose | Primary source located | Observation and unresolved requirements |
+| --- | --- | --- |
+| AAPL FY2019 Q1 warning and results | [January 2 letter](https://www.apple.com/newsroom/2019/01/letter-from-tim-cook-to-apple-investors/); [January 29 results](https://www.apple.com/newsroom/2019/01/apple-reports-first-quarter-results/) | Direct requests failed DNS. Indexed warning says revenue outlook about $84bn versus prior issuer guidance $89–93bn; not analyst consensus. Warning and earnings are separate events. |
+| AAPL FY2023 Q1, reported miss stress case | [February 2, 2023 results](https://www.apple.com/newsroom/2023/02/apple-reports-first-quarter-results/) | Direct request failed DNS. Indexed results indicate $117.2bn revenue / $1.88 EPS. No accepted pre-release consensus, release clock time, price or quantified miss. |
+| META/then-FB FY2021 Q4, major-miss stress case | [February 2, 2022 results](https://investor.atmeta.com/investor-news/press-release-details/2022/Meta-Reports-Fourth-Quarter-and-Full-Year-2021-Results/default.aspx) | Direct request failed DNS. Indexed results indicate $33.671bn revenue / $3.67 GAAP EPS and next-quarter revenue guidance $27–29bn. Fiscal period is **2021 Q4**, not 2022 Q1; historical ticker was FB. No surprise magnitude certified. |
+| ATVI FY2023 Q2, subsequently acquired | [Original SEC exhibit](https://www.sec.gov/Archives/edgar/data/718877/000162828023025102/atvi63023ex991prtables.htm) | Direct request failed DNS. Indexed results distinguish $2.21bn GAAP revenue from $2.46bn bookings and $0.74 GAAP / $0.91 non-GAAP EPS. A current earnings page's $1.08 actual / $0.88 estimate was rejected: vintage and EPS reconciliation unresolved. |
+
+ATVI's acquisition completion on **2023-10-13** is independently stated in the
+directly retrieved [Microsoft FY2024 Q2 release](https://www.microsoft.com/en-us/Investor/earnings/FY-2024-Q2/press-release-webcast).
+That verifies eventual acquisition, not its historical executable exit prices.
+
+Search-linked wire times suggested AMC for the Apple/Meta events and BMO for
+ATVI. Those source bodies were inaccessible, so **none was promoted to a
+verified timestamp**. Conditional first regular sessions would be January 3
+and 30, 2019; February 3, 2022; February 3, 2023; and July 19, 2023 respectively,
+if those release classifications are confirmed. MSFT's candidate sessions
+would be January 29, 2010; January 25 and April 26, 2023 **if AMC is confirmed**.
+These are calendar candidates, not exchange-calendar/halts validation, and the
+opening prices were not obtained. They cannot be used as executable observations.
+
+Contemporary preview searches did not yield a directly verified,
+before-announcement consensus for any case. Post-event articles, current
+earnings databases and search-generated figures were not substituted.
+**No historical consensus API row was obtained; the consensus revision
+re-query test is NOT RUN.** All pre-close/gap/1d/5d/20d/60d price observations
+remain missing, not zero. No event passed the complete join.
+
+### Access limitations and reproducibility
+
+Direct submissions requests for AAPL, MSFT, META and ATVI failed DNS at
+2026-09-15T23:04:41Z. Massive's AAPL historical earnings request and Nasdaq's
+AAPL surprise request failed the same way. Earlier Alpha Vantage IBM public
+demo and Nasdaq calendar requests also failed DNS. No HTTP 401/403, free-tier
+limit, premium-entitlement response or returned consensus is inferred from
+those failures.
+
+The JSON audit records exact parent-request timestamps, URLs, outcomes,
+repeat hashes and accepted versus discovery-only facts. Research-agent
+readable-body observations without exact request timestamps are dated only;
+no synthetic timestamp or hash was supplied. Documentation claims are
+separate from these live results. Search results occasionally equated
+`last_updated` with PIT or supplied sample/future earnings values; neither
+was accepted.

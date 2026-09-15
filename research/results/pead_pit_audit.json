@@ -1,0 +1,342 @@
+{
+  "schema_version": 1,
+  "research_as_of": "2026-09-15",
+  "research_base_branch": "research/long-only-strategy-tournament",
+  "research_base_commit": "3e8273472ad24508463916c11b44bd4b754abe6d",
+  "working_branch": "copilot/researchpead-data-feasibility",
+  "study_target": {
+    "market": "liquid U.S. common stocks, including historical inactive securities",
+    "start": "2010-01-01",
+    "end": "2026-09-15",
+    "coverage_certified": false
+  },
+  "safety": {
+    "scheduled_recording_enabled": false,
+    "live_execution_enabled": false,
+    "purchases": 0,
+    "broker_connections": 0,
+    "backtests": 0,
+    "parameter_searches": 0,
+    "production_code_changes": false,
+    "raw_third_party_data_committed": false
+  },
+  "evidence_classes": {
+    "DIRECT": "Actual response observed during this investigation; not necessarily PIT-qualified.",
+    "INDEXED": "Public documentation or issuer facts found through web search; not a returned API observation.",
+    "BLOCKED": "No usable response obtained; environmental DNS failure does not establish provider entitlement.",
+    "UNVERIFIED": "No adequate evidence for the asserted data property."
+  },
+  "direct_access_attempts": [
+    {
+      "id": "sec-aapl",
+      "requested_at_utc": "2026-09-15T23:04:41Z",
+      "url": "https://data.sec.gov/submissions/CIK0000320193.json",
+      "http_status": null,
+      "curl_exit_code": 6,
+      "bytes_received": 0,
+      "outcome": "DNS_RESOLUTION_FAILED",
+      "evidence_class": "BLOCKED"
+    },
+    {
+      "id": "sec-msft",
+      "requested_at_utc": "2026-09-15T23:04:41Z",
+      "url": "https://data.sec.gov/submissions/CIK0000789019.json",
+      "http_status": null,
+      "curl_exit_code": 6,
+      "bytes_received": 0,
+      "outcome": "DNS_RESOLUTION_FAILED",
+      "evidence_class": "BLOCKED"
+    },
+    {
+      "id": "sec-meta",
+      "requested_at_utc": "2026-09-15T23:04:41Z",
+      "url": "https://data.sec.gov/submissions/CIK0001326801.json",
+      "http_status": null,
+      "curl_exit_code": 6,
+      "bytes_received": 0,
+      "outcome": "DNS_RESOLUTION_FAILED",
+      "evidence_class": "BLOCKED"
+    },
+    {
+      "id": "sec-atvi",
+      "requested_at_utc": "2026-09-15T23:04:41Z",
+      "url": "https://data.sec.gov/submissions/CIK0000718877.json",
+      "http_status": null,
+      "curl_exit_code": 6,
+      "bytes_received": 0,
+      "outcome": "DNS_RESOLUTION_FAILED",
+      "evidence_class": "BLOCKED"
+    },
+    {
+      "id": "massive-aapl-earnings",
+      "requested_at_utc": "2026-09-15T23:04:41Z",
+      "url": "https://api.massive.com/benzinga/v1/earnings?ticker=AAPL&date=2023-02-02",
+      "http_status": null,
+      "curl_exit_code": 6,
+      "bytes_received": 0,
+      "outcome": "DNS_RESOLUTION_FAILED",
+      "evidence_class": "BLOCKED",
+      "authentication": "No API key supplied; request never reached provider."
+    },
+    {
+      "id": "nasdaq-aapl-surprise",
+      "requested_at_utc": "2026-09-15T23:04:41Z",
+      "url": "https://api.nasdaq.com/api/company/AAPL/earnings-surprise",
+      "http_status": null,
+      "curl_exit_code": 6,
+      "bytes_received": 0,
+      "outcome": "DNS_RESOLUTION_FAILED",
+      "evidence_class": "BLOCKED"
+    },
+    {
+      "id": "alphavantage-ibm-demo",
+      "requested_at_utc": "2026-09-15T22:55:54Z",
+      "url": "https://www.alphavantage.co/query?function=EARNINGS&symbol=IBM&apikey=demo",
+      "http_status": null,
+      "curl_exit_code": 6,
+      "bytes_received": 0,
+      "outcome": "DNS_RESOLUTION_FAILED",
+      "evidence_class": "BLOCKED",
+      "authentication": "Published demo parameter only; not a private credential."
+    },
+    {
+      "id": "nasdaq-calendar",
+      "requested_at_utc": "2026-09-15T22:55:54Z",
+      "url": "https://api.nasdaq.com/api/calendar/earnings?date=2023-02-02",
+      "http_status": null,
+      "curl_exit_code": 6,
+      "bytes_received": 0,
+      "outcome": "DNS_RESOLUTION_FAILED",
+      "evidence_class": "BLOCKED"
+    },
+    {
+      "id": "apple-ir-initial",
+      "requested_at_utc": "2026-09-15T22:55:54Z",
+      "url": "https://www.apple.com/newsroom/2019/01/apple-reports-first-quarter-results/",
+      "http_status": null,
+      "curl_exit_code": 6,
+      "bytes_received": 0,
+      "outcome": "DNS_RESOLUTION_FAILED",
+      "evidence_class": "BLOCKED"
+    },
+    {
+      "id": "msft-ir-initial",
+      "requested_at_utc": "2026-09-15T22:55:54Z",
+      "url": "https://www.microsoft.com/en-us/Investor/earnings/FY-2023-Q2/press-release-webcast",
+      "http_status": 200,
+      "bytes_received": 626094,
+      "outcome": "HTML_RECEIVED",
+      "evidence_class": "DIRECT",
+      "note": "Body identified as Microsoft HTML; detailed event extraction and repeat observations are recorded separately. No consensus API observation."
+    }
+  ],
+  "issuer_spot_checks": [
+    {
+      "symbol": "MSFT",
+      "fiscal_year": 2010,
+      "fiscal_quarter": 2,
+      "period_end": "2009-12-31",
+      "announcement_date": "2010-01-28",
+      "announcement_timestamp": null,
+      "announcement_session": "UNKNOWN",
+      "actuals_evidence": "DIRECT",
+      "revenue_usd": 19020000000,
+      "diluted_eps_gaap_usd": 0.74,
+      "alternative_basis": {
+        "definition": "Excluding Windows 7 deferred-revenue recognition",
+        "revenue_usd": 17310000000,
+        "diluted_eps_usd": 0.60
+      },
+      "source_url": "https://www.microsoft.com/en-us/Investor/earnings/FY-2010-Q2/press-release-webcast",
+      "retrieval_date_utc": "2026-09-15",
+      "request_timestamp_utc": null,
+      "consensus": null,
+      "first_tradable_session_verified": null,
+      "price_observations": null,
+      "eligible_for_backtest": false
+    },
+    {
+      "symbol": "MSFT",
+      "fiscal_year": 2023,
+      "fiscal_quarter": 2,
+      "period_end": "2022-12-31",
+      "announcement_date": "2023-01-24",
+      "announcement_timestamp": null,
+      "announcement_session": "UNKNOWN",
+      "actuals_evidence": "DIRECT",
+      "revenue_usd": 52747000000,
+      "diluted_eps_gaap_usd": 2.20,
+      "diluted_eps_non_gaap_usd": 2.32,
+      "source_url": "https://www.microsoft.com/en-us/Investor/earnings/FY-2023-Q2/press-release-webcast",
+      "retrieval_date_utc": "2026-09-15",
+      "consensus": null,
+      "first_tradable_session_verified": null,
+      "price_observations": null,
+      "eligible_for_backtest": false
+    },
+    {
+      "symbol": "MSFT",
+      "fiscal_year": 2023,
+      "fiscal_quarter": 3,
+      "period_end": "2023-03-31",
+      "announcement_date": "2023-04-25",
+      "announcement_timestamp": null,
+      "announcement_session": "UNKNOWN",
+      "actuals_evidence": "DIRECT",
+      "revenue_usd": 52857000000,
+      "diluted_eps_gaap_usd": 2.45,
+      "source_url": "https://www.microsoft.com/en-us/Investor/earnings/FY-2023-Q3/press-release-webcast",
+      "retrieval_date_utc": "2026-09-15",
+      "request_timestamp_utc": null,
+      "consensus": null,
+      "first_tradable_session_verified": null,
+      "price_observations": null,
+      "eligible_for_backtest": false
+    }
+  ],
+  "indexed_discovery_cases_not_accepted_observations": [
+    {
+      "symbol": "AAPL",
+      "event": "FY2019 Q1 guidance warning",
+      "candidate_event_date": "2019-01-02",
+      "source_url": "https://www.apple.com/newsroom/2019/01/letter-from-tim-cook-to-apple-investors/",
+      "source_body_status": "DNS_RESOLUTION_FAILED",
+      "reason_selected": "Separate guidance cut from later quarterly results.",
+      "announcement_timestamp": null,
+      "consensus": null,
+      "actuals": null,
+      "first_tradable_session_verified": null,
+      "eligible_for_backtest": false
+    },
+    {
+      "symbol": "AAPL",
+      "event": "FY2019 Q1 results",
+      "candidate_event_date": "2019-01-29",
+      "source_url": "https://www.apple.com/newsroom/2019/01/apple-reports-first-quarter-results/",
+      "source_body_status": "DNS_RESOLUTION_FAILED",
+      "announcement_timestamp": null,
+      "consensus": null,
+      "actuals": null,
+      "first_tradable_session_verified": null,
+      "eligible_for_backtest": false
+    },
+    {
+      "symbol": "AAPL",
+      "event": "FY2023 Q1 results",
+      "candidate_event_date": "2023-02-02",
+      "source_url": "https://www.apple.com/newsroom/2023/02/apple-reports-first-quarter-results/",
+      "source_body_status": "DNS_RESOLUTION_FAILED",
+      "reason_selected": "Reported earnings-miss stress case; magnitude not validated.",
+      "announcement_timestamp": null,
+      "consensus": null,
+      "actuals": null,
+      "first_tradable_session_verified": null,
+      "eligible_for_backtest": false
+    },
+    {
+      "symbol": "META",
+      "historical_symbol": "FB",
+      "event": "FY2021 Q4 results, not FY2022 Q1",
+      "candidate_event_date": "2022-02-02",
+      "source_url": "https://investor.atmeta.com/investor-news/press-release-details/2022/Meta-Reports-Fourth-Quarter-and-Full-Year-2021-Results/default.aspx",
+      "source_body_status": "DNS_RESOLUTION_FAILED",
+      "reason_selected": "Reported major miss stress case and fiscal/ticker alignment.",
+      "announcement_timestamp": null,
+      "consensus": null,
+      "actuals": null,
+      "first_tradable_session_verified": null,
+      "eligible_for_backtest": false
+    },
+    {
+      "symbol": "ATVI",
+      "event": "FY2023 Q2 results",
+      "candidate_event_date": "2023-07-19",
+      "source_url": "https://www.sec.gov/Archives/edgar/data/718877/000162828023025102/atvi63023ex991prtables.htm",
+      "source_body_status": "DNS_RESOLUTION_FAILED",
+      "acquisition_completion_date": "2023-10-13",
+      "acquisition_evidence": "DIRECT",
+      "acquisition_source_url": "https://www.microsoft.com/en-us/Investor/earnings/FY-2024-Q2/press-release-webcast",
+      "announcement_timestamp": null,
+      "consensus": null,
+      "actuals": null,
+      "first_tradable_session_verified": null,
+      "reason_not_qualified": "Original EPS reconciliation, inactive prices and terminal corporate action not verified.",
+      "eligible_for_backtest": false
+    }
+  ],
+  "issuer_release_repeat_check": {
+    "source_url": "https://www.microsoft.com/en-us/Investor/earnings/FY-2023-Q2/press-release-webcast",
+    "observations": [
+      {
+        "requested_at_utc": "2026-09-15T23:21:29Z",
+        "http_status": 200,
+        "bytes_received": 626094,
+        "sha256": "2b8647f009e9eb2dfd30ce7c501cdc8903a853adde5c01025ae8638ab2e92542"
+      },
+      {
+        "requested_at_utc": "2026-09-15T23:21:30Z",
+        "http_status": 200,
+        "bytes_received": 626094,
+        "sha256": "2b8647f009e9eb2dfd30ce7c501cdc8903a853adde5c01025ae8638ab2e92542"
+      }
+    ],
+    "same_session_bytes_equal": true,
+    "original_2023_bytes_verified": false,
+    "consensus_observed": false,
+    "raw_files_committed": false
+  },
+  "historical_consensus_observations": [],
+  "consensus_mutation_test": {
+    "status": "NOT_RUN",
+    "reason": "No accessible historical consensus observations or historical stored vintages to compare.",
+    "long_term_immutability_established": false,
+    "same_day_identical_downloads_would_prove_historical_pit": false
+  },
+  "integrity_gates": [
+    {
+      "name": "original_release_timestamp_and_session",
+      "status": "NOT_QUALIFIED"
+    },
+    {
+      "name": "pre_release_eps_and_revenue_consensus",
+      "status": "NOT_OBSERVED"
+    },
+    {
+      "name": "analyst_count_and_effective_timestamp",
+      "status": "NOT_OBSERVED"
+    },
+    {
+      "name": "consensus_version_archive",
+      "status": "NOT_OBSERVED"
+    },
+    {
+      "name": "fiscal_period_and_accounting_basis_alignment",
+      "status": "NO_JOIN_TO_VALIDATE"
+    },
+    {
+      "name": "historical_exchange_calendar_and_executable_ohlcv",
+      "status": "NO_JOIN_TO_VALIDATE"
+    },
+    {
+      "name": "inactive_security_corporate_actions_and_terminal_prices",
+      "status": "NOT_QUALIFIED"
+    },
+    {
+      "name": "redistribution_and_offline_research_entitlement",
+      "status": "NOT_QUALIFIED"
+    }
+  ],
+  "scientific_controls": {
+    "execution_status": "NOT_RUN_NO_IMPLEMENTATION",
+    "required_before_any_backtest": [
+      "Reject after-hours release traded at preceding close.",
+      "Reject same-close fill using that close's price reaction.",
+      "Reject opening-gap signal filled at the opening price used to form it.",
+      "Future consensus revision must not change historical decision.",
+      "Reject fiscal-quarter, currency, unit or GAAP/non-GAAP mismatch.",
+      "Missing announcement session must remain explicit and excluded.",
+      "Original release must not be overwritten by a later restatement.",
+      "Missing delisting or acquisition outcome must not be dropped silently."
+    ]
+  }
+}
