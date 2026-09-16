@@ -1,0 +1,20 @@
+{
+  "schema_version": 1,
+  "classification": "EXPLORATORY",
+  "decision": "RESEARCH MORE",
+  "status": "NOT_RUN_DATA_GATE",
+  "protocol_commit": "79cb2aefe99bb1ab04443c3370c9e1b90de4cd26",
+  "primary_scenarios_planned": 18,
+  "primary_scenarios_run": 0,
+  "sector_strategy_returns_calculated": false,
+  "rank_parameter_searches": 0,
+  "paper_promotion": false,
+  "economic_rejection": false,
+  "unresolved_question": "Can a complete, hash-verifiable issuer dataset for the nine sectors, SPY and BIL, including corporate actions and an independent session calendar, be retrieved and reconciled well enough to run the frozen comparison?",
+  "metrics_file": "metrics_status.csv",
+  "blank_metric_semantics": "Unavailable because evaluation was not run; never zero, a loss, or an estimated value.",
+  "raw_data_provenance": "No raw market data retrieved. This is a negative acquisition record, not an audited NAV or exchange-close backtest.",
+  "optional_cross_asset_stage": "NOT_STARTED_SECTOR_GATE_INCOMPLETE",
+  "scheduled_recording_enabled": false,
+  "live_execution_enabled": false
+}

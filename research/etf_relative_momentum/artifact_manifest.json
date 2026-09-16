@@ -1,0 +1,48 @@
+{
+  "schema_version": 1,
+  "kind": "IMMUTABLE_FAILED_ACQUISITION_AND_NOT_RUN_STATUS_VINTAGE",
+  "classification": "EXPLORATORY",
+  "research_base_commit": "3e8273472ad24508463916c11b44bd4b754abe6d",
+  "protocol_commit": "79cb2aefe99bb1ab04443c3370c9e1b90de4cd26",
+  "collection_date_utc": "2026-09-16",
+  "market_source_hashes_verified": 0,
+  "no_market_source_hash_substitution": "The SHA-256 values below bind our artifacts only. Failed requests have no source-body hash; these artifact hashes cannot certify unseen issuer data.",
+  "immutability": "Preserve these Git-tracked bytes. Any later successful acquisition or experiment must be a separately identified vintage, not an overwrite or in-place promotion of this audit.",
+  "files": [
+    {
+      "path": "research/etf_relative_momentum/data_audit.json",
+      "bytes": 9120,
+      "sha256": "45392823a8f7b694a6deb156ade461309d129f211e87fc5421d6dd0911022f91"
+    },
+    {
+      "path": "research/etf_relative_momentum/diagnostic_status.json",
+      "bytes": 4439,
+      "sha256": "c2059d49b466249a754b0dc64bd49593144dc6ecf53e17c012cb32cf1072344b"
+    },
+    {
+      "path": "research/etf_relative_momentum/metrics_status.csv",
+      "bytes": 1533,
+      "sha256": "985900525c6b3819dea2413fc4f9698e47f18d0ff04f3e63791919d78eb1f86c"
+    },
+    {
+      "path": "research/etf_relative_momentum/outcome.json",
+      "bytes": 1085,
+      "sha256": "24256afc787e53b18d9fecaeea1d120861dfcb17c89541b57f34656bc410daeb"
+    },
+    {
+      "path": "research/etf_relative_momentum/protocol.json",
+      "bytes": 17772,
+      "sha256": "ae767c8fa68a2da9003e07bd0beb48131990b0a276a3725017ad89f277a6bffd"
+    },
+    {
+      "path": "research/etf_relative_momentum/source_attempts.json",
+      "bytes": 15007,
+      "sha256": "5bff7f652a4cf5567be049b85f6c25862ce3f2bfe1d08b788f7470321ba57279"
+    },
+    {
+      "path": "research/etf_relative_momentum/validation.json",
+      "bytes": 979,
+      "sha256": "b7e44326b80b57c47aac07b288fe2a495c8a5fde499f3fee3a125182bd593bc8"
+    }
+  ]
+}

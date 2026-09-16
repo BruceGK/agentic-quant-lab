@@ -9,6 +9,19 @@ The NAV-proxy trend results are weak versus static 80/20 and 70/30, and full-per
 exchange closes remain unverified. This supersedes the ETF build-priority conclusion
 below; the original wider tournament is retained as historical research evidence.
 
+**Independent sector-relative follow-up (2026-09-16):**
+[ETF relative-momentum validation](etf-relative-momentum-validation.md) freezes
+monthly top-three 12-1 sector momentum and one same-window BIL-hurdle dual
+variant, with the four required benchmarks and 0/10/20 bps costs.
+Its finalized decision is **RESEARCH MORE; EXPLORATORY, data-gated**.
+All 24 issuer/calendar retrieval attempts failed DNS resolution; no raw history
+or sector performance was obtained. This is neither evidence of alpha nor an
+economic rejection. The single unresolved question is whether a complete,
+hash-verifiable issuer panel, corporate actions and independent calendar can be
+retrieved and reconciled to run the frozen comparison. The existing SPY trend
+verdict is unchanged; no parameter search, promotion or optional cross-asset
+experiment followed.
+
 ## Decision
 
 The original tournament proposed a **paper-only, deterministic liquid-ETF trend experiment first**, with

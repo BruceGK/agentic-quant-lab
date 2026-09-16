@@ -1,0 +1,105 @@
+{
+  "classification": "EXPLORATORY",
+  "falsification_questions": [
+    {
+      "number": 1,
+      "question": "Does relative momentum outperform equal-weight sectors after costs?",
+      "status": "NOT_EVALUABLE_DATA_GATE",
+      "answer": null
+    },
+    {
+      "number": 2,
+      "question": "Does it outperform SPY on a risk-adjusted basis?",
+      "status": "NOT_EVALUABLE_DATA_GATE",
+      "answer": null
+    },
+    {
+      "number": 3,
+      "question": "Does it beat simple static de-risking?",
+      "status": "NOT_EVALUABLE_DATA_GATE",
+      "answer": null
+    },
+    {
+      "number": 4,
+      "question": "Is the result dominated by one sector or one crisis?",
+      "status": "NOT_EVALUABLE_DATA_GATE",
+      "answer": null
+    },
+    {
+      "number": 5,
+      "question": "Does the dual absolute filter add value or only reduce exposure?",
+      "status": "NOT_EVALUABLE_DATA_GATE",
+      "answer": null
+    },
+    {
+      "number": 6,
+      "question": "How much performance is lost to turnover?",
+      "status": "NOT_EVALUABLE_DATA_GATE",
+      "answer": null
+    },
+    {
+      "number": 7,
+      "question": "Are winning sectors persistent enough to overcome monthly switching?",
+      "status": "NOT_EVALUABLE_DATA_GATE",
+      "answer": null
+    },
+    {
+      "number": 8,
+      "question": "Does the strategy collapse post-2020?",
+      "status": "NOT_EVALUABLE_DATA_GATE",
+      "answer": null
+    },
+    {
+      "number": 9,
+      "question": "Does it work in 2016-2019, 2020, 2021, 2022 and 2023-2025 separately?",
+      "status": "NOT_EVALUABLE_DATA_GATE",
+      "answer": null
+    },
+    {
+      "number": 10,
+      "question": "Is any apparent alpha just tech concentration?",
+      "status": "NOT_EVALUABLE_DATA_GATE",
+      "answer": null
+    }
+  ],
+  "predeclared_diagnostics": {
+    "regimes": "NOT_RUN_DATA_GATE",
+    "crisis_dependence": "NOT_RUN_DATA_GATE",
+    "sector_attribution": "NOT_RUN_DATA_GATE",
+    "xlk_exclusion": "NOT_RUN_DATA_GATE",
+    "tech_aliasing": "NOT_RUN_DATA_GATE",
+    "dual_exposure": "NOT_RUN_DATA_GATE",
+    "monthly_rotations": "NOT_RUN_DATA_GATE",
+    "spells": "NOT_RUN_DATA_GATE",
+    "persistence": "NOT_RUN_DATA_GATE",
+    "negative_rotation_value": "NOT_RUN_DATA_GATE",
+    "turnover_drag": "NOT_RUN_DATA_GATE",
+    "shuffled_ranks": "NOT_RUN_DATA_GATE",
+    "shuffled_rank_interpretation": "NOT_RUN_DATA_GATE",
+    "uncertainty": "NOT_RUN_DATA_GATE"
+  },
+  "regimes": {
+    "2016-2019": "NOT_RUN_DATA_GATE",
+    "2020": "NOT_RUN_DATA_GATE",
+    "2021": "NOT_RUN_DATA_GATE",
+    "2022": "NOT_RUN_DATA_GATE",
+    "2023-2025": "NOT_RUN_DATA_GATE",
+    "post-2020": "NOT_RUN_DATA_GATE",
+    "2026-partial": "NOT_RUN_DATA_GATE"
+  },
+  "rolling_three_years": "NOT_RUN_DATA_GATE",
+  "monthly_rotations": null,
+  "monthly_rotations_note": "No strategy was run; null does not mean zero rotations or zero turnover.",
+  "sector_specific_controls": {
+    "Reject future-month ranking inputs with their true availability timestamps.": "REQUIRED_BEFORE_REAL_RUN_NOT_ESTABLISHED_BY_THIS_AUDIT",
+    "Perturb future prices and prove earlier ranks, weights and returns remain unchanged.": "REQUIRED_BEFORE_REAL_RUN_NOT_ESTABLISHED_BY_THIS_AUDIT",
+    "Reject same-close execution after observing a month-end signal.": "REQUIRED_BEFORE_REAL_RUN_NOT_ESTABLISHED_BY_THIS_AUDIT",
+    "Remove one ETF session or warmup month and require a hard failure, including for unheld sectors.": "REQUIRED_BEFORE_REAL_RUN_NOT_ESTABLISHED_BY_THIS_AUDIT",
+    "Mutate raw source bytes, a split ratio or a distribution and require hash/source-reconciliation failure.": "REQUIRED_BEFORE_REAL_RUN_NOT_ESTABLISHED_BY_THIS_AUDIT",
+    "Hand-check initial entry, two-sided rotation fees, drifted weights and long-only self-financing.": "REQUIRED_BEFORE_REAL_RUN_NOT_ESTABLISHED_BY_THIS_AUDIT",
+    "Check noncash XLF event accounting and post-split distribution share units.": "REQUIRED_BEFORE_REAL_RUN_NOT_ESTABLISHED_BY_THIS_AUDIT",
+    "Run a planted cross-sectional signal and an IID null ensemble without using them to tune a market rule.": "REQUIRED_BEFORE_REAL_RUN_NOT_ESTABLISHED_BY_THIS_AUDIT",
+    "Run all preregistered shuffled-rank controls, preserving their whole distribution.": "REQUIRED_BEFORE_REAL_RUN_NOT_ESTABLISHED_BY_THIS_AUDIT"
+  },
+  "inherited_control_evidence": "See validation.json. Existing synthetic tests passed but are not a sector experiment or its missing adapter tests."
+}
