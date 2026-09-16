@@ -255,3 +255,143 @@ changes. No trades, stock-level data acquisition, PEAD, or optional cross-asset
 experiment are included.
 
 RESEARCH MORE
+
+## Acquisition-unblock retry — 2026-09-16 01:38:26 UTC
+
+**DATA ACQUISITION STILL BLOCKED. Classification: EXPLORATORY.**
+
+This is a new acquisition attempt, not a correction of the original DNS-failure
+record above. The current runner was tested again rather than assuming the
+previous runner's failure persisted. The frozen protocol at
+`79cb2aefe99bb1ab04443c3370c9e1b90de4cd26` remains byte-for-byte identical
+(SHA-256 `ae767c8fa68a2da9003e07bd0beb48131990b0a276a3725017ad89f277a6bffd`).
+No strategy or parser code was changed.
+
+### Normal network diagnosis
+
+The new checks ran from `2026-09-16T01:38:26.159983+00:00` through
+`2026-09-16T01:38:26.252387+00:00`, before any strategy-code changes or performance
+calculations. All used ordinary system resolution and HTTPS clients:
+
+| Check | Requests | Observed result |
+| --- | ---: | --- |
+| `getent ahosts`, separately for each required host | 2 | Exit 2, no addresses |
+| Python `socket.getaddrinfo`, separately for each host | 2 | `gaierror`, errno -5: no address associated with hostname |
+| Python urllib GET: eleven NAV URLs, eleven product-page URLs, distributions, French RF/calendar | 24 | DNS failures before an HTTP response |
+| curl HEAD and GET: exact prior SPY NAV, BIL NAV, distribution and French RF URLs | 8 | Exit 6: could not resolve host |
+
+The failing hosts are **`www.ssga.com`** and **`mba.tuck.dartmouth.edu`**.
+There were **zero HTTP responses and zero downloaded market-data bodies**.
+TLS, rate limits, challenges and URL validity were **not reached/evaluable**,
+not diagnosed as failures. curl's `000` output is a local no-response sentinel,
+not a server status. No alternate DNS, scraping proxy, challenge bypass,
+network-setting change or repeated retry loop was used.
+
+The [new network receipts](../research/etf_relative_momentum/acquisition_20260916T013826Z/network_diagnostics.json)
+record every exact URL, client, method, UTC timing and error. Sector paths remain
+unverified candidates from the original attempt, not newly verified issuer links.
+
+### Prior successful sources and reusable behavior
+
+The earlier Trend acquisition **did succeed**, according to its preserved
+[source manifest](../research/etf_trend/results/data_manifest.json) and
+[issuer checkpoints](../research/etf_trend/results/issuer_return_crosschecks.csv).
+That manifest records retrieval at `2026-09-15T22:23:16.434200+00:00`;
+all twelve SPY/BIL return checkpoints passed 2 bps, with maximum recorded
+absolute difference approximately 1.005 bps. These are historical results,
+not new reconciliations in this runner.
+
+The exact previously successful URLs tested again were:
+
+- SPY NAV: <https://www.ssga.com/library-content/products/fund-data/etfs/us/navhist-us-en-spy.xlsx>
+- BIL NAV: <https://www.ssga.com/library-content/products/fund-data/etfs/us/navhist-us-en-bil.xlsx>
+- Distributions: <https://www.ssga.com/library-content/products/fund-data/etfs/us/spdr-etf-historical-distributions.xlsx>
+- Independent RF/session calendar: <https://mba.tuck.dartmouth.edu/pages/faculty/ken.french/ftp/F-F_Research_Data_Factors_daily_CSV.zip>
+
+No source bodies listed in the Trend manifest were present in this clone's
+research cache. Their historical hashes cannot replace missing raw bytes.
+**Today's DNS failures do not establish that State Street's data are unavailable.**
+
+The existing implementation was inspected, not reimplemented:
+
+- `load_nav` reads `navhist`, header row 3, with strict dated/numeric NAV records.
+- `load_distributions` filters the shared `dividend` sheet by ticker, validates
+  ex/record/payment dates and sums cash income/capital-gain fields within 2014+.
+- `payable_total_return` accrues on ex-date, retains receivables until payment,
+  applies explicit share-unit ratios and reinvests at payment.
+- The BIL audit verifies **2017-11-30, 0.5 new shares per old share**, using NAV,
+  shares outstanding and independent evidence; a reverse split is not a gain.
+- The independent French RF dates define exchange sessions. Missing required
+  sessions fail; extra nonexchange NAV observations are identified separately.
+- Issuer checkpoints use the frozen **2 bps** tolerance. The research downloader
+  rejects mismatched expected source hashes rather than replacing a vintage.
+
+The [new gate artifact](../research/etf_relative_momentum/acquisition_20260916T013826Z/data_gate.json)
+records the inspected parser file hashes and functions. No market parser ran.
+This SPY/BIL implementation is **not** evidence that the sectors have identical
+corporate actions: XLF's 2016 XLRE in-kind entitlement and economic value, all
+sector splits including candidate 2025 events, special/noncash distributions,
+ticker continuity and unit changes still require actual source reconciliation.
+None was guessed, silently treated as a cash dividend, or newly marked verified.
+
+### Per-ETF gate result
+
+Here **FAIL means required evidence could not be acquired**, not a failed
+economic test or a measured issuer-return mismatch.
+
+| ETF | Acquisition gate | Exact failing NAV source suffix | Corporate actions / issuer checkpoints |
+| --- | --- | --- | --- |
+| XLB | FAIL — DNS | `navhist-us-en-xlb.xlsx` | Not run |
+| XLE | FAIL — DNS | `navhist-us-en-xle.xlsx` | Not run |
+| XLF | FAIL — DNS | `navhist-us-en-xlf.xlsx` | Not run |
+| XLI | FAIL — DNS | `navhist-us-en-xli.xlsx` | Not run |
+| XLK | FAIL — DNS | `navhist-us-en-xlk.xlsx` | Not run |
+| XLP | FAIL — DNS | `navhist-us-en-xlp.xlsx` | Not run |
+| XLU | FAIL — DNS | `navhist-us-en-xlu.xlsx` | Not run |
+| XLV | FAIL — DNS | `navhist-us-en-xlv.xlsx` | Not run |
+| XLY | FAIL — DNS | `navhist-us-en-xly.xlsx` | Not run |
+| SPY | FAIL — DNS | `navhist-us-en-spy.xlsx` | Not rerun; prior six passes preserved |
+| BIL | FAIL — DNS | `navhist-us-en-bil.xlsx` | Not rerun; prior six passes preserved |
+
+Each suffix above belongs to
+`https://www.ssga.com/library-content/products/fund-data/etfs/us/`; every complete
+URL is retained in the receipts. The shared distribution source and all
+inception-page requests also failed DNS. Calendar acquisition failed at the
+exact French URL above. Coverage, missing/duplicate sessions, non-session
+observations and new checkpoint pass/fail counts remain **unknown**, not zero.
+No ETF was dropped, no return was forward-filled and the January 2016-July 2026
+evaluation window was not shortened.
+
+### Gate decision and evidence preservation
+
+**`performance_permitted = false`.** Zero of the eighteen model/cost scenarios
+ran. All frozen falsification diagnostics remain unrun, including shuffled
+ranks, future-ranking rejection, XLK exclusion, rolling windows, regimes,
+rotation/spell analysis and turnover attribution. This retry is blocked by
+**absence of raw inputs**, not solely by NAV-versus-market-close execution
+quality: neither new economic evidence nor new execution evidence exists.
+
+The new dated directory contains network receipts, the per-ETF gate, parser
+hashes and an [artifact manifest](../research/etf_relative_momentum/acquisition_20260916T013826Z/artifact_manifest.json).
+Its hashes bind our records, **not unseen vendor data**. Source-body hashes and
+coverage are explicitly null because nothing was retrieved. The original
+acquisition artifacts, earlier successful Trend artifacts and protocol are
+unchanged; later attempts must use another identified vintage.
+
+Validation for this retry checked JSON consistency, all original and new
+artifact hashes, protocol equality to its frozen commit, and unchanged disabled
+Phase 0 flags. No production code, dependencies or tests changed; the earlier
+test counts above remain historical, not tests rerun during this documentation
+and evidence-only retry. No broker, Robinhood, Azure, purchase or trading action
+was performed.
+
+**One unresolved question:** Can normal authorized access to the two source
+hosts, or authorized exact-byte source archives, supply the complete inputs
+needed to pass the unchanged data gate?
+
+The required unblock is normal runner DNS/HTTPS access to those hosts or supplied
+authorized raw archives with verifiable provenance. No protocol alteration or
+parameter optimization can resolve this environmental failure. No promotion
+or economic rejection is justified.
+
+RESEARCH MORE
