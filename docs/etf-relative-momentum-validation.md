@@ -189,6 +189,15 @@ The inherited research suite passed **44 tests**. The unchanged application and
 Azure unit suites passed **156 tests**, with **79 prerequisite-dependent tests
 skipped**. No database/live-service acceptance is claimed.
 
+Secret scanning found no secrets. JSON/CSV consistency, all original artifact
+hashes and the unchanged Phase 0 flags were checked. The automated review backend
+was unavailable because its configured model was missing; a separate read-only
+review of these changes found no significant issues. CodeQL classified these
+documentation/metadata-only changes as trivial and skipped analysis; this is not
+a claim of a completed security scan. The appended
+[review receipt](../research/etf_relative_momentum/review_validation.json) records
+these distinctions without changing the frozen evidence manifest.
+
 Relevant inherited checks cover future availability, same-close rejection,
 missing held returns, changed source hashes, drifted self-financing costs,
 split-neutrality, distribution receivables, and synthetic cross-sectional
