@@ -385,6 +385,11 @@ test counts above remain historical, not tests rerun during this documentation
 and evidence-only retry. No broker, Robinhood, Azure, purchase or trading action
 was performed.
 
+Secret scanning was clean. The automated review backend was unavailable because
+its configured model was missing; a separate read-only review found no
+significant issues. CodeQL skipped these documentation/metadata-only changes as
+trivial; no completed CodeQL analysis is claimed.
+
 **One unresolved question:** Can normal authorized access to the two source
 hosts, or authorized exact-byte source archives, supply the complete inputs
 needed to pass the unchanged data gate?
