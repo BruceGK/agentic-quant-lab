@@ -1,0 +1,24 @@
+{
+  "schema_version": 1,
+  "vintage": "acquisition_20260916T013826Z",
+  "classification": "EXPLORATORY",
+  "protocol_commit": "79cb2aefe99bb1ab04443c3370c9e1b90de4cd26",
+  "prior_artifact_manifest": {
+    "path": "research/etf_relative_momentum/artifact_manifest.json",
+    "bytes": 2026,
+    "sha256": "a5dbede03839c1e47ad2b7743ca14bf9cbda60b77c9480093746875d1c64696d"
+  },
+  "files": [
+    {
+      "path": "research/etf_relative_momentum/acquisition_20260916T013826Z/network_diagnostics.json",
+      "bytes": 28947,
+      "sha256": "8ad64474d22067bdd8c254f80abb784851b69df3b309a8f56e55e93f073dedc2"
+    },
+    {
+      "path": "research/etf_relative_momentum/acquisition_20260916T013826Z/data_gate.json",
+      "bytes": 18873,
+      "sha256": "b34fba72e7df2e046f8e490a85fa674d24bc459abfbe3da97b6a2d5121db2691"
+    }
+  ],
+  "notice": "Append-only acquisition retry. Hashes bind local evidence artifacts, not unavailable vendor data. Original protocol, first DNS-failure receipts and successful Trend artifacts are unchanged. Do not replace this vintage with later responses."
+}
