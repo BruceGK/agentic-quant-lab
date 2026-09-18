@@ -1,0 +1,345 @@
+{
+  "schema_version": 1,
+  "audit_date": "2026-09-15",
+  "verdict": "C. RESEARCH-GRADE STOCK TEST CURRENTLY BLOCKED",
+  "scope": "Offline data feasibility only; no alpha backtest",
+  "base_branch": "research/long-only-strategy-tournament",
+  "base_commit": "e6d620568de409655f7cfe4dd4a6538a282e8046",
+  "working_branch": "copilot/researchpit-stock-data-audit",
+  "target": {
+    "start": "2010-01-01",
+    "last_complete_month_end": "2026-08-31",
+    "monthly_snapshots": 200,
+    "pre_2010_warmup_acquired": false
+  },
+  "evidence_rules": {
+    "network_failure_is_not_empty_dataset": true,
+    "documentation_is_not_account_entitlement": true,
+    "payload_hash_is_not_historical_availability_proof": true,
+    "synthetic_control_is_not_provider_acceptance": true,
+    "prices_or_fundamentals_acquired": false,
+    "source_semantics_certified": false
+  },
+  "credential_presence": {
+    "method": "Presence-only check of conventional environment variable names; no values read into output",
+    "ALPHA_VANTAGE_API_KEY": false,
+    "ALPHAVANTAGE_API_KEY": false,
+    "MASSIVE_API_KEY": false,
+    "POLYGON_API_KEY": false,
+    "SEC_USER_AGENT": false,
+    "owner_account_inventory_known": false
+  },
+  "requests": [
+    {
+      "source": "SEC API documentation",
+      "url": "https://www.sec.gov/search-filings/edgar-application-programming-interfaces",
+      "attempted_at": "2026-09-15T22:04:10.169704+00:00",
+      "status": "DNS_ERROR",
+      "error": "<urlopen error [Errno -5] No address associated with hostname>",
+      "http_status": null,
+      "bytes": null,
+      "sha256": null
+    },
+    {
+      "source": "Apple CompanyFacts",
+      "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000320193.json",
+      "attempted_at": "2026-09-15T22:04:10.188063+00:00",
+      "status": "DNS_ERROR",
+      "error": "<urlopen error [Errno -5] No address associated with hostname>",
+      "http_status": null,
+      "bytes": null,
+      "sha256": null
+    },
+    {
+      "source": "Apple submissions",
+      "url": "https://data.sec.gov/submissions/CIK0000320193.json",
+      "attempted_at": "2026-09-15T22:04:10.188702+00:00",
+      "status": "DNS_ERROR",
+      "error": "<urlopen error [Errno -5] No address associated with hostname>",
+      "http_status": null,
+      "bytes": null,
+      "sha256": null
+    },
+    {
+      "source": "Microsoft CompanyFacts",
+      "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000789019.json",
+      "attempted_at": "2026-09-15T22:04:10.189281+00:00",
+      "status": "DNS_ERROR",
+      "error": "<urlopen error [Errno -5] No address associated with hostname>",
+      "http_status": null,
+      "bytes": null,
+      "sha256": null
+    },
+    {
+      "source": "Microsoft submissions",
+      "url": "https://data.sec.gov/submissions/CIK0000789019.json",
+      "attempted_at": "2026-09-15T22:04:10.189799+00:00",
+      "status": "DNS_ERROR",
+      "error": "<urlopen error [Errno -5] No address associated with hostname>",
+      "http_status": null,
+      "bytes": null,
+      "sha256": null
+    },
+    {
+      "source": "SEC financial statement dataset documentation",
+      "url": "https://www.sec.gov/data-research/sec-markets-data/financial-statement-data-sets",
+      "attempted_at": "2026-09-15T22:04:10.190208+00:00",
+      "status": "DNS_ERROR",
+      "error": "<urlopen error [Errno -5] No address associated with hostname>",
+      "http_status": null,
+      "bytes": null,
+      "sha256": null
+    },
+    {
+      "source": "Norgate Python documentation raw archival attempt",
+      "url": "https://pypi.org/project/norgatedata/",
+      "attempted_at": "2026-09-15T22:36:03.501387+00:00",
+      "status": "CLIENT_CHALLENGE_NOT_DOCUMENTATION",
+      "http_status": 200,
+      "bytes": 3038,
+      "sha256": "32ed63159c77e21ee19ca1b9aa3213ccf0218eb59539560b132a8e68ef0e18ea",
+      "content_title": "Client Challenge",
+      "evidence_kind": "challenge_html_not_documentation_or_market_data"
+    },
+    {
+      "source": "Norgate Zipline documentation raw archival attempt",
+      "url": "https://pypi.org/project/zipline-norgatedata/",
+      "attempted_at": "2026-09-15T22:36:03.574687+00:00",
+      "status": "CLIENT_CHALLENGE_NOT_DOCUMENTATION",
+      "http_status": 200,
+      "bytes": 3038,
+      "sha256": "32ed63159c77e21ee19ca1b9aa3213ccf0218eb59539560b132a8e68ef0e18ea",
+      "content_title": "Client Challenge",
+      "evidence_kind": "challenge_html_not_documentation_or_market_data"
+    }
+  ],
+  "delegated_access_audit": {
+    "date": "2026-09-15",
+    "scope": "Deduplicated representative requests reported by research agents; not a complete call-count log",
+    "exact_request_timestamps_available": false,
+    "common_failure": "WebFetchBlockedUrlError: failed to lookup address information: No address associated with hostname",
+    "failure_stage": "DNS_BEFORE_HTTP",
+    "http_status": null,
+    "payload_sha256": null,
+    "urls": [
+      "https://alphavantage.co/query?function=LISTING_STATUS&date=2010-01-29&state=active",
+      "https://www.alphavantage.co/query?function=LISTING_STATUS&date=2020-12-31&state=active",
+      "https://www.alphavantage.co/query?function=LISTING_STATUS&date=2020-12-31&state=delisted",
+      "https://www.alphavantage.co/query?function=LISTING_STATUS&date=2026-08-31&state=delisted",
+      "https://www.alphavantage.co/documentation/#listing-status",
+      "https://www.alphavantage.co/support/#api-key",
+      "https://www.alphavantage.co/premium/",
+      "https://www.alphavantage.co/terms_of_service/",
+      "https://api.massive.com/v3/reference/tickers?market=stocks&date=2010-01-29&active=true&limit=1",
+      "https://api.massive.com/v3/reference/tickers?market=stocks&date=2020-12-31&active=true&limit=1",
+      "https://api.massive.com/v2/aggs/ticker/IBM/range/1/day/2010-01-04/2010-01-08?adjusted=false&limit=10",
+      "https://massive.com/pricing",
+      "https://massive.com/docs/rest/stocks/tickers/all-tickers",
+      "https://massive.com/legal/market-data-terms-of-service",
+      "https://norgatedata.com/stockmarketpackages.php",
+      "https://sharadar.com/subscribe",
+      "https://data.nasdaq.com/databases/SEP/documentation",
+      "https://www.tiingo.com/about/pricing",
+      "https://api.tiingo.com/documentation/end-of-day",
+      "https://eodhd.com/pricing",
+      "https://www.nasdaqtrader.com/Trader.aspx?id=SymbolDirDefs",
+      "https://stooq.com/db/h/",
+      "https://www.openfigi.com/api/documentation",
+      "https://api.openfigi.com/schema"
+    ]
+  },
+  "documentary_evidence": [
+    {
+      "source": "Massive official Go ticker model",
+      "url": "https://github.com/massive-com/client-go/blob/d24412df7b80e8b1996f2a0c97587cd2e0214e0f/rest/models/tickers.go",
+      "retrieval": "GitHub MCP returned source text to parent and research agent",
+      "read_date": "2026-09-15",
+      "git_commit": "d24412df7b80e8b1996f2a0c97587cd2e0214e0f",
+      "git_blob_sha1": "d16842fab2ff995e205ce1eca2efd546ffce896e",
+      "supports": [
+        "Historical date/active membership contract and maximum page size 1000",
+        "Ticker overview date uses SEC report-period date rather than filing-publication date",
+        "Ticker-string event lookup resolves the current entity"
+      ],
+      "does_not_support": "Live endpoint behavior, entitlement, complete historical populations or terminal returns"
+    },
+    {
+      "source": "Massive official META mock fixture",
+      "url": "https://github.com/massive-com/client-python/blob/481e5c270ea85e8eae5e96f8b9fda34e5e2a674a/test_rest/mocks/vX/reference/tickers/META/events%26types%3Dticker_change.json",
+      "retrieval": "GitHub MCP returned fixture text to parent and research agent",
+      "read_date": "2026-09-15",
+      "git_commit": "481e5c270ea85e8eae5e96f8b9fda34e5e2a674a",
+      "git_blob_sha1": "19e4cec0f7511c09df6a7f38e7e29e9ede3bf951",
+      "fixture_meta_event_date": "2022-06-11",
+      "supports": "An explicit fixture discrepancy candidate against the unverified June 9 issuer-event lead",
+      "does_not_support": "A live API defect, actual rename date, or successful historical data request"
+    },
+    {
+      "source": "OpenFIGI official Python example",
+      "url": "https://github.com/OpenFIGI/api-examples/blob/f847dce9492a6bac685f9fdf1d9450e57280a9c4/python/example.py",
+      "retrieval": "GitHub MCP returned source text to parent and research agent",
+      "read_date": "2026-09-15",
+      "git_commit": "f847dce9492a6bac685f9fdf1d9450e57280a9c4",
+      "git_blob_sha1": "e9bded10cabb67026bf28d8dfbcff15d0dddecc3",
+      "supports": "Optional API key in mapping/search request construction",
+      "does_not_support": "Live quota, historical identity resolution, mapping-data license or delisted coverage"
+    },
+    {
+      "source": "Norgate publisher Python documentation",
+      "url": "https://pypi.org/project/norgatedata/",
+      "retrieval": "Web reader returned documentation text; raw HTTP separately returned a challenge",
+      "read_date": "2026-09-15",
+      "document_sha256": null,
+      "supports": [
+        "Unique unchanging assetid",
+        "Major-exchange vs OTC series from 2000 and index constituents require Platinum/Diamond",
+        "Price adjustments, dividend-column semantics and no-padding option",
+        "Active subscription and Windows updater; WSL2 mirrored networking described"
+      ],
+      "does_not_support": "Verified checkout price, full-period payload, complete terminal outcomes or export-retention rights"
+    },
+    {
+      "source": "Norgate publisher Zipline documentation",
+      "url": "https://pypi.org/project/zipline-norgatedata/",
+      "retrieval": "Web reader returned documentation text; raw HTTP separately returned a challenge",
+      "read_date": "2026-09-15",
+      "document_sha256": null,
+      "supports": "Padding and stale-symbol warnings including DBD/DBDQQ example",
+      "does_not_support": "Terminal payout coverage or validated execution assumptions"
+    }
+  ],
+  "av_monthly_universe_falsification": {
+    "hypothesis": "Old active snapshots preserve securities subsequently delisted",
+    "status": "UNRESOLVED_DNS_FAILURE_NO_CSV",
+    "not_confirmed": true,
+    "not_falsified": true,
+    "untested": [
+      "Historical aliases and ticker reuse",
+      "Completeness and boundary semantics of date/state",
+      "Future delistingDate or revised attributes in old snapshots",
+      "Actual quota, row count and price-history entitlement"
+    ]
+  },
+  "delisting_cases": [
+    {
+      "security": "Legacy BBBY / BBBYQ",
+      "cik": "0000886158",
+      "status": "SECONDARY_EVENT_LEAD_NO_VENDOR_DATA",
+      "primary_event_document": "https://www.sec.gov/Archives/edgar/data/886158/000119312523247428/d579010d8k.htm",
+      "primary_document_verified": false,
+      "historical_membership_verified": false,
+      "final_price_or_return": null,
+      "open_checks": "Suspension vs removal vs OTC vs cancellation; reused ticker must not bridge to new equity"
+    },
+    {
+      "security": "TWTR",
+      "cik": "0001418091",
+      "status": "SECONDARY_EVENT_LEAD_NO_VENDOR_DATA",
+      "primary_event_document": "https://www.sec.gov/Archives/edgar/data/1418091/000119312522272772/d411753d8k.htm",
+      "primary_document_verified": false,
+      "historical_membership_verified": false,
+      "final_price_or_return": null,
+      "open_checks": "Last exchange quote vs reported cash consideration vs settlement"
+    },
+    {
+      "security": "ATVI",
+      "cik": "0000718877",
+      "status": "SECONDARY_EVENT_LEAD_NO_VENDOR_DATA",
+      "primary_event_document": "https://www.sec.gov/Archives/edgar/data/718877/000110465923108985/tm2328253d1_8k.htm",
+      "primary_document_verified": false,
+      "historical_membership_verified": false,
+      "final_price_or_return": null,
+      "open_checks": "Requested halt vs confirmed exchange event; quote vs cash consideration"
+    },
+    {
+      "security": "FRC / FRCB",
+      "status": "UNRESOLVED_EVENT_CHAIN_NO_VENDOR_DATA",
+      "primary_event_document": "https://www.fdic.gov/news/press-releases/2023/pr23034.html",
+      "primary_document_verified": false,
+      "historical_membership_verified": false,
+      "final_price_or_return": null,
+      "open_checks": "Bank-regulator filing channel; asset transfer does not establish old common-equity recovery"
+    },
+    {
+      "security": "SIVB / SIVBQ",
+      "cik": "0000719739",
+      "status": "UNRESOLVED_EVENT_CHAIN_NO_VENDOR_DATA",
+      "primary_event_document": null,
+      "primary_document_verified": false,
+      "historical_membership_verified": false,
+      "final_price_or_return": null,
+      "open_checks": "Bank vs holding company; OTC and plan/cancellation chain"
+    },
+    {
+      "security": "FB / META continuity control",
+      "cik": "0001326801",
+      "status": "SECONDARY_EVENT_LEAD_AND_OFFICIAL_MOCK_ONLY",
+      "primary_event_document": "https://www.sec.gov/Archives/edgar/data/1326801/000132680122000070/may312022-exhibit991.htm",
+      "primary_document_verified": false,
+      "historical_membership_verified": false,
+      "final_price_or_return": null,
+      "open_checks": "Compare original issuer notice with live events; prove one economic security and actual IPO boundary"
+    }
+  ],
+  "pricing_and_licensing": {
+    "current_numerical_prices_verified": false,
+    "purchase_recommended": false,
+    "reason": "Direct price/license pages unavailable; search summaries conflicting; no terminal/sample certification",
+    "follow_up_candidates_only": [
+      "Norgate historical-series tier: Platinum or Diamond; dollar price not verified",
+      "Sharadar full-history equity/reference/actions; channel-specific price not verified"
+    ],
+    "raw_vendor_data_redistribution_assumed_allowed": false
+  },
+  "sec_integrity_sample": {
+    "status": "BLOCKED_NO_SOURCE_BYTES",
+    "companies_attempted": [
+      {"label": "Apple", "cik": "0000320193"},
+      {"label": "Microsoft", "cik": "0000789019"}
+    ],
+    "verified_accessions": [],
+    "verified_observations": [],
+    "before_filing_query": "NOT_RUN",
+    "after_eligibility_query": "NOT_RUN",
+    "real_restatement_replay": "NOT_RUN",
+    "missing_breadth": "An actual restater and an eventual delisting are also required"
+  },
+  "acceptance_tests": [
+    {"id": 1, "requirement": "Historical universe excludes future IPOs", "status": "NOT_RUN_NO_HISTORICAL_SNAPSHOT"},
+    {"id": 2, "requirement": "Delisted stock remains in prior history", "status": "NOT_RUN_NO_HISTORICAL_SNAPSHOT"},
+    {"id": 3, "requirement": "Ticker change does not create a fake return", "status": "NOT_RUN_NO_IDENTITY_PRICE_JOIN"},
+    {"id": 4, "requirement": "Future corporate action cannot silently alter an earlier decision", "status": "NOT_RUN_NO_ACTION_VINTAGES"},
+    {"id": 5, "requirement": "Missing held-security return cannot become zero", "status": "NOT_RUN_NO_HELD_RETURN_PANEL"},
+    {"id": 6, "requirement": "Current constituent list cannot pass as historical universe", "status": "NOT_RUN_NO_STOCK_ADAPTER"},
+    {"id": 7, "requirement": "Fundamental filed after decision date is unavailable", "status": "NOT_RUN_NO_REAL_FILING"},
+    {"id": 8, "requirement": "Later filing cannot silently overwrite earlier observed state", "status": "NOT_RUN_NO_REAL_RESTATEMENT"},
+    {"id": 9, "requirement": "Acquired data has verified hashes and provenance", "status": "NOT_RUN_NO_PAYLOAD", "note": "Failure provenance recorded; no data hash claimed"},
+    {"id": 10, "requirement": "Deliberately future-leaked fixture must fail", "status": "NOT_RUN_NO_STOCK_ADAPTER"}
+  ],
+  "assumed_planning_scale": {
+    "not_verified_vendor_limits_or_measured_payloads": true,
+    "calls_per_day_if_25": {
+      "active_snapshot_calls": 200,
+      "active_snapshot_minimum_days": 8,
+      "both_state_calls": 400,
+      "both_state_minimum_days": 16,
+      "one_price_call_per_20000_issues_days": 800
+    },
+    "average_concurrent_listings_range": [5000, 8000],
+    "assumed_sessions_per_year": 252,
+    "daily_row_range": [21000000, 33600000],
+    "assumed_text_bytes_per_row": 100,
+    "uncompressed_price_gb_range": [2.1, 3.36],
+    "excludes": "Actions, SEC XBRL, JSON overhead, revisions, duplicate snapshots and indexes"
+  },
+  "safety": {
+    "new_dependencies": false,
+    "new_adapters": false,
+    "raw_third_party_data_committed": false,
+    "purchases": false,
+    "broker_access": false,
+    "alpha_backtests": false,
+    "production_changes_relative_to_base": false,
+    "trend_results_changes_relative_to_base": false
+  }
+}

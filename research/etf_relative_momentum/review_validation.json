@@ -1,0 +1,37 @@
+{
+  "schema_version": 1,
+  "kind": "APPENDED_REVIEW_RECEIPT",
+  "classification": "EXPLORATORY",
+  "reviewed_research_commit": "94ebe20",
+  "research_base_commit": "3e8273472ad24508463916c11b44bd4b754abe6d",
+  "prior_artifact_manifest_sha256": "a5dbede03839c1e47ad2b7743ca14bf9cbda60b77c9480093746875d1c64696d",
+  "automated_parallel_review": {
+    "status": "UNAVAILABLE",
+    "reason": "Configured review model was absent from the tool's model registry. Its success wrapper is not evidence that review ran."
+  },
+  "fallback_read_only_review": {
+    "status": "COMPLETED",
+    "scope": "Only the new research documentation and artifacts relative to the requested research base.",
+    "significant_findings": 0
+  },
+  "codeql": {
+    "status": "SKIPPED_TRIVIAL",
+    "reason": "Documentation and non-executable research metadata only; no executable source or configuration changes relative to the requested base."
+  },
+  "secret_scanning": {
+    "status": "PASS",
+    "findings": 0
+  },
+  "artifact_consistency": {
+    "status": "PASS",
+    "checks": [
+      "All seven original artifact hashes and lengths match.",
+      "Protocol matches its preregistration commit exactly.",
+      "All 18 model/cost combinations exist and contain unavailable, not fabricated, metrics.",
+      "All eleven asset audits are blocked and all 24 retrieval attempts contain no market-source hashes.",
+      "Phase 0 source, tests, policies, infrastructure and dependencies are unchanged from the requested base."
+    ]
+  },
+  "sector_experiment_status": "NOT_RUN_DATA_GATE",
+  "note": "This receipt is appended after the original artifact manifest; it does not replace or retroactively certify the missing market data."
+}

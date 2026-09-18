@@ -1,22 +1,254 @@
-# agentic-quant-lab
+# Agentic Quant Lab
 
-Integrity-first quantitative research, **Phase 0 only**: a prospective SEC EDGAR
-filing recorder. No trading, strategies, LLM extraction, broker integration, UI,
-Qlib, or agent orchestration. `ExecutionAdapter` is an empty protocol placeholder.
+Strategy agents turn ideas into reproducible experiments, compete on evidence,
+and pass risk-checked proposals to dry-run execution.
 
-## Layout
+```text
+Strategy agents
+      ↓
+Experiments · backtests · controls
+      ↓
+Tournament + portfolio
+      ↓
+RiskGate
+      ↓
+Dry-run execution + evidence
+```
 
-- `src/agentic_quant_lab/`: configuration, SEC transport/parsers, local/Blob ledger,
-  PostgreSQL projection, recorder, CLI, execution placeholder.
-- `migrations/`: ordered SQL migrations, applied once by a separate database owner.
-- `tests/`: deterministic tests, real PostgreSQL integration tests, opt-in live SEC test.
-- `.github/workflows/`: isolated CI and manual-only Azure recorder automation.
-- `infra/azure/`: reproducible Azure deployment, isolated database roles and monitoring.
-- `Dockerfile`: pinned, non-root production image without development/build tools.
+## Status
+
+- [x] Deterministic, synthetic product demo.
+- [x] Phase 0 evidence foundation and historical SEC acceptance report.
+- [x] Research harness and fixed-rule ETF trend lineage integrated.
+- [x] Independent stock, PEAD and sector-relative research reports restored.
+- [ ] Validated investable alpha, LLM agents and live execution.
+
+## Quick Demo
+
+Prerequisites: **Python 3.12 and [uv](https://docs.astral.sh/uv/)**.
+From the repository root:
+
+```sh
+uv sync
+uv run aql demo
+```
+
+Open **`demo-output/index.html`**; its companion is **`demo-output/receipt.json`**.
+Installation must prepare dependencies and may need network access. The demo
+runtime uses committed synthetic inputs, not accounts, cloud services or real-data downloads.
+
+[Five-minute presenter script](docs/demo-script.md) ·
+[Research status and provenance](docs/research-status.md)
+
+<details>
+<summary>Demo: offline preparation, seven stages, reproducibility and safety</summary>
+
+### Prepare before disconnecting
+
+Run `uv sync` while the required Python, build tools and packages are available.
+This is **not** a promise that a cold install works without those packages.
+On a prepared machine, bypass uv's synchronization and all network access:
+
+```sh
+uv run --offline --no-sync aql demo
+```
+
+If uv's cache is missing but the prepared virtual environment is intact, invoke
+the already-installed entry point directly; this also uses no network:
+
+```sh
+.venv/bin/aql demo
+```
+
+Both commands require the installation to have completed beforehand. PostgreSQL,
+SEC contact details, Azure credentials, market-data subscriptions and broker
+accounts are unnecessary for the demo.
+
+### What the seven stages show
+
+| CLI stage | What to inspect |
+| --- | --- |
+| `[1/7]` agent | Deterministic strategy-agent proposals; this is an agent interface, not an LLM call. |
+| `[2/7]` experiment | An explicit experiment specification and reproducible input provenance. |
+| `[3/7]` backtest | Synthetic monthly valuations, delayed decisions and transaction costs. |
+| `[4/7]` controls | Synthetic controls and rejection of future-available information, not proof of market alpha. |
+| `[5/7]` tournament | Four demo strategies compared, including a portfolio view rather than just a winning score. |
+| `[6/7]` RiskGate | One proposed BUY checked against a supplied demo portfolio snapshot. |
+| `[7/7]` dry run + evidence | A simulated execution decision, local dashboard and separate demo receipt. |
+
+The four strategies are **Relative Momentum, Trend, Weak and Null**. All are
+synthetic demonstrations; Weak and Null are not quality or PEAD models, and
+neither Relative Momentum nor Trend reproduces a completed real-market experiment.
+The fictional symbols are `DEMO_UP`, `DEMO_WEAK` and `DEMO_NULL`, using a committed
+fixture with seed **20260918**.
+
+Relative Momentum uses **compressed three-period momentum, skipping the latest
+period**, not the real sector experiment's **12-1** rule. Fixture prices are
+monthly valuations, not exchange fills. The simulation uses a **one-period
+delay** and **10 bps one-way cost**. Demo scores, rankings, returns and allocation
+illustrations are **not research evidence or evidence of profitable alpha**.
+Real research candidates are displayed separately from the demo tournament.
+
+### Files and repeatability
+
+The default dashboard `demo-output/index.html`, receipt `demo-output/receipt.json`
+and detailed `demo-output/result.json` are overwritten deterministically for
+the same code, fixture and configuration.
+To regenerate them explicitly:
+
+```sh
+uv run aql demo --reset
+```
+
+On a prepared offline machine use `uv run --offline --no-sync aql demo --reset`,
+or `.venv/bin/aql demo --reset`. Reset regenerates **owned demo files only**;
+it is not a recursive cleanup of unrelated files, a research-data reset or a
+Phase 0 ledger operation.
+
+The receipt timestamp is **fixed scenario time**, deliberately repeatable:
+it is **not the actual time of an audit event or this invocation**. Demo hashing
+reuses the existing ledger utility, but demo receipts remain separate from the
+Phase 0 append-only ledger and its observed SEC timestamps. Hashes bind content;
+they do not certify source truth, research validity or live execution.
+
+RiskGate's demonstration is limited to a **single proposed BUY against supplied
+demo state**. It is not continuous enforcement on a live account, reconciliation
+with a broker or a complete multi-order portfolio risk system.
+`live_execution.enabled = false` is a hard-fail boundary; the Robinhood adapter
+is a **disabled stub**, not a broker connection. A successful dry run is neither
+an order placement nor authorization to trade.
+
+</details>
+
+<details>
+<summary>Architecture, evidence sidecar and repository layout</summary>
+
+```mermaid
+flowchart TD
+    A["Strategy agents · deterministic today"] --> E["Experiment specification"]
+    E --> B["Synthetic backtest"]
+    B --> C["Scientific controls"]
+    C --> T["Demo tournament + portfolio"]
+    T --> R["RiskGate · supplied demo snapshot"]
+    R --> X["Dry-run execution"]
+    A -.-> S["Evidence sidecar · demo receipt + dashboard"]
+    E -.-> S
+    B -.-> S
+    C -.-> S
+    T -.-> S
+    R -.-> S
+    X -.-> S
+    P["Canonical real-research status · separate from rankings"] -.-> S
+```
+
+| Module under `src/agentic_quant_lab/` | Responsibility |
+| --- | --- |
+| `agents.py` | Deterministic strategy-agent interface; future LLM implementations must obey the same evidence boundaries. |
+| `strategies.py` | The four explicitly synthetic strategy rules. |
+| `experiment.py` | Run the experiment specification through the existing research engine and summarize fixture results. |
+| `tournament.py` | Comparable demo results without ranking real research candidates on synthetic scores. |
+| `portfolio.py` | Synthetic portfolio construction and snapshot representation. |
+| `risk.py` | RiskGate decisions against explicitly supplied state. |
+| `execution.py` | Dry-run execution boundary and disabled Robinhood stub. |
+| `demo.py` | Seven-stage orchestration, synthetic controls, deterministic receipt and local HTML rendering. |
+| `resources/` | Packaged fixtures and canonical `research_status.json`, usable without a checkout-only research cache. |
+| `ledger.py` | Existing canonical hashing/ledger utilities; Phase 0 evidence remains separate. |
+| `recorder.py`, `sec.py`, `database.py`, `blob_ledger.py` | Prospective SEC recording, transport and durable ledger/query projection. |
+
+The demo reuses `research.engine.simulate` on synthetic inputs. Historical
+acquisition, research results and the demo tournament remain separate; this is
+not a live feature store. `docs/` holds research decisions, presenter
+guidance and historical operational reports. `migrations/` contains ordered
+append-only evidence migrations. `tests/` contains deterministic and explicitly
+opt-in integration tests; research-specific tests live in `research/tests/`.
+`infra/azure/` contains the deployment runbook and templates.
+`.github/workflows/` contains CI and manual recorder automation.
+`Dockerfile` retains the pinned, non-root Phase 0 production image.
+
+LLM-backed agents and future Robinhood integration are product directions,
+not current capabilities. Any future execution work requires separate authorization,
+compliance review, qualified data, broker/account reconciliation and real risk controls;
+the demo does not relax the constitution.
+
+</details>
+
+<details>
+<summary>Real research: methodology, findings and limitations</summary>
+
+The canonical structured summary is
+[`src/agentic_quant_lab/resources/research_status.json`](src/agentic_quant_lab/resources/research_status.json).
+The [research-status guide](docs/research-status.md) records source reports, exact
+branch heads, integration provenance and reopening gates. Read the reports before
+using any historical number; no generated demo score updates these verdicts.
+
+| Research family | Current finding |
+| --- | --- |
+| Fixed modern ETF Trend | **RESEARCH MORE**, limited to executable-close verification. NAV-proxy results are weak versus static 80/20 or 70/30 de-risking; **no paper/shadow promotion** and no parameter rescue. |
+| Stock momentum and momentum + quality | **C. RESEARCH-GRADE STOCK TEST CURRENTLY BLOCKED.** Historical membership, stable security identity, terminal outcomes and accession-level quality vintages remain unqualified; no new alpha backtest. |
+| PEAD | Price-based and guidance-text: **LOW-COST DATA REQUIRED**. Consensus-surprise and revision momentum: **BLOCKED**. Overall: **DEFER PEAD**; no qualified event/price join or reported performance. |
+| Sector-relative / dual momentum | **EXPLORATORY; RESEARCH MORE; DATA ACQUISITION STILL BLOCKED.** No raw panel acquired, **zero of 18** scenarios run; neither alpha nor an economic rejection. |
+
+Research fixes hypotheses, timing, costs and falsification before inspecting
+results. The general harness retains **481 predeclared runs**, not 481 independent
+discoveries. It tests delayed availability, missing held returns, changed source
+hashes and drifted self-financing costs, with null/planted/leakage controls.
+Retrospective splits are pseudo-out-of-sample, not untouched discovery data;
+descriptive bootstrap uncertainty does not remove selection bias.
+
+The old 70-stock panel is survivor-selected, academic long portfolios are not
+executable ETF holdings, and sleeve blending is not a stock-level quality model.
+The modern fixed ETF study covers January 2016–July 2026 and retains all **36**
+model/cost/defense scenarios. Its issuer NAV/distribution audit includes split
+neutrality and payment-date reinvestment, but NAV remains a valuation proxy,
+not verified exchange-close execution. Its weak findings supersede the older
+crisis-heavy ETF build-priority recommendation.
+
+The independent sector study freezes actual **12-1** top-three selection and
+one same-window BIL-hurdle variant. Missing source bytes stop it before performance;
+the successful historical SPY/BIL trend audit cannot validate the unavailable
+sector panel. Quality/PEAD data gaps cannot be filled by renaming a toy strategy.
+Taxes, actual fills, source vintages, survivorship, revisions and terminal-value
+coverage constrain any investment interpretation. No candidate is promoted here.
+
+### Reproduction is separate from the demo
+
+For the general harness follow [`research/README.md`](research/README.md);
+for the fixed trend experiment follow
+[`research/etf_trend/README.md`](research/etf_trend/README.md).
+Their optional dependency preparation starts with:
+
+```sh
+uv sync --locked --group research
+```
+
+Real-data acquisition is **not part of Quick Demo**. Reproduction requires
+authorized, matching raw archival bytes: raw third-party data is not committed,
+and a manifest hash is not a substitute for the missing body. Source revisions
+must fail verification rather than silently rewrite a result; use a new explicitly
+identified vintage for new acquisition attempts. See the individual reports for
+commands and unpassed gates, not the synthetic dashboard.
+
+</details>
+
+<details>
+<summary>Phase 0 operations: SEC recorder, PostgreSQL, Azure, acceptance and recovery</summary>
+
+These are retained operator instructions, **not demo prerequisites or actions
+performed by the demo**. The [historical real SEC acceptance report](docs/sec-acceptance-report.md)
+records external acceptance **PASS**; its earlier blockers are superseded only as
+described in that report. This documentation integration did **not** rerun SEC,
+Azure, live-service acceptance, deployment or recording.
+
+Historical acceptance and activation policy are distinct. The packaged
+constitution deliberately still has `phase0.external_acceptance_complete = false`,
+`phase0.scheduled_recording_enabled = false` and `live_execution.enabled = false`.
+Those flags are untouched. The product now includes offline demo and research
+layers alongside the frozen Phase 0 subsystem; it is not a Phase-0-only product.
 
 ## Local setup and the one-filing slice
 
-Requires Python 3.12, uv, PostgreSQL 16+, and Linux/POSIX file locking.
+The recorder, unlike the demo, requires Python 3.12, uv, PostgreSQL 16+,
+and Linux/POSIX file locking.
 Commands below assume the repository is the current directory; use absolute
 paths for your durable ledger, migration files, and correction JSON files.
 
@@ -318,9 +550,11 @@ restricted writer role. Without `TEST_DATABASE_URL`, database tests skip;
 CI always supplies it. Unit fixtures are explicitly synthetic, not proof of
 real SEC connectivity.
 
-The real-filing acceptance gate is opt-in and must pass before calling Phase 0
-operationally complete. Use your real SEC contact User-Agent, a network allowed
-by SEC, and the isolated test database (no production secrets):
+The real-filing acceptance gate is opt-in. Historical deployed acceptance is
+recorded in [the SEC acceptance report](docs/sec-acceptance-report.md), not newly
+established by this guide or the demo. For a separately authorized acceptance
+rerun, use your real SEC contact User-Agent, a network allowed by SEC, and the
+isolated test database (no production secrets):
 
 ```sh
 RUN_LIVE_SEC=1 \
@@ -369,11 +603,13 @@ foundation, validated null/positive/leakage controls, first panel-evidence
 implementation, first published-anomaly replication, and an analytic feasibility map.
 These are review targets, **not claims of current completion**.
 
-Outside that scope: autonomous live trading, production Robinhood execution,
-multi-agent trading swarms, polished UI, RD-Agent integration, and sophisticated
-automated strategy discovery. Compliance status remains unreviewed/unknown;
-live execution cannot be enabled before the required policy reviews and explicit
-authorization of a future phase. No broker implementation exists here.
+Outside that operational scope: autonomous live trading, production Robinhood
+execution, live multi-agent trading, RD-Agent integration, and sophisticated
+automated strategy discovery. The local demo dashboard and deterministic agent
+interfaces do not provide those capabilities. Compliance status remains
+unreviewed/unknown; live execution cannot be enabled before the required policy
+reviews and explicit authorization of a future phase. The disabled Robinhood
+stub is not a functional broker implementation.
 
 ## Synthetic scientific controls (test-only)
 
@@ -384,6 +620,9 @@ effect, interval coverage/standard-error calibration, and rejection of deliberat
 future-available information. Generator version and seed identify the fixtures.
 Run `uv run pytest tests/test_scientific_controls.py`.
 
-This is only a Phase 1 control foundation: no market downloads, real anomalies,
-Sharpe ratios, experiment registry, or panel-evidence implementation. Passing IID
-control tests does not establish uncertainty calibration for dependent market data.
+This test-only fixture is a control foundation, not market-data or panel-evidence
+validation. The separate research harness and product demo do not upgrade it:
+passing IID control tests does not establish uncertainty calibration for dependent
+market data, and synthetic demo results are not real-anomaly replications.
+
+</details>

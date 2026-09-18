@@ -1,0 +1,172 @@
+{
+  "protocol_id": "etf-relative-momentum-v1",
+  "status": "FROZEN_BEFORE_ANY_SECTOR_STRATEGY_PERFORMANCE",
+  "research_base_commit": "3e8273472ad24508463916c11b44bd4b754abe6d",
+  "scope": "Offline research only. No Phase 0, infrastructure, scheduling, broker, or execution changes.",
+  "activation": {
+    "scheduled_recording_enabled": false,
+    "live_execution_enabled": false
+  },
+  "universe": {
+    "sectors": ["XLB", "XLE", "XLF", "XLI", "XLK", "XLP", "XLU", "XLV", "XLY"],
+    "equity_benchmark": "SPY",
+    "defensive_asset": "BIL",
+    "replacement_assets_permitted": false,
+    "universe_rationale": "Original nine common-issuer sector ETFs, not sectors selected on realized returns. Sector definitions can change; do not backcast today's constituents.",
+    "inception_policy": "Verify each inception against primary issuer evidence; inception does not establish downloadable daily coverage.",
+    "defensive_failure_policy": "Stop all six matched comparisons if BIL cannot be audited. No cash or Treasury-index substitution."
+  },
+  "sample": {
+    "warmup_start": "2014-01-01",
+    "first_decision_month": "2015-12",
+    "evaluation_start": "2016-01-01",
+    "evaluation_end": "2026-07-31",
+    "rationale": "Same modern evaluation boundary and independent RF endpoint as the base ETF research, selected before sector outcomes; contains all user-requested regimes. This is not full inception history and excludes the global financial crisis.",
+    "calendar": "Independent US equity exchange sessions, cross-checked against the French daily RF calendar. Record nonexchange NAV dates separately; never infer sessions from an ETF intersection.",
+    "missing_history_policy": "Any missing required session, distribution, or warmup month blocks evaluation; no forward filling, dropping a sector, shortening the window, or splicing.",
+    "initial_account": "Zero-yield uninvested cash until the first exchange session close after the December 2015 decision. Charge initial entry for every model. No inherited portfolio.",
+    "terminal_account": "Mark to the final evaluation close; no invented terminal liquidation.",
+    "subperiods": {
+      "2016-2019": ["2016-01-01", "2019-12-31"],
+      "2020": ["2020-01-01", "2020-12-31"],
+      "2021": ["2021-01-01", "2021-12-31"],
+      "2022": ["2022-01-01", "2022-12-31"],
+      "2023-2025": ["2023-01-01", "2025-12-31"],
+      "post-2020": ["2021-01-01", "2026-07-31"],
+      "2026-partial": ["2026-01-01", "2026-07-31"]
+    },
+    "subperiod_accounting": "Slice the continuous account path, carrying positions and prior costs. Do not reset accounts at regime boundaries."
+  },
+  "signal": {
+    "frequency": "monthly",
+    "decision": "Last verified exchange session of each complete calendar month m.",
+    "convention": "12-1, prior months 2 through 12: eleven monthly return intervals, not twelve intervals shifted back one month.",
+    "formula": "S_i(m) = TR_i(month_end(m-1)) / TR_i(month_end(m-12)) - 1",
+    "example": "The December 2015 decision uses November 2015 month-end divided by December 2014 month-end; December 2015's return is excluded.",
+    "rationale": "Preregister the conventional intermediate-horizon cross-sectional prior-2-through-12 signal. Skipping the most recent month addresses the short-horizon reversal concern in stock momentum literature; it is not evidence that skipping improves sector ETF results.",
+    "alternative_not_tested": "Including the decision month would instead use TR(m)/TR(m-12)-1. It is a plausible practitioner convention, not a second tested strategy.",
+    "ranking": "Descending unrounded signal among the nine sectors; exact ties break by ascending ticker.",
+    "breadth": 3,
+    "weights": "Equal thirds; rebalance back to target monthly even if membership is unchanged.",
+    "availability": "Every signal input must carry a source-observation timestamp no later than its permitted month-end. No future-month ranks or revised-vintage data may be described as prospective PIT evidence.",
+    "execution": "Following exchange session close, never the decision close. Target first earns the return from execution close to the subsequent session close.",
+    "no_parameter_search": true,
+    "no_rank_buffer": true
+  },
+  "models": [
+    {"id": "SPY_HOLD", "rule": "Buy SPY once at common initial entry and hold."},
+    {"id": "SECTOR_EQUAL", "rule": "One ninth in each of the nine sectors, monthly rebalance."},
+    {"id": "STATIC80", "rule": "80% SPY and 20% BIL, monthly rebalance."},
+    {"id": "STATIC70", "rule": "70% SPY and 30% BIL, monthly rebalance."},
+    {"id": "RELATIVE12_1", "rule": "Equal thirds in the top three sectors by the frozen signal. Always fully sector-invested after initial entry."},
+    {"id": "DUAL12_1", "rule": "Rank exactly as RELATIVE12_1. Each selected slot stays in its sector only if its signal is strictly greater than BIL's total return over exactly the same signal window. Each failed or equal-hurdle slot goes to BIL. Do not backfill with rank four or lower."}
+  ],
+  "costs": {
+    "one_way_bps": [0, 10, 20],
+    "primary_scenarios": 18,
+    "method": "Reuse research.engine.rebalance: self-financing fees on drifted pretrade weights, charging purchases and sales separately including BIL. Report total traded notional and half-notional turnover.",
+    "included": "Fund expenses already in issuer NAV; external spread/slippage represented by the three fixed stresses.",
+    "excluded_and_disclosed": ["taxes", "market impact beyond fixed stress", "broker-specific fractional-share fills", "unmodeled settlement and unpaid-distribution constraints"],
+    "no_commission_free_override": true
+  },
+  "data_gate_before_performance": {
+    "require_all": [
+      "Retrieve and archive the actual issuer bodies for every ETF; successful DNS or HTTP status alone is insufficient.",
+      "Discover download links from verified issuer pages or primary documents. URL templates and search summaries are candidates, not availability evidence.",
+      "Record exact requested and final source URLs, UTC retrieval time, byte counts, SHA-256, workbook sheets/schema, issuer as-of date, and observation coverage.",
+      "Verify issuer inception separately from first and last NAV/distribution records, and verify every required exchange session and month.",
+      "Normalize every split using evidenced effective dates and new-shares-per-old units. Do not infer a corporate action solely from a price jump.",
+      "Audit XLF's 2016 in-kind XLRE distribution and subsequent sector-definition changes; do not treat a noncash distribution as an ordinary share split or price loss.",
+      "Audit candidate December 2025 splits in XLB, XLE, XLK, XLU and XLY, and the base-reported November 2017 BIL reverse split against current primary evidence.",
+      "Determine whether each historical NAV and distribution field is raw or already split-adjusted. Convert to a single consistent share basis and never double-adjust.",
+      "Accrue ordinary distributions on ex-date and reinvest on payment, retaining receivables; use the existing payable_total_return accounting only where its assumptions actually apply.",
+      "For a noncash distribution require independently evidenced entitlement, ex-date, payment date and valuation. If cash-equivalent total-return treatment cannot reconcile, stop; do not fabricate XLRE value or add it as a selected strategy asset.",
+      "Reconcile all eleven issuer total-return series against June 30 2026 official NAV QTD, YTD, 1y, 3y, 5y and 10y checkpoints within 2 bps per reported return. Failure or unavailable checkpoints blocks evaluation pending source resolution.",
+      "Inspect corporate-action neighborhoods and flag unexplained discontinuities, malformed dates, duplicate events, nonfinite values and negative distributions.",
+      "Commit the passed source audit and frozen raw-source hashes before strategy performance. All later runs must verify the same bytes and panel hash."
+    ],
+    "total_return_proxy_limit": "Synthetic total-return units with receivables are not executable shares. Record maximum unpaid distribution fractions and disclose switching/settlement limitations.",
+    "price_preference": "Use audited actual historical exchange closes with corporate actions if complete. Otherwise run auditable issuer NAV as an explicitly labeled valuation proxy, never a fill simulation.",
+    "incomplete_data": "Stop at the source gate. Record NOT_RUN_DATA_GATE and null metrics, not zero performance, a partial-universe result, or an economic rejection.",
+    "promotion_classification": "RESEARCH-GRADE ENOUGH FOR PAPER VALIDATION requires verified exchange-close provenance, availability and corporate-action accounting with no unresolved execution-affecting proxy limitation.",
+    "otherwise_classification": "EXPLORATORY"
+  },
+  "metrics": {
+    "annualization": "252 exchange sessions; CAGR = terminal wealth^(252/n)-1. Sample standard deviation (ddof=1).",
+    "required": [
+      "cagr",
+      "annualized_volatility",
+      "sharpe",
+      "max_drawdown",
+      "calmar",
+      "worst_complete_calendar_year_return",
+      "worst_complete_calendar_year",
+      "annual_traded_notional",
+      "annual_half_notional_turnover",
+      "rotations_excluding_initial_entry",
+      "average_number_of_etf_holdings",
+      "beta_to_spy",
+      "correlation_to_spy",
+      "mean_bil_weight",
+      "fraction_sessions_any_bil",
+      "mean_sector_hhi",
+      "maximum_single_sector_weight",
+      "mean_xlk_weight"
+    ],
+    "sharpe": "Mean daily return minus independently sourced daily RF, divided by sample standard deviation of that excess return, times sqrt(252). Zero excess variance is null.",
+    "drawdown": "Daily account wealth including the initial capital observation; Calmar is CAGR divided by absolute maximum drawdown, or null if denominator is zero.",
+    "complete_years": "Only years containing every expected evaluation-calendar session; include initial-entry cost, exclude partial 2026.",
+    "beta_and_correlation": "Same-day daily net portfolio returns versus raw SPY total returns on identical dates; not against a differently timed benchmark account.",
+    "exposures": "Use prior-close drifted weights that earn today's return, not today's posttrade targets. Holdings count includes BIL, excludes initial cash.",
+    "rotations": "A change in selected held-sector membership at executed monthly rebalances, excluding initial entry. Also report BIL slot changes and all rebalances; static rebalancing is not a membership rotation.",
+    "concentration": "Sum squared sector ETF weights both absolutely and normalized within the sector sleeve, with no-sector days separately identified. SPY constituent sector HHI is unavailable without dated holdings; report null, not zero or a single-sector SPY fiction.",
+    "rolling_three_years": "At each complete month-end, all models and costs: trailing 36 calendar-month compounded return, CAGR, daily volatility, excess Sharpe and daily max drawdown; no incomplete windows. Use continuous account paths and identical boundaries."
+  },
+  "diagnostics_not_new_strategies": {
+    "regimes": "Report all declared subperiods plus every complete calendar year, without choosing favorable dates.",
+    "crisis_dependence": "Compare full results to descriptive exclusions of 2020 and 2022 separately. Sum paired daily log-return differences; do not join disconnected price levels or call exclusions investable paths.",
+    "sector_attribution": "Use prior-close weights and prior wealth to calculate daily dollar P&L per sector, SPY, BIL and fees; reconcile to total account P&L. Report each sector's exposure and positive/negative contribution, especially XLK.",
+    "xlk_exclusion": "At all three costs rerun the same frozen rules on the remaining eight sectors, keeping top three; compare with monthly equal-weight eight and unchanged SPY/static benchmarks. Descriptive falsification only, never a promoted seventh model. Also show original XLK P&L; deleting its contribution is not the same as reranking without it.",
+    "tech_aliasing": "XLK is not all technology exposure: XLK/XLY definitions changed with XLC and GICS migrations. Disclose that ETF-level attribution cannot exclude indirect tech concentration without dated constituent evidence.",
+    "dual_exposure": "Compare dual and pure sector/BIL/fee P&L and mean exposure; compare both to STATIC80 and STATIC70. Describe avoided losses and missed rebounds separately rather than declaring every lower-volatility outcome alpha.",
+    "monthly_rotations": "Preserve every month's source month, signal endpoints, all nine scores/ranks, selected sectors, BIL hurdle/pass decisions, target/drifted weights, decision and execution dates, buys/sells, costs, and executed versus pending status.",
+    "spells": "Record every sector entry/exit, duration in monthly holding intervals, and censoring. Short spells are at most two intervals; repeated reentry means return within three monthly decisions after exit. No post-result buffers.",
+    "persistence": "Report adjacent-month top-three overlap, rank Spearman correlation, retention frequency and forward selected-minus-equal-sector returns net of monthly switching.",
+    "negative_rotation_value": "For each completed execution-to-next-execution interval, compare actual new target net performance and switching fees with holding the pretrade portfolio unchanged for that interval. List every negative difference. Mark the first entry and last unfinished interval as censored; these local counterfactuals are not a seventh strategy.",
+    "turnover_drag": "For each fixed model report 0-to-10 and 0-to-20 bps CAGR loss, annual explicit fees and both sides' traded notional.",
+    "shuffled_ranks": "Fixed NumPy PCG64 seeds 0 through 99, independent permutation of the nine ticker labels on each decision month's already available score vector. Keep top-three construction, actual selected-asset BIL hurdle, next-session execution and 20 bps costs. Report pure and dual placebo distributions against equal sectors, not a selected lucky seed.",
+    "shuffled_rank_interpretation": "Placebos are a diagnostic, not automatic proof of alpha absence. If their median full-sample and post-2020 excess CAGR and Sharpe are both positive, investigate beta/concentration or accounting rather than claiming successful falsification. A real strategy below the 95th percentile placebo excess Sharpe has no strong rank-specific evidence.",
+    "uncertainty": "Paired 12-month block bootstrap of monthly strategy-minus-comparator returns, 1000 draws, PCG64 seed 20260915, descriptive 95% intervals; no selection-adjusted or prospective significance claim."
+  },
+  "scientific_controls": {
+    "reuse": ["research.engine.Plan", "research.engine.simulate", "research.engine.rebalance", "research.engine.summary", "research.data.fetch", "research.etf_trend.data.payable_total_return"],
+    "required_before_real_runs": [
+      "Reject future-month ranking inputs with their true availability timestamps.",
+      "Perturb future prices and prove earlier ranks, weights and returns remain unchanged.",
+      "Reject same-close execution after observing a month-end signal.",
+      "Remove one ETF session or warmup month and require a hard failure, including for unheld sectors.",
+      "Mutate raw source bytes, a split ratio or a distribution and require hash/source-reconciliation failure.",
+      "Hand-check initial entry, two-sided rotation fees, drifted weights and long-only self-financing.",
+      "Check noncash XLF event accounting and post-split distribution share units.",
+      "Run a planted cross-sectional signal and an IID null ensemble without using them to tune a market rule.",
+      "Run all preregistered shuffled-rank controls, preserving their whole distribution."
+    ],
+    "inherited_test_limit": "Passing existing generic or SPY trend tests does not establish that a sector adapter or sector-specific rank controls exist or pass."
+  },
+  "decision_policy": {
+    "promotion_requires_all": [
+      "Passed data and scientific gates with research-grade close provenance.",
+      "At 20 bps, higher full-sample CAGR and excess Sharpe than equal-weight sectors.",
+      "Higher full-sample excess Sharpe than SPY and a defensible static comparison: at least one of STATIC80 or STATIC70 has both lower CAGR and lower Sharpe with no better max drawdown than the candidate.",
+      "Positive full-sample excess CAGR and Sharpe versus equal-weight eight in the descriptive XLK exclusion.",
+      "The ranking advantage is not eliminated by excluding either 2020 or 2022, and remains positive versus equal sectors in the post-2020 aggregate.",
+      "All individual regime results are disclosed, including losses; no claim of generality resting on a single favorable regime.",
+      "Turnover is considered reasonable only if annual traded notional is at most 6 times capital and the 20 bps CAGR drag consumes less than half the gross excess CAGR versus equal sectors.",
+      "No unresolved evidence that a single sector or its indirect technology exposure explains essentially all of the edge."
+    ],
+    "selection_if_both_pass": "Prefer pure relative momentum for simplicity. Promote dual only if it independently meets all gates and pure does not; never choose solely on highest Sharpe.",
+    "rejection": "A clean experiment that fails economic falsification is rejected without tuning.",
+    "research_more": "For an unresolved evidence gate, state exactly one unresolved research question and do not imply economic validation.",
+    "optional_cross_asset_stage": "Not started unless the sector experiment completes cleanly; requires its own preregistration and separate verdict."
+  }
+}

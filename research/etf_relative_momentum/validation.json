@@ -1,0 +1,21 @@
+{
+  "scope": "Existing offline tests only; no new strategy implementation or real-data run.",
+  "environment": "Temporary virtual environment using existing pyproject.toml pinned dev and research dependencies; no dependency file changes.",
+  "test_runs": [
+    {
+      "command": "/tmp/etf-relative-momentum-venv/bin/python -m pytest -q /home/runner/work/agentic-quant-lab/agentic-quant-lab/research/tests",
+      "passed": 44,
+      "skipped": 0,
+      "failed": 0
+    },
+    {
+      "command": "/tmp/etf-relative-momentum-venv/bin/python -m pytest -q /home/runner/work/agentic-quant-lab/agentic-quant-lab/tests /home/runner/work/agentic-quant-lab/agentic-quant-lab/infra/azure/tests",
+      "passed": 156,
+      "skipped": 79,
+      "failed": 0
+    }
+  ],
+  "skip_limit": "Optional database and live-service prerequisites were not provisioned; no claim of integration or live acceptance.",
+  "protocol_json_parse": "PASS",
+  "sector_backtest_validation": "NOT_RUN_DATA_GATE"
+}

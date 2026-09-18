@@ -1,7 +1,7 @@
 [project]
 name = "agentic-quant-lab"
 version = "0.1.0"
-description = "Integrity-first prospective SEC filing recorder"
+description = "Evidence-first systematic strategy research with an offline product demo"
 readme = "README.md"
 authors = [
     { name = "copilot-swe-agent[bot]", email = "198982749+Copilot@users.noreply.github.com" }
@@ -11,6 +11,8 @@ dependencies = [
     "azure-identity==1.25.3",
     "azure-storage-blob==12.30.1",
     "psycopg[binary]==3.3.5",
+    "numpy==2.5.3",
+    "pandas==3.0.5",
 ]
 
 [build-system]
@@ -19,6 +21,14 @@ build-backend = "hatchling.build"
 
 [project.scripts]
 quant-recorder = "agentic_quant_lab.cli:main"
+aql = "agentic_quant_lab.demo:main"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/agentic_quant_lab"]
+
+[tool.hatch.build.targets.wheel.force-include]
+"research/__init__.py" = "research/__init__.py"
+"research/engine.py" = "research/engine.py"
 
 [dependency-groups]
 dev = [
@@ -27,9 +37,7 @@ dev = [
     "ruff==0.16.7",
 ]
 research = [
-    "numpy==2.5.3",
     "openpyxl==3.1.5",
-    "pandas==3.0.5",
     "pandas-stubs==3.0.5.260914",
 ]
 
