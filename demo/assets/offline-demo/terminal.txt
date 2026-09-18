@@ -1,0 +1,97 @@
+----------------------------------------------------------------
+Agentic Quant Lab — Demo Mode
+MODE: DEMO | DATA: SYNTHETIC / FIXTURE | LIVE TRADING: DISABLED
+----------------------------------------------------------------
+
+[1/7] Research agent (deterministic stand-in, no LLM/API)
+Hypothesis: Sector Relative Momentum
+Can lagged relative strength recover a deliberately planted trend?
+
+[2/7] Experiment
+Universe: DEMO_UP DEMO_WEAK DEMO_NULL (fictional instruments)
+Signal: 3-period momentum, skip latest period (compressed demo, NOT real 12-1)
+Rebalance: monthly fixture observations; execute one observation later
+Cost: 10 bps one-way | allocation: 20%
+Constraint: long-only; no leverage
+Constraint: features available by decision time; no same-close execution
+Constraint: null and planted-positive controls; deterministic reproduction
+Constraint: fixture results cannot promote a real research candidate
+
+[3/7] Backtest
+Existing deterministic research.engine.simulate on committed synthetic fixture.
+Monthly valuation observations; NOT executable market prices or real 12-1 results.
+
+[4/7] Falsification
+PASS no look-ahead: future availability rejected and future changes leave past unchanged
+PASS null control: flat data and no-edge candidate do not pass
+PASS planted positive signal recovered; deliberately weak candidate rejected
+PASS deterministic reproduction: identical plans, returns and metrics
+
+[5/7] Strategy tournament — SYNTHETIC PERFORMANCE ONLY
+1. Demo Relative Momentum: net fixture return +9.94% — SURVIVES (DEMO ONLY)
+2. Demo Trend: net fixture return +9.94% — SURVIVES (DEMO ONLY)
+3. Demo Null: net fixture return -0.02% — REJECTED
+4. Demo Weak: net fixture return -4.12% — REJECTED
+
+REAL RESEARCH — separate evidence, never ranked against synthetic metrics:
+  Phase 0 evidence foundation: COMPLETE (historical manual acceptance)
+    Prospective evidence recording
+    Constitutional external_acceptance_complete and scheduled_recording_enabled remain false.
+  ETF Trend: RESEARCH MORE
+    Official issuer NAV/distribution proxy, not verified executable closes
+    Modern results weak versus static 80/20 and 70/30.
+    Only actual-close verification remains; if it preserves these results, reject the fixed implementation. No parameter optimization to rescue it.
+  Stock Momentum: DATA BLOCKED
+    Historical universe, delisted continuity and terminal outcomes unproven
+    No research-grade stock backtest established; survivor-biased panels cannot substitute.
+    Requires historical membership, identity, delisting and point-in-time data qualification.
+  Momentum + Quality: DATA BLOCKED
+    Valid stock history and PIT fundamentals not qualified
+    Requires filing-availability timestamps, original vintages, and valid universe/price joins.
+  PEAD: DEFER
+    Price-based low-cost route needs qualification; historical consensus/revisions blocked
+    Needs qualified historical events, session timestamps and inactive/action-inclusive prices.
+    Consensus/revision variants need pre-release, multi-vintage archives.
+  ETF Relative Momentum: NOT YET TESTED / acquisition blocked
+    Runner DNS prevented acquisition; no sector performance computed
+    Not an economic rejection; no alpha, tuning or promotion claimed.
+    Frozen top-three 12-1 protocol must await a hash-verifiable panel and independent calendar.
+
+Portfolio proposal: demo-momentum
+  Target DEMO_UP: 20%
+  Target cash: 80%; whole-share rounding leaves extra cash.
+
+[6/7] RiskGate — deterministic demo snapshot checks
+PASS live execution disabled
+PASS dry_run mode
+PASS allowed symbol
+PASS allowed instrument
+PASS positive whole-share long-only BUY
+PASS valid portfolio snapshot
+PASS no leverage
+PASS maximum order notional
+PASS maximum position notional
+PASS maximum concentration
+PASS fresh strategy decision
+
+[7/7] Execution — SIMULATED / DRY RUN ONLY
+Would submit: BUY 10 shares DEMO_UP
+Estimated notional: $1,919.92 (fixture reference price)
+Would submit only. Execution blocked because live execution is disabled.
+
+Evidence receipt (separate from the Phase 0 production ledger):
+  experiment_id: demo-8130a8b0d0e69664
+  input_hash: 268fbf60d3b5ebeba178ab346a7886fc918cd73aef6ace26ff23bf8459c8e9e6
+  strategy_config_hash: 8784a2ec64de0860e6b5be4eb94f8af31d64fd66476ed0ce537bb49595b59905
+  result_hash: d27c307000f78d6fb91193de1db31b5a04d1e04569699e199dc26513836ad3e2
+  timestamp: 2025-01-01T00:00:00+00:00
+  timestamp_kind: fixed scenario clock, not wall-clock execution
+  mode: demo
+  data: SYNTHETIC / FIXTURE
+  live_trading: DISABLED
+  execution: dry_run
+
+Demo complete. No live capital was used. Robinhood is not connected.
+
+Local report: /home/runner/work/agentic-quant-lab/agentic-quant-lab/demo/assets/offline-demo/index.html
+Receipt: /home/runner/work/agentic-quant-lab/agentic-quant-lab/demo/assets/offline-demo/receipt.json

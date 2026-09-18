@@ -1,6 +1,32 @@
 # Agentic Quant Lab
 
-An autonomous quant research system that discovers, tests, falsifies, and eventually executes systematic trading strategies.
+An evidence-first quantitative research lab working toward autonomous strategy discovery: AI agents research and propose hypotheses; deterministic code calculates, backtests, falsifies, compares portfolios, and enforces risk controls. Today's runnable demo uses a **scripted agent and synthetic fixtures**, not a live LLM or evidence of profitable alpha. Real research is documented separately. Live trading is disabled; Robinhood is disconnected.
+
+## Demo
+
+**[Slides — download the PowerPoint](demo/Agentic-Quant-Lab-Demo.pptx)** ·
+[PDF / offline fallback](demo/Agentic-Quant-Lab-Demo.pdf) ·
+[Editable slide source](demo/slides.md)
+
+**[Presenter Script](demo/presentation-script.md)** — exact spoken English, 11 slides, approximately 6½ minutes including the demo.
+
+**[Demo Runbook](demo/demo-runbook.md)** — preparation, exact commands/clicks, and offline fallbacks.
+
+**Run**
+
+```bash
+uv run aql demo
+```
+
+Prepare Python 3.12 and run `uv sync --frozen` beforehand. On the prepared machine,
+use `uv run --offline --no-sync aql demo` for a network-independent presentation.
+Open the generated `demo-output/index.html`. If setup fails, download and open the
+[pre-generated local dashboard](demo/assets/offline-demo/index.html); no installation
+is needed. **DEMO FIXTURE ≠ REAL RESEARCH.**
+
+![Preview of the 11-slide presentation](demo/assets/deck-preview.png)
+
+### Architecture
 
 ```text
 Research Agent
@@ -55,9 +81,9 @@ runtime uses committed synthetic inputs, not accounts, cloud services or real-da
 [Five-minute presenter script](docs/demo-script.md) ·
 [Research status and provenance](docs/research-status.md)
 
-**[27-second HTML slides + speaker script](docs/demo-slides.html)** — download/open
-the HTML file in a browser; use ← / → to navigate and **N** to show the script.
-The deck is self-contained and works offline without installation.
+The complete presentation package is linked above. The earlier
+[short HTML overview](docs/demo-slides.html) remains available as an archival
+alternative; it is not the 5–7 minute presentation.
 
 <details>
 <summary>Demo: offline preparation, seven stages, reproducibility and safety</summary>

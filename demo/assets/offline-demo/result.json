@@ -1,0 +1,371 @@
+{
+  "configuration": {
+    "account": {
+      "cash": 10000,
+      "equity": 10000,
+      "position_notionals": {}
+    },
+    "experiment": {
+      "allocation": 0.2,
+      "constraints": [
+        "long-only; no leverage",
+        "features available by decision time; no same-close execution",
+        "null and planted-positive controls; deterministic reproduction",
+        "fixture results cannot promote a real research candidate"
+      ],
+      "delay": 1,
+      "fee_bps": 10,
+      "hypothesis": {
+        "rationale": "Can lagged relative strength recover a deliberately planted trend?",
+        "source": "deterministic demo agent; synthetic illustration, not investment advice",
+        "title": "Sector Relative Momentum"
+      },
+      "lookback": 3,
+      "rebalance": "monthly fixture observations; execute one observation later",
+      "signal": "3-period momentum, skip latest period (compressed demo, NOT real 12-1)",
+      "universe": [
+        "DEMO_UP",
+        "DEMO_WEAK",
+        "DEMO_NULL"
+      ]
+    },
+    "risk_policy": {
+      "allowed_instrument_types": [
+        "synthetic_etf"
+      ],
+      "allowed_symbols": [
+        "DEMO_UP",
+        "DEMO_WEAK",
+        "DEMO_NULL"
+      ],
+      "live_execution_enabled": false,
+      "max_concentration": 0.25,
+      "max_decision_age_seconds": 172800,
+      "max_order_notional": 2000,
+      "max_position_notional": 2500
+    },
+    "strategies": [
+      {
+        "allocation": 0.2,
+        "id": "demo-momentum",
+        "kind": "momentum",
+        "lookback": 3,
+        "mode": "demo"
+      },
+      {
+        "allocation": 0.2,
+        "id": "demo-trend",
+        "kind": "trend",
+        "lookback": 3,
+        "mode": "demo"
+      },
+      {
+        "allocation": 0.2,
+        "id": "demo-weak",
+        "kind": "weak",
+        "lookback": 3,
+        "mode": "demo"
+      },
+      {
+        "allocation": 0.2,
+        "id": "demo-null",
+        "kind": "null",
+        "lookback": 3,
+        "mode": "demo"
+      }
+    ]
+  },
+  "controls": {
+    "deterministic reproduction: identical plans, returns and metrics": true,
+    "no look-ahead: future availability rejected and future changes leave past unchanged": true,
+    "null control: flat data and no-edge candidate do not pass": true,
+    "planted positive signal recovered; deliberately weak candidate rejected": true
+  },
+  "data": "SYNTHETIC / FIXTURE",
+  "demo_candidates": [
+    {
+      "branch": "",
+      "commit": "",
+      "data_quality": "SYNTHETIC / FIXTURE",
+      "evidence_quality": "Planted fixture; not statistical or economic evidence",
+      "id": "demo-momentum",
+      "known_limitations": [
+        "Toy in-sample demonstration; no out-of-sample inference or real promotion",
+        "Positive net fixture return is NOT a research approval gate"
+      ],
+      "metrics": {
+        "max_drawdown": -0.00019996,
+        "sum_period_costs": 0.0002762314,
+        "total_return": 0.0994258039
+      },
+      "name": "Demo Relative Momentum",
+      "report": "",
+      "source": "demo",
+      "status": "SURVIVES (DEMO ONLY)"
+    },
+    {
+      "branch": "",
+      "commit": "",
+      "data_quality": "SYNTHETIC / FIXTURE",
+      "evidence_quality": "Planted fixture; not statistical or economic evidence",
+      "id": "demo-trend",
+      "known_limitations": [
+        "Toy in-sample demonstration; no out-of-sample inference or real promotion",
+        "Positive net fixture return is NOT a research approval gate"
+      ],
+      "metrics": {
+        "max_drawdown": -0.00019996,
+        "sum_period_costs": 0.0002762314,
+        "total_return": 0.0994258039
+      },
+      "name": "Demo Trend",
+      "report": "",
+      "source": "demo",
+      "status": "SURVIVES (DEMO ONLY)"
+    },
+    {
+      "branch": "",
+      "commit": "",
+      "data_quality": "SYNTHETIC / FIXTURE",
+      "evidence_quality": "Planted fixture; not statistical or economic evidence",
+      "id": "demo-null",
+      "known_limitations": [
+        "Toy in-sample demonstration; no out-of-sample inference or real promotion",
+        "Positive net fixture return is NOT a research approval gate"
+      ],
+      "metrics": {
+        "max_drawdown": -0.00019996,
+        "sum_period_costs": 0.00019996,
+        "total_return": -0.00019996
+      },
+      "name": "Demo Null",
+      "report": "",
+      "source": "demo",
+      "status": "REJECTED"
+    },
+    {
+      "branch": "",
+      "commit": "",
+      "data_quality": "SYNTHETIC / FIXTURE",
+      "evidence_quality": "Planted fixture; not statistical or economic evidence",
+      "id": "demo-weak",
+      "known_limitations": [
+        "Toy in-sample demonstration; no out-of-sample inference or real promotion",
+        "Positive net fixture return is NOT a research approval gate"
+      ],
+      "metrics": {
+        "max_drawdown": -0.041167364,
+        "sum_period_costs": 0.0002333585,
+        "total_return": -0.041167364
+      },
+      "name": "Demo Weak",
+      "report": "",
+      "source": "demo",
+      "status": "REJECTED"
+    }
+  ],
+  "equity_curve": [
+    1.0,
+    1.0,
+    1.0,
+    1.0,
+    1.0,
+    0.99980004,
+    1.0064647495,
+    1.0130742253,
+    1.0192918195,
+    1.0254824433,
+    1.0315618324,
+    1.0373997089,
+    1.0431979024,
+    1.0487643141,
+    1.0542901506,
+    1.0596977349,
+    1.0650275557,
+    1.0702001656,
+    1.0752789588,
+    1.0803264461,
+    1.0852571423,
+    1.089988245,
+    1.0947814181,
+    1.0994258039
+  ],
+  "execution": {
+    "data": "SYNTHETIC / FIXTURE",
+    "estimated_notional": 1919.92,
+    "intent_hash": "751863fbf103a78608ae3a6f78b3a5751d9cd3349bb8010463b4f24688986300",
+    "live_trading": "DISABLED",
+    "message": "Would submit only. Execution blocked because live execution is disabled.",
+    "mode": "demo",
+    "quantity": 10,
+    "status": "SIMULATED / DRY RUN",
+    "symbol": "DEMO_UP"
+  },
+  "experiment": {
+    "allocation": 0.2,
+    "constraints": [
+      "long-only; no leverage",
+      "features available by decision time; no same-close execution",
+      "null and planted-positive controls; deterministic reproduction",
+      "fixture results cannot promote a real research candidate"
+    ],
+    "delay": 1,
+    "fee_bps": 10,
+    "hypothesis": {
+      "rationale": "Can lagged relative strength recover a deliberately planted trend?",
+      "source": "deterministic demo agent; synthetic illustration, not investment advice",
+      "title": "Sector Relative Momentum"
+    },
+    "lookback": 3,
+    "rebalance": "monthly fixture observations; execute one observation later",
+    "signal": "3-period momentum, skip latest period (compressed demo, NOT real 12-1)",
+    "universe": [
+      "DEMO_UP",
+      "DEMO_WEAK",
+      "DEMO_NULL"
+    ]
+  },
+  "live_trading": "DISABLED",
+  "mode": "demo",
+  "portfolio": {
+    "cash_weight": 0.8,
+    "intent": {
+      "decision_at": "2024-12-31T00:00:00+00:00",
+      "instrument_type": "synthetic_etf",
+      "mode": "dry_run",
+      "quantity": 10,
+      "reference_price": 191.991587,
+      "side": "BUY",
+      "strategy_id": "demo-momentum",
+      "symbol": "DEMO_UP"
+    },
+    "strategy_id": "demo-momentum",
+    "weights": {
+      "DEMO_UP": 0.2
+    }
+  },
+  "real_research": [
+    {
+      "branch": "copilot/phase-0-sec-filing-recorder",
+      "commit": "04dda08b216a9b76e5d49b2c4c8e618c0d5c2362",
+      "data_quality": "Prospective evidence recording",
+      "evidence_quality": "Historical SEC acceptance report; not rerun for the demo",
+      "id": "phase0",
+      "known_limitations": [
+        "Constitutional external_acceptance_complete and scheduled_recording_enabled remain false."
+      ],
+      "metrics": {},
+      "name": "Phase 0 evidence foundation",
+      "report": "docs/sec-acceptance-report.md",
+      "source": "real_research",
+      "status": "COMPLETE (historical manual acceptance)"
+    },
+    {
+      "branch": "research/long-only-strategy-tournament",
+      "commit": "3e8273472ad24508463916c11b44bd4b754abe6d",
+      "data_quality": "Official issuer NAV/distribution proxy, not verified executable closes",
+      "evidence_quality": "Frozen modern fixed-rule validation; no paper/shadow promotion",
+      "id": "etf-trend",
+      "known_limitations": [
+        "Modern results weak versus static 80/20 and 70/30.",
+        "Only actual-close verification remains; if it preserves these results, reject the fixed implementation. No parameter optimization to rescue it."
+      ],
+      "metrics": {},
+      "name": "ETF Trend",
+      "report": "docs/etf-trend-validation.md",
+      "source": "real_research",
+      "status": "RESEARCH MORE"
+    },
+    {
+      "branch": "copilot/researchpit-stock-data-audit",
+      "commit": "63a9b668b29499889f134c7eda0f3d333a33c528",
+      "data_quality": "Historical universe, delisted continuity and terminal outcomes unproven",
+      "evidence_quality": "Data-access audit: C. BLOCKED; no clean stack verified",
+      "id": "stock-momentum",
+      "known_limitations": [
+        "No research-grade stock backtest established; survivor-biased panels cannot substitute.",
+        "Requires historical membership, identity, delisting and point-in-time data qualification."
+      ],
+      "metrics": {},
+      "name": "Stock Momentum",
+      "report": "docs/stock-data-feasibility.md",
+      "source": "real_research",
+      "status": "DATA BLOCKED"
+    },
+    {
+      "branch": "copilot/researchpit-stock-data-audit",
+      "commit": "63a9b668b29499889f134c7eda0f3d333a33c528",
+      "data_quality": "Valid stock history and PIT fundamentals not qualified",
+      "evidence_quality": "Stock/PIT feasibility audit, not validated investable alpha",
+      "id": "momentum-quality",
+      "known_limitations": [
+        "Requires filing-availability timestamps, original vintages, and valid universe/price joins."
+      ],
+      "metrics": {},
+      "name": "Momentum + Quality",
+      "report": "docs/stock-data-feasibility.md",
+      "source": "real_research",
+      "status": "DATA BLOCKED"
+    },
+    {
+      "branch": "copilot/researchpead-data-feasibility",
+      "commit": "82cdf944f42015043ae4493541839bf13bbb2c4f",
+      "data_quality": "Price-based low-cost route needs qualification; historical consensus/revisions blocked",
+      "evidence_quality": "Variant-specific data feasibility report; no backtest",
+      "id": "pead",
+      "known_limitations": [
+        "Needs qualified historical events, session timestamps and inactive/action-inclusive prices.",
+        "Consensus/revision variants need pre-release, multi-vintage archives."
+      ],
+      "metrics": {},
+      "name": "PEAD",
+      "report": "docs/pead-data-feasibility.md",
+      "source": "real_research",
+      "status": "DEFER"
+    },
+    {
+      "branch": "copilot/researchetf-relative-momentum",
+      "commit": "544b55e5c2a5110d483024e193055871c085c1a7",
+      "data_quality": "Runner DNS prevented acquisition; no sector performance computed",
+      "evidence_quality": "RESEARCH MORE; EXPLORATORY, data-gated; frozen protocol only",
+      "id": "etf-relative-momentum",
+      "known_limitations": [
+        "Not an economic rejection; no alpha, tuning or promotion claimed.",
+        "Frozen top-three 12-1 protocol must await a hash-verifiable panel and independent calendar."
+      ],
+      "metrics": {},
+      "name": "ETF Relative Momentum",
+      "report": "docs/etf-relative-momentum-validation.md",
+      "source": "real_research",
+      "status": "NOT YET TESTED / acquisition blocked"
+    }
+  ],
+  "receipt": {
+    "data": "SYNTHETIC / FIXTURE",
+    "execution": "dry_run",
+    "experiment_id": "demo-8130a8b0d0e69664",
+    "input_hash": "268fbf60d3b5ebeba178ab346a7886fc918cd73aef6ace26ff23bf8459c8e9e6",
+    "live_trading": "DISABLED",
+    "mode": "demo",
+    "result_hash": "d27c307000f78d6fb91193de1db31b5a04d1e04569699e199dc26513836ad3e2",
+    "strategy_config_hash": "8784a2ec64de0860e6b5be4eb94f8af31d64fd66476ed0ce537bb49595b59905",
+    "timestamp": "2025-01-01T00:00:00+00:00",
+    "timestamp_kind": "fixed scenario clock, not wall-clock execution"
+  },
+  "risk": {
+    "approved": true,
+    "checks": {
+      "allowed instrument": true,
+      "allowed symbol": true,
+      "dry_run mode": true,
+      "fresh strategy decision": true,
+      "live execution disabled": true,
+      "maximum concentration": true,
+      "maximum order notional": true,
+      "maximum position notional": true,
+      "no leverage": true,
+      "positive whole-share long-only BUY": true,
+      "valid portfolio snapshot": true
+    }
+  }
+}

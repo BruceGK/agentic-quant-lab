@@ -1,0 +1,12 @@
+{
+  "data": "SYNTHETIC / FIXTURE",
+  "execution": "dry_run",
+  "experiment_id": "demo-8130a8b0d0e69664",
+  "input_hash": "268fbf60d3b5ebeba178ab346a7886fc918cd73aef6ace26ff23bf8459c8e9e6",
+  "live_trading": "DISABLED",
+  "mode": "demo",
+  "result_hash": "d27c307000f78d6fb91193de1db31b5a04d1e04569699e199dc26513836ad3e2",
+  "strategy_config_hash": "8784a2ec64de0860e6b5be4eb94f8af31d64fd66476ed0ce537bb49595b59905",
+  "timestamp": "2025-01-01T00:00:00+00:00",
+  "timestamp_kind": "fixed scenario clock, not wall-clock execution"
+}

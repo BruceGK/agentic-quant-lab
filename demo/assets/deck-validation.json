@@ -1,0 +1,13 @@
+{
+  "slides": 11,
+  "aspect_ratio": "16:9",
+  "zip_integrity": "passed",
+  "internal_relationships": "passed",
+  "external_relationships": 0,
+  "nonempty_slides": "passed",
+  "shape_bounds": "passed",
+  "speaker_notes": "11/11",
+  "bytes": 83083,
+  "sha256": "bf5766e47cf3a3970adb86b51b9a0e8311cb09f58b732df50273d56202e4d8fa",
+  "native_powerpoint_keynote_check": "Requires presenter machine; not available here"
+}
