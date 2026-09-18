@@ -1,4 +1,5 @@
 import json
+import re
 import socket
 import subprocess
 import sys
@@ -54,6 +55,7 @@ def test_scenario_offline_and_receipt_hashes(offline: None) -> None:
     assert all(result["controls"].values())
     assert result["risk"]["approved"]
     assert result["receipt"]["timestamp_kind"] == "fixed scenario clock, not wall-clock execution"
+    assert result["receipt"]["experiment_hash"] == digest(result["experiment"])
     assert result["receipt"]["strategy_config_hash"] == digest(result["configuration"])
     payload = {
         key: value for key, value in result.items() if key not in ("receipt", "configuration")
@@ -63,6 +65,14 @@ def test_scenario_offline_and_receipt_hashes(offline: None) -> None:
     assert result["receipt"]["input_hash"] == digest(
         {"fixture": fixture, "realized_prices": prices.to_numpy().tolist()}
     )
+    assert (
+        result["receipt"]["experiment_id"]
+        == "demo-"
+        + digest([result["receipt"]["input_hash"], result["receipt"]["strategy_config_hash"]])[:16]
+    )
+    assert result["receipt"]["mode"] == "demo"
+    assert result["receipt"]["execution"] == "dry_run"
+    assert result["receipt"]["live_trading"] == "DISABLED"
     assert result["execution"]["quantity"] == 10
     assert result["execution"]["estimated_notional"] == 1919.92
     assert {c["id"] for c in result["demo_candidates"] if c["status"] == "REJECTED"} == {
@@ -74,6 +84,36 @@ def test_scenario_offline_and_receipt_hashes(offline: None) -> None:
     assert all(c["source"] == "real_research" and not c["metrics"] for c in result["real_research"])
     assert "input_hash" in render_terminal(result)
     assert "result_hash" in render_html(result)
+
+
+def test_seven_stages_and_explicit_safety_labels(offline: None) -> None:
+    result = run_scenario()
+    terminal, html = render_terminal(result), render_html(result)
+    for label in (
+        "MODE: DEMO",
+        "DATA: SYNTHETIC FIXTURE",
+        "LIVE TRADING: DISABLED",
+        "EXECUTION: DRY RUN",
+    ):
+        assert label in terminal and label in html
+    expected = (
+        "Research agent",
+        "Experiment",
+        "Backtest",
+        "Falsification",
+        "Strategy tournament",
+        "RiskGate",
+        "Execution",
+    )
+    headings = re.findall(r"^\[(\d)/7\] (.+)$", terminal, re.MULTILINE)
+    assert [number for number, _ in headings] == [str(number) for number in range(1, 8)]
+    for number, ((_, heading), title) in enumerate(zip(headings, expected, strict=True), 1):
+        assert heading.startswith(title)
+        assert f"<h2>{number}. {title}" in html
+    assert terminal.index("[5/7]") < terminal.index("Portfolio proposal:") < terminal.index("[6/7]")
+    assert html.index("<h2>5.") < html.index("<h2>Portfolio proposal") < html.index("<h2>6.")
+    assert "scripted" in terminal and "no live LLM/API" in terminal
+    assert "scripted" in html and "not a live LLM" in html
 
 
 def test_cli_reset_is_repeatable_and_preserves_unrelated_files(
@@ -88,16 +128,57 @@ def test_cli_reset_is_repeatable_and_preserves_unrelated_files(
     outputs = {path.name: path.read_bytes() for path in tmp_path.iterdir()}
     marker = tmp_path / "unrelated.txt"
     marker.write_text("keep me")
-    monkeypatch.setattr(sys, "argv", ["aql", "demo", "--reset", "--output-dir", str(tmp_path)])
-    main()
-    assert capsys.readouterr().out == first
-    assert outputs == {name: (tmp_path / name).read_bytes() for name in outputs}
-    assert marker.read_text() == "keep me"
+    nested = tmp_path / "unrelated"
+    nested.mkdir()
+    nested_marker = nested / "notes.txt"
+    nested_marker.write_text("keep this too")
+    for reset in (False, True, True):
+        flags = ["--reset"] if reset else []
+        monkeypatch.setattr(sys, "argv", ["aql", "demo", *flags, "--output-dir", str(tmp_path)])
+        main()
+        assert capsys.readouterr().out == first
+        assert outputs == {name: (tmp_path / name).read_bytes() for name in outputs}
+        assert marker.read_text() == "keep me"
+        assert nested_marker.read_text() == "keep this too"
     assert set(outputs) == {"index.html", "receipt.json", "result.json"}
     assert json.loads(outputs["receipt.json"])["execution"] == "dry_run"
 
 
-def test_installed_entrypoint_twice_in_network_blocked_process(tmp_path: Path) -> None:
+@pytest.mark.parametrize("output_dir", [None, "reports/offline-demo"])
+def test_cli_preserves_relative_output_paths_across_working_directories(
+    offline: None,
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
+    output_dir: str | None,
+) -> None:
+    destination = Path("demo-output" if output_dir is None else output_dir)
+    flags = [] if output_dir is None else ["--output-dir", output_dir]
+    runs: list[tuple[str, dict[str, bytes]]] = []
+    for name in ("first-checkout", "different-checkout"):
+        directory = tmp_path / name
+        directory.mkdir()
+        monkeypatch.chdir(directory)
+        monkeypatch.setattr(sys, "argv", ["aql", "demo", *flags])
+        main()
+        output = capsys.readouterr()
+        assert not output.err
+        assert output.out.endswith(
+            f"\nLocal report: {destination / 'index.html'}\n"
+            f"Receipt: {destination / 'receipt.json'}\n"
+        )
+        assert str(directory) not in output.out
+        artifacts = {
+            name: (destination / name).read_bytes()
+            for name in ("index.html", "receipt.json", "result.json")
+        }
+        runs.append((output.out, artifacts))
+    assert runs[0] == runs[1]
+
+
+def test_installed_entrypoint_twice_in_network_blocked_process(
+    offline: None, tmp_path: Path
+) -> None:
     code = """
 import sys
 def no_network(event, args):
@@ -108,16 +189,19 @@ from importlib.metadata import entry_points
 sys.argv[0] = "aql"
 next(iter(entry_points(group="console_scripts", name="aql"))).load()()
 """
-    command = [sys.executable, "-c", code, "demo", "--output-dir", str(tmp_path)]
+    command = [sys.executable, "-c", code, "demo"]
     first = subprocess.run(command, check=True, capture_output=True, text=True, cwd=tmp_path)
-    receipt = (tmp_path / "receipt.json").read_bytes()
-    second = subprocess.run(
-        command + ["--reset"], check=True, capture_output=True, text=True, cwd=tmp_path
-    )
-    assert first.stdout == second.stdout
-    assert not first.stderr and not second.stderr
+    destination = tmp_path / "demo-output"
+    outputs = {path.name: path.read_bytes() for path in destination.iterdir()}
+    for flags in ([], ["--reset"]):
+        repeat = subprocess.run(
+            command + flags, check=True, capture_output=True, text=True, cwd=tmp_path
+        )
+        assert first.stdout == repeat.stdout
+        assert not first.stderr and not repeat.stderr
+        assert outputs == {name: (destination / name).read_bytes() for name in outputs}
     assert "Demo complete. No live capital was used." in first.stdout
-    assert receipt == (tmp_path / "receipt.json").read_bytes()
+    assert set(outputs) == {"index.html", "receipt.json", "result.json"}
     assert (
         next(iter(entry_points(group="console_scripts", name="aql"))).value
         == "agentic_quant_lab.demo:main"
@@ -142,6 +226,27 @@ def test_controls_fail_closed(monkeypatch: pytest.MonkeyPatch) -> None:
         run_scenario()
 
 
+def test_cli_reports_risk_rejection_without_writing_outputs(
+    offline: None,
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    destination = tmp_path / "denied-demo"
+    monkeypatch.setattr(sys, "argv", ["aql", "demo", "--output-dir", str(destination)])
+    monkeypatch.setattr(
+        "agentic_quant_lab.risk.constitution", lambda: {"live_execution": {"enabled": True}}
+    )
+    with pytest.raises(SystemExit) as stopped:
+        main()
+    assert stopped.value.code == 1
+    output = capsys.readouterr()
+    assert not output.out
+    assert BANNER in output.err
+    assert "Demo stopped: Intent rejected: live execution disabled" in output.err
+    assert not destination.exists()
+
+
 def test_costs_are_real_and_bad_candidates_are_not_portfolios() -> None:
     _, prices = load_fixture()
     spec = DemoResearchAgent().propose(tuple(prices.columns))
@@ -158,30 +263,33 @@ def test_costs_are_real_and_bad_candidates_are_not_portfolios() -> None:
 
 
 @pytest.mark.parametrize(
-    "change",
+    ("change", "failed_check"),
     [
-        {"mode": "live"},
-        {"mode": "paper"},
-        {"symbol": "UNKNOWN"},
-        {"instrument_type": "option"},
-        {"quantity": -1},
-        {"quantity": 0},
-        {"quantity": 1.5},
-        {"quantity": True},
-        {"side": "SELL"},
-        {"reference_price": -1},
-        {"reference_price": float("nan")},
-        {"reference_price": float("inf")},
-        {"quantity": 11},
-        {"decision_at": NOW - timedelta(days=3)},
-        {"decision_at": NOW + timedelta(seconds=1)},
-        {"decision_at": NOW.replace(tzinfo=None)},
+        ({"mode": "live"}, "dry_run mode"),
+        ({"mode": "paper"}, "dry_run mode"),
+        ({"symbol": "UNKNOWN"}, "allowed symbol"),
+        ({"instrument_type": "option"}, "allowed instrument"),
+        ({"quantity": -1}, "positive whole-share long-only BUY"),
+        ({"quantity": 0}, "positive whole-share long-only BUY"),
+        ({"quantity": 1.5}, "positive whole-share long-only BUY"),
+        ({"quantity": True}, "positive whole-share long-only BUY"),
+        ({"side": "SELL"}, "positive whole-share long-only BUY"),
+        ({"reference_price": 0}, "positive whole-share long-only BUY"),
+        ({"reference_price": -1}, "positive whole-share long-only BUY"),
+        ({"reference_price": float("nan")}, "positive whole-share long-only BUY"),
+        ({"reference_price": float("inf")}, "positive whole-share long-only BUY"),
+        ({"quantity": 11}, "maximum order notional"),
+        ({"decision_at": NOW - timedelta(days=3)}, "fresh strategy decision"),
+        ({"decision_at": NOW + timedelta(seconds=1)}, "fresh strategy decision"),
+        ({"decision_at": NOW.replace(tzinfo=None)}, "fresh strategy decision"),
     ],
 )
-def test_gate_and_adapter_reject_unsafe_intent(change: dict[str, Any]) -> None:
+def test_gate_and_adapter_reject_unsafe_intent(change: dict[str, Any], failed_check: str) -> None:
     intent = replace(INTENT, **change)
     gate = RiskGate()
-    assert not gate.evaluate(intent, PortfolioSnapshot(), now=NOW).approved
+    decision = gate.evaluate(intent, PortfolioSnapshot(), now=NOW)
+    assert not decision.approved
+    assert not decision.checks[failed_check]
     with pytest.raises(DisabledExecutionError):
         DryRunExecutionAdapter(gate, PortfolioSnapshot(), now=NOW).submit(intent)
 
@@ -201,12 +309,67 @@ def test_gate_rejects_unsafe_snapshot(account: PortfolioSnapshot) -> None:
     assert not RiskGate().evaluate(INTENT, account, now=NOW).approved
 
 
+@pytest.mark.parametrize(
+    ("policy", "account", "failed_check"),
+    [
+        (RiskPolicy(max_order_notional=1919.99), PortfolioSnapshot(), "maximum order notional"),
+        (
+            RiskPolicy(max_position_notional=1919.99),
+            PortfolioSnapshot(),
+            "maximum position notional",
+        ),
+        (RiskPolicy(max_concentration=0.1), PortfolioSnapshot(), "maximum concentration"),
+        (
+            RiskPolicy(max_concentration=1),
+            PortfolioSnapshot(cash=1000, position_notionals={"DEMO_WEAK": 9000}),
+            "no leverage",
+        ),
+        (
+            RiskPolicy(max_decision_age_seconds=86_399),
+            PortfolioSnapshot(),
+            "fresh strategy decision",
+        ),
+    ],
+)
+def test_each_risk_limit_is_enforced_independently(
+    policy: RiskPolicy, account: PortfolioSnapshot, failed_check: str
+) -> None:
+    gate = RiskGate(policy)
+    decision = gate.evaluate(INTENT, account, now=NOW)
+    assert {name for name, passed in decision.checks.items() if not passed} == {failed_check}
+    with pytest.raises(DisabledExecutionError, match=failed_check):
+        DryRunExecutionAdapter(gate, account, now=NOW).submit(INTENT)
+
+
+@pytest.mark.parametrize(
+    ("intent", "account"),
+    [
+        (replace(INTENT, reference_price=200), PortfolioSnapshot()),
+        (INTENT, PortfolioSnapshot(cash=9420, position_notionals={"DEMO_UP": 580})),
+        (replace(INTENT, decision_at=NOW - timedelta(days=2)), PortfolioSnapshot()),
+        (replace(INTENT, decision_at=NOW), PortfolioSnapshot()),
+    ],
+)
+def test_risk_limits_accept_exact_boundaries(
+    intent: OrderIntent, account: PortfolioSnapshot
+) -> None:
+    gate = RiskGate()
+    assert gate.evaluate(intent, account, now=NOW).approved
+    assert DryRunExecutionAdapter(gate, account, now=NOW).submit(intent).mode == "demo"
+
+
 @pytest.mark.parametrize("flag", [False, True])
 def test_live_execution_is_impossible_even_with_policy_flag(flag: bool) -> None:
     gate = RiskGate(RiskPolicy(live_execution_enabled=flag))
-    assert not gate.evaluate(replace(INTENT, mode="live"), PortfolioSnapshot(), now=NOW).approved
+    for mode in ("live", "paper"):
+        intent = replace(INTENT, mode=mode)
+        assert not gate.evaluate(intent, PortfolioSnapshot(), now=NOW).approved
+        with pytest.raises(DisabledExecutionError):
+            DryRunExecutionAdapter(gate, PortfolioSnapshot(), now=NOW).submit(intent)
     if flag:
         assert not gate.evaluate(INTENT, PortfolioSnapshot(), now=NOW).approved
+        with pytest.raises(DisabledExecutionError, match="live execution disabled"):
+            DryRunExecutionAdapter(gate, PortfolioSnapshot(), now=NOW).submit(INTENT)
     with pytest.raises(DisabledExecutionError, match="not connected"):
         RobinhoodExecutionAdapter().submit(INTENT)
 
@@ -223,7 +386,8 @@ def test_dry_run_receipt_and_revalidation() -> None:
     account = PortfolioSnapshot()
     gate = RiskGate()
     assert gate.evaluate(INTENT, account, now=NOW).approved
-    receipt = DryRunExecutionAdapter(gate, account, now=NOW).submit(INTENT)
+    adapter = DryRunExecutionAdapter(gate, account, now=NOW)
+    receipt = adapter.submit(INTENT)
     assert receipt.status == "SIMULATED / DRY RUN"
     assert receipt.mode == "demo" and receipt.live_trading == "DISABLED"
     assert receipt.estimated_notional == 1920
@@ -232,7 +396,7 @@ def test_dry_run_receipt_and_revalidation() -> None:
     )
     account.position_notionals["DEMO_UP"] = 1_000
     with pytest.raises(DisabledExecutionError):
-        DryRunExecutionAdapter(gate, account, now=NOW).submit(INTENT)
+        adapter.submit(INTENT)
 
 
 @pytest.mark.parametrize("limit", [0, -1, float("nan"), float("inf")])

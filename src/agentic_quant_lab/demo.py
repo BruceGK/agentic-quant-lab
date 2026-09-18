@@ -13,7 +13,7 @@ from typing import Any
 import pandas as pd
 
 from agentic_quant_lab.agents import DemoResearchAgent, ExperimentSpec, ResearchAgent
-from agentic_quant_lab.execution import DryRunExecutionAdapter
+from agentic_quant_lab.execution import DisabledExecutionError, DryRunExecutionAdapter
 from agentic_quant_lab.experiment import ExperimentResult, run_experiment
 from agentic_quant_lab.ledger import digest
 from agentic_quant_lab.portfolio import propose_portfolio
@@ -22,7 +22,7 @@ from agentic_quant_lab.strategies import FixtureStrategy
 from agentic_quant_lab.tournament import StrategyCandidate, rank_demo, research_candidates
 from research.engine import AvailabilityError, Plan, simulate
 
-BANNER = "MODE: DEMO | DATA: SYNTHETIC / FIXTURE | LIVE TRADING: DISABLED"
+BANNER = "MODE: DEMO | DATA: SYNTHETIC FIXTURE | LIVE TRADING: DISABLED | EXECUTION: DRY RUN"
 
 
 def load_fixture() -> tuple[dict[str, Any], pd.DataFrame]:
@@ -198,6 +198,7 @@ def run_scenario() -> dict[str, Any]:
     config_hash = digest(config)
     receipt = {
         "experiment_id": "demo-" + digest([input_hash, config_hash])[:16],
+        "experiment_hash": digest(asdict(spec)),
         "input_hash": input_hash,
         "strategy_config_hash": config_hash,
         "result_hash": digest(result),
@@ -219,7 +220,7 @@ def render_terminal(result: dict[str, Any]) -> str:
         BANNER,
         "-" * 64,
         "",
-        "[1/7] Research agent (deterministic stand-in, no LLM/API)",
+        "[1/7] Research agent (scripted stand-in, no live LLM/API)",
         f"Hypothesis: {spec['hypothesis']['title']}",
         spec["hypothesis"]["rationale"],
         "",
@@ -290,20 +291,20 @@ def render_html(result: dict[str, Any]) -> str:
         return f"<section><h2>{escape(title)}</h2><pre>{escape(text)}</pre></section>"
 
     cards = [
-        card("Hypothesis", result["experiment"]["hypothesis"]),
-        card("Experiment", result["experiment"]),
+        card("1. Research agent — scripted hypothesis", result["experiment"]["hypothesis"]),
+        card("2. Experiment", result["experiment"]),
         card(
-            "Backtest — synthetic net fixture returns",
+            "3. Backtest — synthetic net fixture returns",
             [{"name": row["name"], "metrics": row["metrics"]} for row in result["demo_candidates"]],
         ),
-        card("Falsification — actual computed checks", result["controls"]),
+        card("4. Falsification — actual computed checks", result["controls"]),
         card(
-            "Tournament — DEMO ONLY",
+            "5. Strategy tournament — SYNTHETIC PERFORMANCE ONLY",
             [{"name": row["name"], "status": row["status"]} for row in result["demo_candidates"]],
         ),
         card("Portfolio proposal", result["portfolio"]),
-        card("RiskGate", result["risk"]),
-        card("Execution — SIMULATED / DRY RUN", result["execution"]),
+        card("6. RiskGate", result["risk"]),
+        card("7. Execution — SIMULATED / DRY RUN", result["execution"]),
         card("Evidence receipt — fixed scenario clock", result["receipt"]),
         card("Real research — separate, no synthetic metrics", result["real_research"]),
     ]
@@ -319,9 +320,12 @@ def render_html(result: dict[str, Any]) -> str:
         "pre{white-space:pre-wrap;overflow-wrap:anywhere;font:14px/1.5 monospace}"
         "</style><h1>Agentic Quant Lab</h1>"
         f"<p class='badge'>{escape(BANNER)}</p>"
-        "<p>Research → Experiment → Falsification → Tournament → Portfolio → Risk → Dry Run</p>"
-        "<p>Agents research. Deterministic code calculates, controls risk, and executes.</p>"
-        "<p>This demo agent is scripted. Fixture performance is planted, not investment evidence. "
+        "<p>Research → Experiment → Backtest → Falsification → Tournament + Portfolio "
+        "→ RiskGate → Dry Run</p>"
+        "<p>Agents research. Deterministic code calculates, controls risk, "
+        "and simulates execution.</p>"
+        "<p>This demo agent is scripted, not a live LLM. "
+        "Fixture performance is planted, not investment evidence. "
         "No broker, external assets, telemetry or network calls.</p><main>"
         + "".join(cards)
         + "</main><footer><p>No live capital was used. Robinhood: future, not connected.</p>"
@@ -353,7 +357,7 @@ def main() -> None:
     try:
         result = run_scenario()
         write_outputs(result, args.output_dir)
-    except (ValueError, OSError) as exc:
+    except (DisabledExecutionError, ValueError, OSError) as exc:
         parser.exit(1, f"{BANNER}\nDemo stopped: {exc}\n")
     print(render_terminal(result))
     print(f"\nLocal report: {args.output_dir / 'index.html'}")
