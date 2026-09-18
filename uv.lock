@@ -24,13 +24,13 @@ dependencies = [
 
 [package.dev-dependencies]
 dev = [
+    { name = "pandas-stubs" },
     { name = "pyright" },
     { name = "pytest" },
     { name = "ruff" },
 ]
 research = [
     { name = "openpyxl" },
-    { name = "pandas-stubs" },
 ]
 
 [package.metadata]
@@ -44,14 +44,12 @@ requires-dist = [
 
 [package.metadata.requires-dev]
 dev = [
+    { name = "pandas-stubs", specifier = "==3.0.5.260914" },
     { name = "pyright", specifier = "==1.1.414" },
     { name = "pytest", specifier = "==9.1.1" },
     { name = "ruff", specifier = "==0.16.7" },
 ]
-research = [
-    { name = "openpyxl", specifier = "==3.1.5" },
-    { name = "pandas-stubs", specifier = "==3.0.5.260914" },
-]
+research = [{ name = "openpyxl", specifier = "==3.1.5" }]
 
 [[package]]
 name = "azure-core"

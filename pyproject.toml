@@ -24,21 +24,18 @@ quant-recorder = "agentic_quant_lab.cli:main"
 aql = "agentic_quant_lab.demo:main"
 
 [tool.hatch.build.targets.wheel]
-packages = ["src/agentic_quant_lab"]
-
-[tool.hatch.build.targets.wheel.force-include]
-"research/__init__.py" = "research/__init__.py"
-"research/engine.py" = "research/engine.py"
+packages = ["src/agentic_quant_lab", "research"]
+only-include = ["src/agentic_quant_lab", "research/__init__.py", "research/engine.py"]
 
 [dependency-groups]
 dev = [
     "pyright==1.1.414",
     "pytest==9.1.1",
     "ruff==0.16.7",
+    "pandas-stubs==3.0.5.260914",
 ]
 research = [
     "openpyxl==3.1.5",
-    "pandas-stubs==3.0.5.260914",
 ]
 
 [tool.ruff]
