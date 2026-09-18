@@ -62,9 +62,10 @@ Show the README's vertical flow.
 Say immediately: **“Deterministic agent today; LLM-backed research is future work.
 Synthetic fixtures only; live trading is disabled.”**
 
-## 0:30–1:30 — Run the seven-stage workflow
+## 0:30–1:30 — Research agent → hypothesis
 
-On the prepared presenter machine:
+Run the full workflow on the prepared presenter machine, then focus on its
+first two stages:
 
 ```sh
 uv run --offline --no-sync aql demo
@@ -80,88 +81,85 @@ Point to the banner:
 MODE: DEMO | DATA: SYNTHETIC / FIXTURE | LIVE TRADING: DISABLED
 ```
 
-Walk down the actual stages:
+Point to `[1/7] Research agent` and `[2/7] Experiment`, then open the hypothesis
+and experiment cards in **`demo-output/index.html`**.
 
-| Stage | Say |
-| --- | --- |
-| `[1/7]` Research agent | “A deterministic implementation proposes a hypothesis through a replaceable agent interface. No LLM or API was called.” |
-| `[2/7]` Experiment | “The universe, signal, timing, costs and constraints are explicit.” |
-| `[3/7]` Backtest | “The existing research engine runs on synthetic monthly valuations, with one-period delay and 10 bps one-way cost.” |
-| `[4/7]` Falsification | “Null and planted-positive controls, future-availability rejection, future-perturbation invariance and deterministic reproduction challenge the mechanics.” |
-| `[5/7]` Strategy tournament | “Relative Momentum, Trend, Weak and Null compete only on the fixture; a portfolio proposal follows.” |
-| `[6/7]` RiskGate | “A single proposed BUY is checked against an explicitly supplied demo snapshot.” |
-| `[7/7]` Execution + evidence | “This says ‘would submit,’ not ‘submitted.’ A dry-run result and local evidence files are produced.” |
+> “A deterministic agent proposes a hypothesis through a replaceable interface.
+> No LLM or API was called. The experiment specifies its universe, signal,
+> timing, costs and constraints before calculating results.”
 
-## 1:30–2:30 — Dashboard, tournament and portfolio
+The symbols `DEMO_UP`, `DEMO_WEAK` and `DEMO_NULL` are fictional. The committed
+fixture uses seed **20260918**. Relative Momentum is compressed **three-period
+momentum skipping the latest period**, not the real sector study's **12-1** rule.
 
-Open **`demo-output/index.html`** locally. Show the hypothesis, experiment,
-backtest, falsification, tournament and portfolio cards.
+## 1:30–2:30 — Backtest + falsification
 
-> “The instruments are fictional: DEMO_UP, DEMO_WEAK and DEMO_NULL. The committed
-> fixture uses seed 20260918. Relative Momentum is compressed three-period
-> momentum skipping the latest period—not the real sector study's 12-1 rule.
-> The planted pattern makes the pipeline explainable; it is not market evidence.”
+Show `[3/7] Backtest` and `[4/7] Falsification`, or their dashboard cards.
 
-Point out **Demo Relative Momentum**, **Demo Trend**, **Demo Weak** and
-**Demo Null**. Weak and Null are deliberate synthetic contrasts, not real quality
-or PEAD models. Do not quote a generated return as an expected investment return
-or treat “SURVIVES (DEMO ONLY)” as research approval.
+> “The existing research engine calculates returns from synthetic monthly
+> valuations, with a one-period delay and 10 bps one-way cost. These are not
+> executable market prices. The planted pattern makes the pipeline explainable;
+> its generated return is not investment evidence.”
 
-Show the allocation and cash remainder. This is a single demo sleeve with
-whole-share sizing from an initially all-cash snapshot, not account synchronization,
-automatic diversification or a live multi-order rebalance.
+Point to the computed controls: null data and the no-edge candidate do not pass;
+the planted-positive pattern is recovered and the weak candidate loses.
+Future-available information is rejected, changing future inputs leaves earlier
+decisions unchanged, and repeated calculations reproduce the same results.
 
-## 2:30–3:30 — Risk and the evidence receipt
+> “These checks challenge the mechanics. Passing them does not validate alpha
+> on real, dependent market data.”
 
-Show the RiskGate checks and the **SIMULATED / DRY RUN** execution card.
+## 2:30–3:30 — Tournament and rejected/data-blocked research
 
-> “Allowed symbols and instruments, long-only whole-share BUY, no leverage,
-> position/order/concentration limits and decision freshness are checked against
-> supplied state. This is not continuous risk enforcement on a live account.
-> Live execution is a hard-fail boundary, and the Robinhood stub is disabled.”
+Show `[5/7] Strategy tournament`: **Demo Relative Momentum**, **Demo Trend**,
+**Demo Weak** and **Demo Null**. Point to the actual rejected Weak/Null candidates.
+They are synthetic contrasts, not quality or PEAD models; “SURVIVES (DEMO ONLY)”
+does not mean research approval.
 
-Open the receipt or display it:
+Then show **Real research — separate, no synthetic metrics** and
+[research-status.md](research-status.md). The packaged
+`src/agentic_quant_lab/resources/research_status.json` is the canonical structured
+summary; generated fixture scores do not enter it.
+
+> “ETF Trend remains RESEARCH MORE: weak NAV-proxy results versus static
+> de-risking; verify actual closes, without promotion or parameter rescue.
+> Research-grade stock testing is currently blocked. Price-based and guidance-text
+> PEAD require low-cost data qualification; consensus-surprise and revisions
+> are blocked. Overall, DEFER PEAD. Sector-relative momentum remains EXPLORATORY,
+> RESEARCH MORE, acquisition still blocked: zero of eighteen scenarios ran.”
+
+Distinguish rejected **demo** candidates from real candidates blocked by data:
+missing evidence is neither zero return nor an economic rejection.
+
+## 3:30–4:15 — Portfolio + deterministic RiskGate
+
+Show the portfolio proposal and `[6/7] RiskGate`. Point to the allocation, cash
+remainder and whole-share sizing from an initially all-cash demo snapshot.
+
+> “A single proposed BUY passes deterministic checks for allowed symbols and
+> instruments, long-only whole shares, no leverage, order/position/concentration
+> limits and decision freshness. They use supplied demo state, not a broker
+> account. This is not continuous live-account enforcement or a multi-order
+> rebalance. Live execution is a hard-fail boundary.”
+
+## 4:15–5:00 — Dry-run receipt and future Robinhood
+
+Show `[7/7] Execution` and **SIMULATED / DRY RUN**: “would submit,” not
+“submitted.” Open the receipt:
 
 ```sh
 cat demo-output/receipt.json
 ```
 
-Point to `experiment_id`, `input_hash`, `strategy_config_hash`, `result_hash`,
-the timestamp and the demo/dry-run labels.
+Point to the experiment ID, input/configuration/result hashes and demo labels.
 
-> “The clock is fixed scenario time so repeated outputs are deterministic.
-> It is not the actual time of an audit event or this command. Hashing reuses the
-> existing ledger utility, but this receipt is separate from the Phase 0 ledger.
-> A matching hash binds content; it does not prove profitable alpha.”
+> “The timestamp is fixed scenario time, not an actual audit-event time.
+> Hashing reuses the ledger utility, but demo receipts remain separate from
+> Phase 0 evidence. Hashes bind content, not profitable alpha. Robinhood is
+> a disabled stub; a separately authorized integration is future work.
+> No broker is connected and no live capital was used.”
 
-## 3:30–4:30 — Real research, kept separate
-
-Show **Real research — separate, no synthetic metrics** and open
-[research-status.md](research-status.md) for the precise report verdicts.
-The packaged `src/agentic_quant_lab/resources/research_status.json` is the
-canonical structured summary, not generated fixture performance.
-
-> “Modern ETF Trend is RESEARCH MORE, narrowly for executable-close verification.
-> NAV-proxy results are weak versus static de-risking; there is no paper/shadow
-> promotion or parameter rescue. Research-grade stock testing is currently
-> blocked by data qualification. Price-based and guidance-text PEAD require
-> low-cost data qualification; consensus-surprise and revision momentum are
-> blocked. Overall, defer PEAD. Sector-relative momentum is exploratory,
-> research more, acquisition still blocked: zero of eighteen scenarios ran.”
-
-No available data is not a zero return or an economic rejection. Historical
-Phase 0 SEC acceptance passed as documented, but the constitutional acceptance
-flag and scheduling flag remain false. That historical acceptance—and all
-SEC/Azure/live activity—was **not rerun** for this demo.
-
-## 4:30–5:00 — Close with the honest next step
-
-> “We have an evidence-first research workflow, a reproducible synthetic demo
-> and explicit reasons real candidates remain unqualified. Next comes the
-> missing data verification, not optimizing away a failed comparison. LLM agents
-> and a separately authorized Robinhood integration are future extensions.
-> Today, no broker is connected and no live capital is used.”
-
-Leave the dashboard's mode banner visible. Do not end with a fictional winner's
-return, a claim of validated alpha or a suggestion that changing one flag would
-make this production-ready.
+Presenter boundary: historical Phase 0 acceptance passed as documented, while
+its constitutional acceptance and scheduling flags remain false. SEC/Azure/live
+acceptance was **not rerun** here. Leave the mode banner visible; the next step
+is qualifying missing research data, not claiming a profitable toy winner.

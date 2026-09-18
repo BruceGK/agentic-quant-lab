@@ -1,27 +1,42 @@
 # Agentic Quant Lab
 
-Strategy agents turn ideas into reproducible experiments, compete on evidence,
-and pass risk-checked proposals to dry-run execution.
+An autonomous quant research system that discovers, tests, falsifies, and eventually executes systematic trading strategies.
 
 ```text
-Strategy agents
+Research Agent
       ↓
-Experiments · backtests · controls
+Hypothesis
       ↓
-Tournament + portfolio
+Backtest + Falsification
+      ↓
+Strategy Tournament
+      ↓
+Portfolio
       ↓
 RiskGate
       ↓
-Dry-run execution + evidence
+Execution Adapter
+      ↓
+Robinhood (future)
 ```
 
-## Status
+## What it does
 
-- [x] Deterministic, synthetic product demo.
-- [x] Phase 0 evidence foundation and historical SEC acceptance report.
-- [x] Research harness and fixed-rule ETF trend lineage integrated.
-- [x] Independent stock, PEAD and sector-relative research reports restored.
-- [ ] Validated investable alpha, LLM agents and live execution.
+- Agents research hypotheses; today's demo agent is scripted, not an LLM.
+- Deterministic code runs experiments and preserves evidence.
+- Falsification rejects weak ideas; synthetic scores do not establish alpha.
+- A tournament feeds a demo portfolio proposal.
+- RiskGate checks the proposal against a supplied demo snapshot.
+- Live trading is disabled; execution is dry-run only.
+
+## Current status
+
+| State | Scope |
+| --- | --- |
+| ✅ | Phase 0 foundation, research harness and demo tournament integrated. |
+| ✅ | Fixed-rule ETF trend research and independent stock, PEAD and sector data audits restored. |
+| 🚧 | Autonomous strategy discovery and paper trading—not ready. |
+| ⏳ | Robinhood integration—future; current stub disabled. |
 
 ## Quick Demo
 
@@ -124,22 +139,21 @@ an order placement nor authorization to trade.
 <summary>Architecture, evidence sidecar and repository layout</summary>
 
 ```mermaid
-flowchart TD
-    A["Strategy agents · deterministic today"] --> E["Experiment specification"]
-    E --> B["Synthetic backtest"]
-    B --> C["Scientific controls"]
-    C --> T["Demo tournament + portfolio"]
-    T --> R["RiskGate · supplied demo snapshot"]
-    R --> X["Dry-run execution"]
-    A -.-> S["Evidence sidecar · demo receipt + dashboard"]
-    E -.-> S
-    B -.-> S
-    C -.-> S
-    T -.-> S
-    R -.-> S
-    X -.-> S
-    P["Canonical real-research status · separate from rankings"] -.-> S
+flowchart LR
+    A["Research Agent"] --> H["Hypothesis"]
+    H --> E["Experiment Engine"]
+    E --> F["Falsification"]
+    F --> T["Strategy Tournament"]
+    T --> P["Portfolio"]
+    P --> R["RiskGate"]
+    R --> X["Execution Adapter"]
+    X -. future .-> B["Robinhood"]
+    E -.-> L["Evidence Ledger · demo receipt separate"]
+    R -.-> L
 ```
+
+The demo sidecar writes separate local receipts; it does not append to the
+Phase 0 evidence ledger. Robinhood remains a future integration.
 
 | Module under `src/agentic_quant_lab/` | Responsibility |
 | --- | --- |
