@@ -2,12 +2,47 @@
   "slides": 11,
   "aspect_ratio": "16:9",
   "zip_integrity": "passed",
+  "all_xml_parseable": "passed",
   "internal_relationships": "passed",
+  "referenced_relationship_ids": "passed",
   "external_relationships": 0,
-  "nonempty_slides": "passed",
+  "embedded_images": 0,
+  "visuals": "Editable native shapes; no linked images or external assets",
   "shape_bounds": "passed",
-  "speaker_notes": "11/11",
-  "bytes": 83083,
-  "sha256": "bf5766e47cf3a3970adb86b51b9a0e8311cb09f58b732df50273d56202e4d8fa",
-  "native_powerpoint_keynote_check": "Requires presenter machine; not available here"
+  "minimum_body_font_pt": 20.0,
+  "small_type_scope": "Metadata, sources, chart ticks, and footers only",
+  "speaker_notes": "11/11 with script, transition, and source",
+  "presentation_seconds": 400,
+  "metric_source": "research/etf_trend/results/metrics.csv",
+  "metric_source_sha256": "13664db4d9d3ac55e260f20a1ea3a2b77fb0661c4c2b879e2d0a538f6563e915",
+  "metric_filter": {
+    "defense": "BIL",
+    "one_way_cost_bps": 20
+  },
+  "real_research_metrics": {
+    "SPY": {
+      "cagr_pct": 15.029889099999998,
+      "max_drawdown_pct": -33.68469246
+    },
+    "STATIC80": {
+      "cagr_pct": 12.5276734,
+      "max_drawdown_pct": -27.33148198
+    },
+    "STATIC70": {
+      "cagr_pct": 11.25811788,
+      "max_drawdown_pct": -24.07622152
+    },
+    "ABS12": {
+      "cagr_pct": 11.26074007,
+      "max_drawdown_pct": -33.68469246
+    },
+    "SMA10": {
+      "cagr_pct": 7.850305237000001,
+      "max_drawdown_pct": -28.18529878
+    }
+  },
+  "bytes": 82494,
+  "sha256": "4d88fbcbede55524fe4491ef21023c6dea4c41ab3c5abda15757fc931a39748e",
+  "native_powerpoint_keynote_check": "Requires presenter machine; not available here",
+  "rendering": "Not run; any prior PDF/preview must be regenerated for this PPTX"
 }

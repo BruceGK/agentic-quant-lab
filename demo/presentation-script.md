@@ -1,375 +1,349 @@
 # Agentic Quant Lab — presentation script
 
-Read only the text under **Script** aloud. Goals, timings, tables, and presenter
-cues are not spoken. The last sentence of each script supplies the transition.
-Slide 7 contains seven short spoken beats separated by screen navigation; the
-CLI itself does not pause between stages.
+**11 slides · 6 minutes 40 seconds · includes a 90-second terminal demo.**
+Read **Script** and **Transition** aloud; everything else is a presenter cue.
+Slide 7 is a scroll-through of completed output, not an interactive CLI.
+“Live demo” means a local **synthetic dry run**, never live trading.
 
-**Target:** 750 spoken words; 6:20, including a 1:15 live-demo interlude with about
-0:35 of screen navigation. Allow ten seconds of breathing room for a roughly 6:30 delivery.
-“Live demo” means running the local **synthetic DRY RUN**, never live trading.
-If using the prerecorded fallback, disclose it as directed in the
-[runbook](demo-runbook.md).
+**Exact opening:** “Most AI trading demos start by asking an LLM what stock to buy; I wanted to build the opposite.”
 
-| Slide | Duration | Presentation clock |
+**Exact closing:** “It's an AI that knows when not to trade.”
+
+| Slide | Seconds | Presentation clock |
 | --- | ---: | --- |
-| 1 | 0:25 | 0:00–0:25 |
-| 2 | 0:30 | 0:25–0:55 |
-| 3 | 0:40 | 0:55–1:35 |
-| 4 | 0:35 | 1:35–2:10 |
-| 5 | 0:35 | 2:10–2:45 |
-| 6 | 0:45 | 2:45–3:30 |
-| 7 | 1:15 | 3:30–4:45 |
-| 8 | 0:30 | 4:45–5:15 |
-| 9 | 0:25 | 5:15–5:40 |
-| 10 | 0:25 | 5:40–6:05 |
-| 11 | 0:15 | 6:05–6:20 |
+| 1 | 25 | 0:00–0:25 |
+| 2 | 30 | 0:25–0:55 |
+| 3 | 35 | 0:55–1:30 |
+| 4 | 35 | 1:30–2:05 |
+| 5 | 40 | 2:05–2:45 |
+| 6 | 45 | 2:45–3:30 |
+| 7 | 90 | 3:30–5:00 |
+| 8 | 30 | 5:00–5:30 |
+| 9 | 30 | 5:30–6:00 |
+| 10 | 25 | 6:00–6:25 |
+| 11 | 15 | 6:25–6:40 |
 
 ## Slide 1 — Agentic Quant Lab
 
-**Timing:** 0:25 · 0:00–0:25
+**Timing:** 25 seconds · 0:00–0:25
 
 ### Goal
-
-Establish the contrarian premise: restraint is a product capability.
+Introduce agents as researchers, not stock-picking oracles.
 
 ### Script
+Most AI trading demos start by asking an LLM what stock to buy; I wanted to build the opposite.
 
-Most AI trading demos ask a model what to buy. I wanted to build the opposite.
+Agentic Quant Lab asks which ideas deserve to survive. Agents behave like
+researchers: they propose hypotheses. Evidence and deterministic controls decide
+what happens next.
 
-Agentic Quant Lab asks whether an idea deserves to survive at all. The vision
-is autonomous research, with evidence at every step and firm limits around
-capital. Before I show the system, here's the problem it's trying to solve.
+### Transition
+Because generating a trading idea is the easy part.
 
 ### Presenter cues — not spoken
-
-Pause after the opening. This is a product vision, not a profitable-strategy
-claim. Keep the distinction between **VISION**, **DEMO**, and **REAL RESEARCH**
-visible throughout.
+Pause after “the opposite.” Point to Research → Evidence → Risk → Execution.
+Autonomous research is the destination; today's agent is a scripted stand-in.
 
 ## Slide 2 — AI can generate trades. Can we trust them?
 
-**Timing:** 0:30 · 0:25–0:55
+**Timing:** 30 seconds · 0:25–0:55
 
 ### Goal
-
-Replace “Does the story sound convincing?” with “What evidence would disprove it?”
+Make rejecting bad ideas the product's central problem.
 
 ### Script
+A model can produce a convincing reason to buy almost anything.
 
-A convincing trading story is easy to generate. Knowing whether it works is
-much harder.
-
-Was tomorrow's information accidentally used today? Did costs erase the edge?
+But did the backtest use tomorrow's information? Did costs erase the edge?
 Did we quietly leave out companies that disappeared?
 
-A smooth equity curve doesn't answer those questions. I want a system that makes
-weak ideas fail visibly, instead of making every idea sound investable. That
-requires a different architecture.
+A fluent explanation doesn't answer those questions. Neither does a beautiful
+equity curve. The hard problem isn't generating strategies. It's rejecting bad ones.
+
+### Transition
+That requires a different architecture.
 
 ### Presenter cues — not spoken
-
-Let the three questions land. Do not suggest that an LLM can certify data
-availability, historical investability, or executable fills.
+Contrast the red shortcut with the evidence pipeline. “Trade” is future-only;
+the implemented path ends at a dry run.
 
 ## Slide 3 — An autonomous research loop
 
-**Timing:** 0:40 · 0:55–1:35
+**Timing:** 35 seconds · 0:55–1:30
 
 ### Goal
-
-Explain the intended reasoning loop and the implemented deterministic boundary.
+Separate agent reasoning from numerical and execution authority.
 
 ### Script
+There are two lanes here. Agents research and reason. Deterministic code owns
+the data checks, calculations, backtests, portfolio, and risk limits.
 
-Think of this as two lanes. In the vision, AI reasons about hypotheses and designs
-experiments. Deterministic code handles backtesting, scientific controls, the
-strategy tournament, portfolio sizing, the RiskGate, and execution. An evidence
-and provenance sidecar preserves what went in and what came out.
+Every hypothesis becomes an experiment. Results face falsification, then a
+tournament. Only a surviving proposal reaches the RiskGate. Evidence travels
+alongside the process.
 
-Today, the research agent is a scripted, deterministic stand-in, not an LLM.
-The actual research was committed separately; this demo doesn't recreate it.
+Today's demo agent is scripted, not an LLM. Robinhood is future work.
 
-The intended loop learns what to test next without bypassing those rules.
-First, it must challenge itself.
+Agents propose. Evidence decides. RiskGate authorizes.
+
+### Transition
+And the first test is whether the idea can prove itself wrong.
 
 ### Presenter cues — not spoken
-
-Trace reasoning → experiment → backtest/controls → tournament → portfolio →
-RiskGate → **DRY RUN**. Trace the evidence/provenance sidecar separately:
-inputs, configuration, results, hashes, and source reports. It supports
-inspection; it is not an alpha validator or a new Phase 0 ledger.
+Trace both lanes and the evidence sidecar. The demo receipt is separate from
+the unchanged Phase 0 production ledger.
 
 ## Slide 4 — The agent has to prove itself wrong
 
-**Timing:** 0:35 · 1:35–2:10
+**Timing:** 35 seconds · 1:30–2:05
 
 ### Goal
-
-Make falsification concrete without presenting toy controls as market validation.
+Explain three scientific controls without implying they establish alpha.
 
 ### Script
+First, a null control: a signal with no edge should not magically make money.
+The broader research uses random controls; this demo uses flat, no-edge fixtures.
 
-The first job is to challenge the idea.
+Second, a planted signal: can the machinery recover a pattern we deliberately
+put into synthetic data?
 
-A null control asks whether noise looks profitable. Broader research uses random
-controls; this demo uses flat data and a no-edge candidate. A planted signal
-checks that we recover a known pattern. Leakage checks reject future information
-and keep earlier decisions unchanged when future inputs change.
+Third, a leakage trap: future information must be rejected.
 
-These test mechanics, not alpha. Out-of-sample and regime testing are research
-requirements, not completed demo proof. Sometimes the right answer comes before
-a backtest.
+These checks validate mechanics, not market alpha. Costs and frozen
+specifications matter too.
+
+### Transition
+The useful result is often “no,” and our real research shows that.
 
 ### Presenter cues — not spoken
+Do not claim the demo performs real-market out-of-sample or regime validation.
+It also checks deterministic reproduction.
 
-The demo also checks deterministic reproduction. Its positive signal is planted,
-not discovered. Do not claim this demo ran random-market, out-of-sample, regime,
-or real-sector shuffled-rank tests. Historical research has its own disclosed
-methods and limitations; retrospective splits are not prospective validation.
+## Slide 5 — The system already says “no”
 
-## Slide 5 — The system is designed to say NO
-
-**Timing:** 0:35 · 2:10–2:45
+**Timing:** 40 seconds · 2:05–2:45
 
 ### Goal
-
-Distinguish a negative economic result from an honest data-gate stop.
+Distinguish adverse research findings from data-gated, unrun experiments.
 
 ### Script
+These are real research statuses, not demo scores.
 
-Here's what saying no looks like in the real research.
+ETF Trend remains research more, close to rejection. Stock momentum is blocked
+by historical-universe and delisting evidence. Adding quality also needs
+point-in-time fundamentals.
 
-Stock momentum is blocked by historical-universe and delisting evidence. Adding
-quality also needs point-in-time fundamentals. Earnings drift is deferred:
-the price-based route needs data qualification; historical consensus and
-revision variants are blocked.
+Earnings drift is deferred. A price-based route may be feasible, but historical
+consensus and revision vintages remain blocked. We haven't tested PEAD.
 
-Sector-relative momentum has a frozen protocol, but a network and DNS gate stopped
-acquisition. Zero of eighteen scenarios ran. That's missing evidence, not an
-economic rejection.
+Sector-relative momentum has a frozen protocol, but data acquisition stopped
+at a network and DNS gate. No performance experiment ran.
 
-Trend got further. Its results were a warning, not a promotion.
+Missing evidence is not an economic rejection.
+
+### Transition
+Trend did run, and it's the clearest example of why this discipline matters.
 
 ### Presenter cues — not spoken
+The lab preserves negative evidence. None of these candidates is promoted to
+paper, shadow, or live trading. Sector-relative momentum completed **0/18**
+scenarios; unavailable metrics are not zero returns.
+Source: [canonical research status](../docs/research-status.md).
 
-These are **REAL RESEARCH** statuses, not scores from the synthetic tournament.
+## Slide 6 — Trend looked promising — until we tested it properly
 
-| Research family | Preserved status and reason |
-| --- | --- |
-| ETF Trend | **RESEARCH MORE**, near rejection; executable-price verification only; not promoted to paper/shadow. |
-| Stock momentum | **RESEARCH-GRADE STOCK TEST CURRENTLY BLOCKED**: historical investable universe, security identity, delistings, and terminal returns remain unqualified. |
-| Momentum + quality | Same stock-data blockers, plus original point-in-time filing/fundamental vintages. |
-| PEAD / earnings drift | **DEFER PEAD** overall. Price-based and guidance-text routes: **LOW-COST DATA REQUIRED**, not qualified datasets. Consensus-surprise and analyst revisions: **BLOCKED** by historical-vintage requirements. Price-based PEAD does not require consensus. |
-| ETF sector-relative / dual momentum | **EXPLORATORY; RESEARCH MORE; DATA ACQUISITION STILL BLOCKED**. Frozen protocol; **0/18 scenarios run** after network/DNS failure. Metrics unavailable, not zero. No economic rejection. |
-
-Source: [research-status.md](../docs/research-status.md), with the original
-stock, PEAD, and sector reports linked there.
-
-## Slide 6 — Trend looked promising—until we tested it
-
-**Timing:** 0:45 · 2:45–3:30
+**Timing:** 45 seconds · 2:45–3:30
 
 ### Goal
-
-Show a real adverse finding and preserve the precise research decision.
+Show the real return/drawdown trade-off without rescuing the failed rules.
 
 ### Script
+The earlier exploratory work made trend look promising. Then we froze the rules
+and compared them with simply holding less equity.
 
-Trend initially looked promising as a way to step aside during trouble.
-The follow-up froze the rules and compared them with simply holding less equity.
+At twenty basis points one-way, Absolute Twelve returned about eleven-point-three
+percent a year, just like static seventy-thirty. But it still suffered the full
+thirty-three-point-seven percent drawdown. Static seventy-thirty lost about
+twenty-four percent instead.
 
-With Treasury-bill defense and twenty-basis-point one-way costs, Absolute Twelve
-matched the static seventy-thirty portfolio's annual growth, but suffered the
-full equity drawdown. The moving-average rule did worse. Missed rebounds and
-repeated exits consumed the hoped-for protection.
+SMA Ten gave up more return. Four of four Absolute Twelve defensive cycles,
+and nine of eleven SMA Ten cycles, lost relative wealth versus staying invested.
 
-The verdict is research more, close to rejection, not promoted. These are
-exploratory NAV valuations, not executable closes. Verify the same rules on actual
-closes; don't retune them to rescue the story.
+We didn't retune the failed rule. These are exploratory NAV results, not
+production-ready execution.
 
-Now, here's the workflow—not those research results.
+### Transition
+Now I'll show the workflow with synthetic data, not replay those research results.
 
 ### Presenter cues — not spoken
-
-Point to the static 70/30 comparison; **do not read every number aloud**.
-The following is the primary **BIL defensive-asset** comparison at **20 bps
-one-way costs**, **2016-01-04–2026-07-31**. Percentages are net CAGR and maximum
-drawdown, not synthetic demo returns.
+Point at the 70/30 versus Absolute12 rows; do not read every number aloud.
+The source window is **2016-01-04–2026-07-31**, with **BIL defense** and
+**20 bps one-way costs**. Static splits mean SPY/BIL, not stock/aggregate bonds.
 
 | Portfolio | Net CAGR | Maximum drawdown |
 | --- | ---: | ---: |
 | SPY | 15.03% | -33.68% |
-| STATIC80: 80% SPY / 20% BIL | 12.53% | -27.33% |
-| STATIC70: 70% SPY / 30% BIL | 11.26% | -24.08% |
-| ABS12: Absolute12 / BIL | 11.26% | -33.68% |
-| SMA10 / BIL | 7.85% | -28.19% |
+| Static 80/20 | 12.53% | -27.33% |
+| Static 70/30 | 11.26% | -24.08% |
+| Absolute12 | 11.26% | -33.68% |
+| SMA10 | 7.85% | -28.19% |
 
-Absolute12 lost relative wealth versus staying in SPY in **4/4** completed
-defensive cycles; SMA10 did so in **9/11**. Those are relative opportunity
-losses, not necessarily negative absolute account returns. The result does
-not justify retuning, promotion, or a universal rejection of trend investing.
-If actual-close verification preserves the adverse result, reject these fixed
-implementations. Source: [ETF trend validation](../docs/etf-trend-validation.md).
+The whipsaw counts are **completed defensive cycles losing relative wealth
+against SPY, including switching costs**, not necessarily negative absolute
+returns. SMA10 protected part of the COVID decline but missed a large rebound.
+The classification remains **RESEARCH MORE / near rejection**; verify executable
+closes under the same frozen rules, without parameter rescue or promotion.
+Sources: [metrics](../research/etf_trend/results/metrics.csv),
+[whipsaws](../research/etf_trend/results/whipsaw_summary.csv),
+[original report](../docs/etf-trend-validation.md).
 
-## Slide 7 — One command. Research to dry run.
+## Slide 7 — One command → research to dry-run execution
 
-**Timing:** 1:15 · 3:30–4:45 · about 0:40 speaking + 0:35 navigation
+**Timing:** 90 seconds · 3:30–5:00 · roughly 45 seconds speaking + 45 seconds navigation
 
 ### Goal
-
-Demonstrate the seven implemented stages while keeping synthetic output separate
-from real research.
+Show the complete deterministic research-to-dry-run path, with visible limits.
 
 ### Script
+This is a synthetic dry run, not real research.
 
-This is a live walkthrough of a synthetic dry run, not live trading. The agent
-proposes a planted hypothesis.
+The agent starts with a research hypothesis, not an order.
 
-The experiment fixes fictional instruments, timing, and costs before calculation.
+The hypothesis is converted into a deterministic experiment.
 
-The backtest uses synthetic monthly valuations, not market fills.
+The backtest uses fictional prices, delayed decisions, and costs.
 
-The controls challenge the mechanics; they don't validate alpha.
+This is the important part — the model doesn't get to grade its own homework.
+These controls verify mechanics, not market alpha.
 
-The tournament rejects Weak and Null. The survivor is demo-only; the portfolio
-keeps most capital in cash.
+Bad strategies remain visible as rejected evidence. The portfolio keeps most
+of its capital in cash.
 
-The RiskGate checks one proposed buy against supplied demo state.
+Even a strategy that survives research still cannot trade directly.
 
-Execution says would submit, never submitted. The receipt binds the evidence.
-Let's look at that capital boundary.
+Execution deliberately stops here today. Robinhood is disconnected.
+The receipt ties inputs, configuration, and results together.
+
+### Transition
+Now let's look at that last safety boundary.
 
 ### Presenter cues — not spoken
+Follow the [90-second walkthrough](demo-runbook.md#during-the-presentation--slide-7).
+Switch to the terminal and run `uv run aql demo`. With dependencies already
+prepared, the network-independent variant is `uv run --offline --no-sync aql demo`.
+Scroll through the completed output, pausing your narration at each stage.
+The CLI has no interactive pauses.
 
-Use the [75-second runbook](demo-runbook.md#the-75-second-slide-7-walkthrough).
-Alt+Tab / Command+Tab to the prepared terminal; run the prepared offline command.
-**All seven stages finish and print at once.** Narrate the completed output by
-scrolling or finding dashboard section titles; do not wait for nonexistent
-interactive prompts.
+Keep the banner visible: **MODE: DEMO · DATA: SYNTHETIC FIXTURE ·
+LIVE TRADING: DISABLED · EXECUTION: DRY RUN**.
+The fictional symbols are `DEMO_UP`, `DEMO_WEAK`, and `DEMO_NULL`.
+The demo uses **10 bps** and compressed three-period, skip-latest momentum;
+it is neither slide 6's real 20 bps study nor the unrun sector 12-1 experiment.
 
-Keep `MODE: DEMO | DATA: SYNTHETIC / FIXTURE | LIVE TRADING: DISABLED` visible
-at the start. The fictional symbols are `DEMO_UP`, `DEMO_WEAK`, and `DEMO_NULL`;
-the demo's compressed three-period, skip-latest signal is **not** the real
-sector study's 12-1 rule. Demo costs are **10 bps**, not slide 6's 20 bps stress.
-
-If the CLI is not ready within five seconds, switch to the prerecorded fallback
-and explicitly replace the live claim with the runbook's failure disclosure.
-Do not restart the 75-second clock.
+If the CLI fails or is not ready within five seconds, disclose the switch to
+[prerecorded output](demo-output.txt). Do not troubleshoot during the talk.
 
 ## Slide 8 — Agents never get direct control of capital
 
-**Timing:** 0:30 · 4:45–5:15
+**Timing:** 30 seconds · 5:00–5:30
 
 ### Goal
-
-Describe the actual RiskGate illustration and its limits.
+Show that a research proposal cannot authorize its own execution.
 
 ### Script
+The proposal is ten fictional shares, about nineteen hundred and twenty dollars.
 
-Here, the proposal is ten fictional shares, about nineteen hundred and twenty
-dollars. It fits below the two-thousand-dollar order cap, the
-twenty-five-hundred-dollar position cap, and twenty-five-percent concentration.
+The RiskGate checks the instrument, positive long-only quantity, leverage,
+order size, concentration, and freshness. Those checks use supplied demo state,
+not a connected account.
 
-Those checks use a supplied ten-thousand-dollar, all-cash snapshot and a fixed
-scenario clock, not wall time. There's no broker reconciliation, and live
-execution is disabled. Agents propose; deterministic controls decide.
-So where does AI belong?
+The execution adapter checks the gate again. Live execution stays disabled.
+Passing this demonstration gate authorizes only a dry run, never a broker order.
+
+### Transition
+So where does AI actually add value?
 
 ### Presenter cues — not spoken
+Actual fixture intent: **BUY 10 DEMO_UP**, estimated **$1,919.92**.
+Supplied snapshot: **$10,000 equity and cash**, no positions.
+Limits: **$2,000 order**, **$2,500 position**, **25% concentration**.
+The 20% allocation is rounded to whole shares.
 
-- Actual fixture intent: **BUY 10 DEMO_UP**, estimated **$1,919.92** at the
-  fixture reference price; not an executed order or market quote.
-- Order cap **$2,000**; position cap **$2,500**; concentration limit **25%**.
-  Supplied snapshot: **$10,000 equity, $10,000 cash, no positions**.
-- Target allocation is 20%; whole-share rounding leaves roughly **$8,080.08**
-  hypothetical cash before any actual execution. This is one BUY intent, not a
-  reconciled account, multi-order rebalance, or continuously enforced live book.
-- The gate also checks allowed symbols/instruments, positive whole-share
-  long-only BUY, no leverage, snapshot consistency, dry-run mode, disabled live
-  execution, and decision freshness. The execution adapter evaluates the gate
-  again. A failed check blocks the dry run.
-- Clock: **2025-01-01T00:00:00+00:00**, fixed scenario time; not wall-clock
-  freshness or actual audit-event time. Hashes bind contents, not truth or alpha.
-  Receipt/provenance remain separate from the unchanged Phase 0 ledger.
+The scenario clock is fixed at **2025-01-01T00:00:00+00:00**, not wall time.
+This is one intent against supplied state, not broker reconciliation,
+multi-order rebalancing, or continuous live-account enforcement.
+Hashes bind contents; they do not establish truthful data or profitable alpha.
 
 ## Slide 9 — Where AI actually adds value
 
-**Timing:** 0:25 · 5:15–5:40
+**Timing:** 30 seconds · 5:30–6:00
 
 ### Goal
-
-Position AI as a research collaborator, not an unconstrained execution engine.
+Position AI as a research collaborator, not a substitute for calculations.
 
 ### Script
+AI can help read research, form hypotheses, interpret earnings, and investigate
+why a strategy stops working. Its useful job is proposing the next test and
+finding evidence that contradicts the story.
 
-AI's useful role is turning vague ideas into explicit tests, finding contradictory
-evidence, and explaining why a candidate failed.
+Code should calculate returns, rank assets, allocate capital, and enforce limits.
+Use AI for reasoning. Use code for truth — meaning reproducible calculations,
+not certainty about markets.
 
-It should reduce the cost of disciplined research, not manufacture certainty
-or trade around safeguards. The deterministic boundary makes that reasoning
-inspectable. That's the value proposition—and it gives us a concrete roadmap.
+### Transition
+That division gives us a practical roadmap.
 
 ### Presenter cues — not spoken
+The agent column describes target capabilities. Today's scripted stand-in did
+not autonomously conduct the separately committed research.
 
-These are intended capabilities of a future evaluated reasoning agent. Do not
-claim today's scripted stand-in performed a literature search, selected new
-experiments autonomously, or generated the separately committed research.
+## Slide 10 — Roadmap
 
-## Slide 10 — From research lab to autonomous trading system
-
-**Timing:** 0:25 · 5:40–6:05
+**Timing:** 25 seconds · 6:00–6:25
 
 ### Goal
-
-Make the roadmap conditional on evidence, authorization, and new acceptance.
+Make each future capability conditional on evidence and separate authorization.
 
 ### Script
+Today we have research, falsification, and an offline demonstration.
 
-Today's deliverable is a reproducible research workflow and a dry-run boundary.
-Next comes qualifying missing data and testing frozen rules, then a separately
-evaluated reasoning agent.
+Next: qualify the missing data, then paper or shadow trading with its own
+acceptance gates. After that, evaluate agent-driven experiment generation.
 
-Paper or shadow operation would require new acceptance. Any broker integration
-would need explicit authorization, reconciliation, and operational controls.
-None is activated here. That brings me back to the point.
+Risk-controlled Robinhood execution is the final step, not today's feature.
+Live trading is disabled. Nothing here changes Azure or the Phase Zero recorder.
+
+### Transition
+The destination is disciplined restraint.
 
 ### Presenter cues — not spoken
+No live data acquisition, SEC acceptance, Azure deployment, scheduler change,
+or broker connection is part of this presentation.
 
-This presentation performs no real live run, market-data acquisition, SEC
-request, Azure deployment/acceptance, Robinhood connection, or infrastructure
-change. Archived acceptance reports describe their original sessions, not a
-new validation. Phase 0 and its activation flags remain unchanged; historical
-acceptance is not permission to schedule recording or enable trading.
+## Slide 11 — The goal isn’t an AI that trades more.
 
-## Slide 11 — An AI that knows when NOT to trade
-
-**Timing:** 0:15 · 6:05–6:20
+**Timing:** 15 seconds · 6:25–6:40
 
 ### Goal
-
-Leave the audience with disciplined restraint, not a claim of alpha.
+End on the ability to abstain, not a promise of returns.
 
 ### Script
+We're not using AI to guess trades. We're using it to decide which ideas deserve
+to survive.
 
-This is a research lab, not a claim of profitable alpha.
+The goal isn't an AI that trades more.
+It's an AI that knows when not to trade.
 
-The goal is not an AI that trades more. It is an AI that knows when not to trade.
-
-### Presenter cues — not spoken
-
-Hold the closing slide. The final sentence is the ending; do not add another
-spoken summary.
+### Transition
+None — hold the final slide in silence. Do not read this cue aloud.
 
 ## Source and scope notes — not spoken
 
-The integrated demo/research source baseline is **`60c83a0`**; the presentation
-package is on **`copilot/create-complete-presentation-package`**, not a new
-research vintage. Sources are [the original walkthrough](../docs/demo-script.md),
-[research status and provenance](../docs/research-status.md),
-[ETF Trend](../docs/etf-trend-validation.md),
-[stock-data feasibility](../docs/stock-data-feasibility.md),
-[PEAD-data feasibility](../docs/pead-data-feasibility.md), and
-[ETF relative momentum](../docs/etf-relative-momentum-validation.md).
-Runtime labels, stages, and scope follow `src/agentic_quant_lab/demo.py`,
-`agents.py`, `portfolio.py`, `risk.py`, and `execution.py`.
+Final branch: **`demo/final-presentation`**. The selected integration base is
+**`80ac8854c4cdfbcc13f58b50761b714221557249`** from
+`copilot/create-complete-presentation-package`, a descendant of the full
+research lineage, not the initial `main`.
+
+[Research status](../docs/research-status.md) preserves the original reports
+and branch provenance. The demo is synthetic and deterministic; no new strategy
+research, real-data acquisition, external acceptance, or trading occurred.

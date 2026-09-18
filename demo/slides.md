@@ -1,36 +1,37 @@
-# Agentic Quant Lab — editable deck source
+# Agentic Quant Lab — editable slide source
 
-11 slides · 16:9 · approximately 6½ minutes including the live interlude.
-The numbered slides below are the editable text specification. The `On-slide text`
-blocks feed `build_deck.py`; keep their line order when changing copy. Layout and
-chart drawing are native PowerPoint shapes in that authoring file. The trend chart
-reads the committed CSV, never demo output. Presenter scripts are embedded as notes.
+**11 slides · 16:9 · 6 minutes 40 seconds, including the terminal demo.**
+The `On-slide text` blocks feed [generate_slides.py](generate_slides.py).
+Keep their line order when editing copy; the generator checks the expected
+line counts. Layouts, diagrams, and chart bars are editable native PowerPoint
+shapes. The trend chart reads committed research metrics, never demo scores.
+The [presenter script](presentation-script.md) is embedded in all eleven notes.
 
 ## Design and regeneration
 
-Midnight navy background; white headings; mint deterministic layer; violet agent
-layer; amber qualification gates; muted blue-gray future work. Arial typography,
-large titles, generous margins, no external fonts or linked media. Body text
-generally 20–28 pt; only source/context labels and footers are smaller.
+Midnight navy, white headings, mint deterministic code, violet agent reasoning,
+amber research qualifications, and muted future work. Arial typography,
+20–28 pt body text, 34 pt titles, generous margins. Only metadata, sources, chart
+ticks, and footers are smaller. No stock photography, external fonts, or linked media.
 
-Authoring is optional, separate from the application environment:
-
-```bash
-cd /home/runner/work/agentic-quant-lab/agentic-quant-lab
-python3 -m venv /tmp/aql-deck-authoring
-/tmp/aql-deck-authoring/bin/pip install -r /home/runner/work/agentic-quant-lab/agentic-quant-lab/demo/requirements.txt
-/tmp/aql-deck-authoring/bin/python /home/runner/work/agentic-quant-lab/agentic-quant-lab/demo/build_deck.py
-```
-
-To refresh the PDF on a machine with LibreOffice installed:
+From the repository root, with Python/uv already available:
 
 ```bash
-libreoffice -env:UserInstallation=file:///tmp/aql-deck-libreoffice --headless --convert-to pdf --outdir /home/runner/work/agentic-quant-lab/agentic-quant-lab/demo /home/runner/work/agentic-quant-lab/agentic-quant-lab/demo/Agentic-Quant-Lab-Demo.pptx
+uv run --no-project --with-requirements demo/requirements.txt python demo/generate_slides.py
 ```
 
-Open the deck on the actual presenting machine before the talk. The PDF is the
-font-stable fallback. Rendering previews are derived from that PDF, not a separate
-HTML approximation.
+Authoring dependencies are isolated from the production project. Their initial
+installation may require internet; viewing the finished presentation does not.
+The generator writes the PPTX and a structural validation report. To refresh the
+PDF and contact sheet as well, use already-installed LibreOffice and Poppler:
+
+```bash
+uv run --no-project --with-requirements demo/requirements.txt python demo/generate_slides.py --render
+```
+
+Rendering is local, not a cloud upload. A missing renderer must not block delivery
+of the structurally valid PPTX. Open the deck on the actual presenting machine
+before the talk; the PDF is the font-stable fallback.
 
 ## Slide 1 — Agentic Quant Lab
 
@@ -42,16 +43,17 @@ Agents research.
 Deterministic systems decide.
 RESEARCH
 EVIDENCE
-RISK GATE
-DRY RUN
+RISK
+EXECUTION / DRY RUN
 VISION → DISCIPLINED RESEARCH
 ```
-### Visual instructions
-Oversized two-line title left; four connected blocks right, violet to mint.
-Make the research-to-risk progression more prominent than any market symbol.
-### Speaker note summary
-Open with the opposite of a stock-picking chatbot. Autonomy is the destination;
-the existing scripted-agent demo illustrates the boundary, not LLM capability.
+### Visual layout
+Oversized two-line title left; four connected blocks right. Violet research
+flows into mint evidence, risk, and dry-run execution.
+### Data source
+Product vision and current boundaries in the [README](../README.md); no metrics.
+### Speaker-note summary
+Build the opposite of an LLM stock-picker. Agents behave like researchers.
 
 ## Slide 2 — AI can generate trades. Can we trust them?
 
@@ -64,28 +66,31 @@ BUY
 AGENTIC QUANT LAB
 Hypothesis
 Evidence
-Falsify
-Risk gate
+Falsification
+RiskGate
 Trade*
 Hallucinated reasoning
 Backtest overfitting
 Look-ahead / bad data
 Uncontrolled execution
-The hard problem is rejecting bad ideas.
+The hard problem isn't generating strategies.
+It's rejecting bad ones.
 *Future only. Today ends at dry run.
 ```
-### Visual instructions
-Red-tinted shortcut above a mint evidence pipeline. Four small risk labels under
-the comparison. Dominant closing statement, no paragraph.
-### Speaker note summary
-Fluent reasoning is not evidence; rejection is the core product.
+### Visual layout
+Red shortcut above a full-width mint evidence pipeline. Wide labels must not
+split a word. Four risk labels; two-line closing statement.
+### Data source
+Architecture and scientific boundaries in the [README](../README.md).
+### Speaker-note summary
+Fluent reasoning is not evidence. Rejecting weak ideas is the difficult part.
 
 ## Slide 3 — An autonomous research loop
 
 ### On-slide text
 ```text
-AI / AGENTIC
-DETERMINISTIC SYSTEMS
+AGENTIC LAYER
+DETERMINISTIC CODE
 Research Agent
 Hypothesis
 Experiment
@@ -101,13 +106,15 @@ EVIDENCE / PROVENANCE
 Hypotheses · inputs · results · risk decisions
 Target architecture. Scripted agent today; demo receipts ≠ Phase 0 ledger.
 ```
-### Visual instructions
-Violet agent column left. Mint deterministic nodes snake across two rows, with
-arrows connecting every stage. Future Robinhood box muted and dashed. Evidence
-sidecar joins agent, backtest and risk. Execution is downstream of the gate.
-### Speaker note summary
-Separate scientific reasoning from numerical authority; distinguish target
-autonomy, current deterministic demonstration and future broker integration.
+### Visual layout
+Violet reasoning lane left. Mint deterministic nodes snake across two rows.
+Evidence sidecar below; future Robinhood muted with a dashed outline.
+### Data source
+[Agent interface](../src/agentic_quant_lab/agents.py),
+[demo orchestration](../src/agentic_quant_lab/demo.py), and
+[execution boundary](../src/agentic_quant_lab/execution.py).
+### Speaker-note summary
+Agents propose. Evidence decides. RiskGate authorizes.
 
 ## Slide 4 — The agent has to prove itself wrong
 
@@ -123,50 +130,56 @@ LEAKAGE TRAP
 Future data?
 Reject it.
 Costs
-Out-of-sample
+Frozen specifications
 Regime tests
 Data provenance
-Kill the idea. Don’t prompt-engineer a rescue.
+Reject a failing rule. Don't optimize a rescue.
 Research requirements, not a claim that the demo validates market alpha.
 ```
-### Visual instructions
-Three equal cards with large 0, +, and t+1 symbols; risk-oriented amber/red for
-leakage. Four controls along the bottom. No unsupported green production badge.
-### Speaker note summary
-Null includes random controls in the research test suite; live demo uses flat and
-no-edge fixtures. Recovering a synthetic edge verifies mechanics, not profitability.
+### Visual layout
+Three equal cards with 0, +, and t+1 symbols. Secondary scientific controls
+along the bottom. No unsupported production-success badge.
+### Data source
+[Demo tests](../tests/test_demo.py) and
+[research scientific controls](../tests/test_scientific_controls.py).
+### Speaker-note summary
+Broader research uses random nulls; the demo uses flat/no-edge fixtures.
+Recovering a planted synthetic signal verifies mechanics, not profitability.
 
-## Slide 5 — The system is designed to say NO
+## Slide 5 — The system already says “no”
 
 ### On-slide text
 ```text
 REAL RESEARCH
 ETF Trend
 RESEARCH MORE
-Weak versus static de-risking
+Weak vs static de-risking
 Stock Momentum
 DATA BLOCKED
-Historical universe + delistings
+Universe / identity / delistings
 Momentum + Quality
 DATA BLOCKED
 Stock history + PIT fundamentals
 PEAD / Earnings
 DEFER
-Consensus blocked; price route gated
+Consensus vintages unavailable
 ETF Relative Momentum
 NOT YET TESTED
-Frozen protocol; runner DNS blocked
-Missing evidence is not an economic rejection.
-Phase 0: historical evidence acceptance recorded. No production strategy claimed.
+Frozen protocol; acquisition blocked
+THIS IS THE POINT.
+The lab preserves negative evidence.
+Trend: near rejection. Missing data is not an economic rejection.
 ```
-### Visual instructions
-Five horizontal candidate cards. Status chips amber/blue-gray, never a profitable
-green strategy. Make missing evidence visibly different from weak observed results.
-### Speaker note summary
-Trend is not promoted. Do not call all five strategies economically rejected:
-stock data is unqualified, PEAD deferred, sector performance not yet computed.
+### Visual layout
+Five clear horizontal cards. Amber adverse/deferred statuses and blue data
+gates, never a green profitable-strategy claim. Large concluding phrase.
+### Data source
+[Canonical research status and original reports](../docs/research-status.md).
+### Speaker-note summary
+Trend is not promoted; stocks/quality lack qualified data; PEAD is untested;
+relative momentum has zero completed performance scenarios.
 
-## Slide 6 — Trend looked promising—until we tested it
+## Slide 6 — Trend looked promising — until we tested it properly
 
 ### On-slide text
 ```text
@@ -177,16 +190,15 @@ MAX DRAWDOWN ↓ magnitude
 Absolute12: no worst-drawdown benefit
 SMA10: COVID protection, then missed rebound
 Losing defensive cycles: Absolute12 4/4 · SMA10 9/11
-Rules stayed frozen. No optimization around the failure.
-NAV proxy ≠ executable closes. Not production-ready.
+We didn't retune the failed rule.
+NOT PRODUCTION-READY · NAV proxy, not executable closes.
 ```
-### Visual instructions
-Two aligned horizontal bar panels, one for annualized return and one for drawdown
-magnitude. Each begins at zero. Signed drawdown numbers remain negative. Model
-labels and numbers are editable text. Display five rows from metrics.csv, selecting
-defense=BIL and one_way_cost_bps=20, in this order:
+### Visual layout
+Two aligned horizontal bar panels with zero origins, comparing return against
+drawdown magnitude. Keep drawdown labels signed negative. No fabricated series.
+Select `defense=BIL`, `one_way_cost_bps=20` from the CSV:
 
-| Model | CAGR | Max drawdown |
+| Model | Net CAGR | Max drawdown |
 | --- | ---: | ---: |
 | SPY | 15.03% | -33.68% |
 | Static 80/20 | 12.53% | -27.33% |
@@ -194,37 +206,42 @@ defense=BIL and one_way_cost_bps=20, in this order:
 | Absolute12 | 11.26% | -33.68% |
 | SMA10 | 7.85% | -28.19% |
 
-Static splits mean SPY/BIL, **not** stock/aggregate-bond portfolios. The 4/4 and 9/11
+Static splits mean SPY/BIL, not stock/aggregate bonds. The 4/4 and 9/11
 counts refer to completed defensive cycles losing relative wealth versus SPY,
-including switching costs, not a generic count of losing calendar periods.
-### Speaker note summary
-Similar rounded CAGR can hide very different drawdowns. Trend is weak, not a
-success story. Verification of actual closes remains a gate, not license to retune.
-### Evidence
+including switching costs, not calendar periods or necessarily absolute losses.
+### Data source
 [Committed metrics](../research/etf_trend/results/metrics.csv),
 [whipsaws](../research/etf_trend/results/whipsaw_summary.csv),
 [validated report](../docs/etf-trend-validation.md).
+### Speaker-note summary
+Similar rounded CAGR masks very different drawdowns. Verify executable closes
+under frozen rules; do not retune or promote the weak implementations.
 
-## Slide 7 — One command. Research to dry run.
+## Slide 7 — One command → research to dry-run execution
 
 ### On-slide text
 ```text
 uv run aql demo
-Hypothesis → Experiment → Backtest
-✓ Controls → Tournament → Portfolio
-✓ RiskGate → DRY RUN
-LIVE TRADING: OFF
+Agent → Experiment → Backtest
+Falsification → Tournament → Portfolio
+RiskGate → DRY RUN
 DATA: DEMO FIXTURE
+LIVE TRADING: OFF
 EXECUTION: DRY RUN
-Scripted agent. No LLM call. No market-data API.
+INTERNET: NOT REQUIRED
+Scripted agent. Synthetic results. No LLM or broker call.
 Prepared offline: uv run --offline --no-sync aql demo
 ```
-### Visual instructions
-Command dominates the upper half. Large flow lines underneath with mint
-checkmarks on computed controls, not real profitability. Persistent safety badges.
-### Speaker note summary
-Switch to terminal and local HTML. Explain the synthetic path and all seven
-stages. Completed output can be scrolled; the CLI does not pause interactively.
+### Visual layout
+Large command above three workflow lines. Four two-line safety badges.
+No dense screenshot; the presenter switches to the real terminal here.
+### Data source
+[Demo implementation](../src/agentic_quant_lab/demo.py),
+[synthetic fixture](../src/agentic_quant_lab/resources/demo_fixture.json),
+and [committed successful output](demo-output.txt).
+### Speaker-note summary
+Run the command and scroll through completed stages. No internet after setup.
+Demonstrate machinery, not a discovered investment edge.
 
 ## Slide 8 — Agents never get direct control of capital
 
@@ -235,53 +252,65 @@ BUY 10
 DEMO_UP
 ≈ $1,919.92
 FIXTURE ONLY
-RISK GATE
-✓ Approved symbol / instrument
-✓ Long-only · no leverage
-✓ Order / position / concentration
-✓ Fresh decision · valid snapshot
-✓ Live execution disabled
+RiskGate
+✓ Approved instrument
+✓ Long-only · positive quantity
+✓ No leverage
+✓ Order / position limits
+✓ Concentration limit
+✓ Decision freshness
+✓ live_execution_enabled = false
 EXECUTION
-DRY RUN
+DRY RUN ADAPTER
 Robinhood
 DISCONNECTED
-Agents propose. RiskGate authorizes a dry run.
+Agents propose. RiskGate authorizes.
 One BUY / supplied demo state. No broker reconciliation.
-Future design: broker credentials stay outside research agents.
+Future design: credentials stay outside research agents.
 ```
-### Visual instructions
-Order card enters a large central risk gate and exits to dry-run adapter. Future
-Robinhood is detached visually, never a green check. Avoid claiming full live
-portfolio enforcement; single-order scope is legible.
-### Speaker note summary
-Actual fixture order, fixed scenario clock and supplied snapshot. Adapter
-re-evaluates risk. A passing demo gate is not permission to place a live order.
+### Visual layout
+Order intent enters a seven-check gate, then the DryRunExecutionAdapter.
+Robinhood is detached and muted. Checks are legible, not decorative tiny text.
+### Data source
+[RiskGate](../src/agentic_quant_lab/risk.py),
+[execution adapters](../src/agentic_quant_lab/execution.py),
+[matching demo receipt](assets/offline-demo/receipt.json).
+### Speaker-note summary
+Actual fixture order, $2,000 order cap, $2,500 position cap, 25% concentration.
+Fixed scenario time and supplied state; the adapter checks the gate again.
 
 ## Slide 9 — Where AI actually adds value
 
 ### On-slide text
 ```text
 AGENT / TARGET CAPABILITIES
-Read research · form hypotheses
+Read research
+Generate hypotheses
+Find failure regimes
 Interpret earnings / guidance
-Investigate failure regimes
-Propose the next experiment
+Propose experiments
+Investigate degradation
 DETERMINISTIC CODE
-Returns · rankings · backtests
-Costs · portfolio mathematics
-Scientific controls · risk limits
-Order validation · execution
+Calculate returns
+Rank assets
+Run backtests + model costs
+Allocate capital
+Enforce risk limits
+Submit orders (future only)
 Use AI for reasoning.
 Use code for truth.
-“Truth” means reproducible calculations—not certainty about markets.
+“Truth” means reproducible calculations, not certainty about markets.
 ```
-### Visual instructions
-Violet and mint columns. Parallel line spacing. Closing statement large and
-centered. Capabilities explicitly labeled target; no claim of a running LLM.
-### Speaker note summary
-Keep model reasoning useful without allowing it to replace math or self-authorize.
+### Visual layout
+Violet agent column and mint code column, six lines each, large closing line.
+Target reasoning capabilities must not imply today's scripted agent is an LLM.
+### Data source
+[Current architecture and boundaries](../README.md); target capabilities, not
+claims that a live agent performed the research.
+### Speaker-note summary
+Use models for reasoning and contradictions; do not delegate math or authority.
 
-## Slide 10 — From research lab to autonomous trading system
+## Slide 10 — Roadmap
 
 ### On-slide text
 ```text
@@ -295,22 +324,26 @@ Paper / shadow
 trading
 THEN
 Agent-driven
-strategy
-discovery
+experiment
+generation
 FINALLY
 Risk-controlled
 Robinhood
 execution
-Live execution is intentionally disabled today.
-Promotion requires evidence—not a better story.
+LIVE TRADING DISABLED TODAY
+Promotion requires evidence, not a better story.
 ```
-### Visual instructions
-Four sequential milestones. NOW mint, NEXT amber, remaining muted. Future
-milestones unfilled; no dates, deployment claims or live-trading toggle.
-### Speaker note summary
-Data qualification and paper/shadow trading precede separately authorized execution.
+### Visual layout
+Four milestones; NOW mint, NEXT amber, remaining muted. No deployment dates,
+live toggle, or implied permission to execute.
+### Data source
+[Research reopening gates](../docs/research-status.md) and
+[unchanged constitution](../src/agentic_quant_lab/constitution.toml).
+### Speaker-note summary
+Qualified data and separately accepted paper/shadow trading come before
+agent-driven experiment generation and authorized broker execution.
 
-## Slide 11 — An AI that knows when NOT to trade
+## Slide 11 — The goal isn’t an AI that trades more.
 
 ### On-slide text
 ```text
@@ -324,30 +357,22 @@ RISK
 Agentic Quant Lab
 github.com/BruceGK/agentic-quant-lab
 ```
-### Visual instructions
-Oversized statement; NOT mint. Four restrained evidence/risk labels. Clean ending,
-no extra appendix and no finance disclaimer wall.
-### Speaker note summary
-Finish on disciplined abstention rather than trade frequency or promised returns.
+### Visual layout
+Oversized two-line statement, NOT mint. Four restrained labels. Clean ending.
+### Data source
+Product thesis, not a performance or investment claim.
+### Speaker-note summary
+Close with disciplined abstention. Hold the slide without another summary.
 
 ## Source-of-truth and scope
 
-All remote heads and `git log --all` were inspected on 2026-09-18. This presentation
-branch integrates `copilot/make-repository-demo-ready` at
-`60c83a0dfba92472454a99e7296a1fc7389b9cd1` without changing its application,
-research, infrastructure, recorder or constitution.
+Final branch: **`demo/final-presentation`**. Selected base:
+**`80ac8854c4cdfbcc13f58b50761b714221557249`**, the complete presentation
+descendant of the full research lineage. The initial `main` was not used.
+[Canonical provenance](../docs/research-status.md) records all inspected branch
+tips and preserves the real conclusions.
 
-| Source branch tip | Evidence used |
-| --- | --- |
-| `copilot/phase-0-sec-filing-recorder` · `04dda08` | Historical manual acceptance, not a new E2E claim |
-| `research/long-only-strategy-tournament` · `3e82734` | Frozen trend report and BIL metrics |
-| `copilot/researchpit-stock-data-audit` · `63a9b66` | Historical stock-universe/PIT gates |
-| `copilot/researchpead-data-feasibility` · `82cdf94` | PEAD route-specific data gates |
-| `copilot/researchetf-relative-momentum` · `544b55e` | Frozen protocol; acquisition blocked, 0/18 scenarios |
-| `main`, both presentation branches before this work · `fb9b789` | Initial README only; not sufficient research context |
-
-The integration includes [consolidated provenance](../docs/research-status.md)
-and the original branch reports. Real research slides cite historical committed
-artifacts. The demo's 10 bps, monthly fixture, compressed momentum and planted
-returns are **not** the trend study's 20 bps, daily NAV panel or the frozen
-relative-momentum 12-1 experiment. No research or real E2E was rerun.
+Slides 5–6 are **REAL RESEARCH**. Slides 7–8 are **SYNTHETIC DEMO FIXTURE**.
+The 10 bps monthly demo is not the 20 bps daily NAV study or the unrun 12-1
+sector experiment. No research, provider acquisition, Azure acceptance,
+Phase 0 recording, or broker connection is part of this delivery.
