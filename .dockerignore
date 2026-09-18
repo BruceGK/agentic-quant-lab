@@ -5,5 +5,9 @@
 !README.md
 !src/
 !src/**
+!research/
+research/**
+!research/__init__.py
+!research/engine.py
 src/**/__pycache__/
 src/**/*.py[cod]
