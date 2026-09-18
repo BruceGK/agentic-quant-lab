@@ -1,8 +1,8 @@
-<!doctype html><html lang='en'><meta charset='utf-8'><meta name='viewport' content='width=device-width,initial-scale=1'><title>Agentic Quant Lab — Demo</title><style>body{font:16px system-ui;margin:2rem auto;max-width:1100px;padding:0 1rem;background:#101827;color:#edf3ff}h1{font-size:2.5rem}h2{font-size:1.1rem}.badge{background:#233e37;padding:1rem;border-left:4px solid #70ebae}main{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:1rem}section{background:#1d293e;border-radius:12px;padding:1rem;min-width:0}pre{white-space:pre-wrap;overflow-wrap:anywhere;font:14px/1.5 monospace}</style><h1>Agentic Quant Lab</h1><p class='badge'>MODE: DEMO | DATA: SYNTHETIC / FIXTURE | LIVE TRADING: DISABLED</p><p>Research → Experiment → Falsification → Tournament → Portfolio → Risk → Dry Run</p><p>Agents research. Deterministic code calculates, controls risk, and executes.</p><p>This demo agent is scripted. Fixture performance is planted, not investment evidence. No broker, external assets, telemetry or network calls.</p><main><section><h2>Hypothesis</h2><pre>{
+<!doctype html><html lang='en'><meta charset='utf-8'><meta name='viewport' content='width=device-width,initial-scale=1'><title>Agentic Quant Lab — Demo</title><style>body{font:16px system-ui;margin:2rem auto;max-width:1100px;padding:0 1rem;background:#101827;color:#edf3ff}h1{font-size:2.5rem}h2{font-size:1.1rem}.badge{background:#233e37;padding:1rem;border-left:4px solid #70ebae}main{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:1rem}section{background:#1d293e;border-radius:12px;padding:1rem;min-width:0}pre{white-space:pre-wrap;overflow-wrap:anywhere;font:14px/1.5 monospace}</style><h1>Agentic Quant Lab</h1><p class='badge'>MODE: DEMO | DATA: SYNTHETIC FIXTURE | LIVE TRADING: DISABLED | EXECUTION: DRY RUN</p><p>Research → Experiment → Backtest → Falsification → Tournament + Portfolio → RiskGate → Dry Run</p><p>Agents research. Deterministic code calculates, controls risk, and simulates execution.</p><p>This demo agent is scripted, not a live LLM. Fixture performance is planted, not investment evidence. No broker, external assets, telemetry or network calls.</p><main><section><h2>1. Research agent — scripted hypothesis</h2><pre>{
   &quot;rationale&quot;: &quot;Can lagged relative strength recover a deliberately planted trend?&quot;,
   &quot;source&quot;: &quot;deterministic demo agent; synthetic illustration, not investment advice&quot;,
   &quot;title&quot;: &quot;Sector Relative Momentum&quot;
-}</pre></section><section><h2>Experiment</h2><pre>{
+}</pre></section><section><h2>2. Experiment</h2><pre>{
   &quot;allocation&quot;: 0.2,
   &quot;constraints&quot;: [
     &quot;long-only; no leverage&quot;,
@@ -25,7 +25,7 @@
     &quot;DEMO_WEAK&quot;,
     &quot;DEMO_NULL&quot;
   ]
-}</pre></section><section><h2>Backtest — synthetic net fixture returns</h2><pre>[
+}</pre></section><section><h2>3. Backtest — synthetic net fixture returns</h2><pre>[
   {
     &quot;metrics&quot;: {
       &quot;max_drawdown&quot;: -0.00019996,
@@ -58,12 +58,12 @@
     },
     &quot;name&quot;: &quot;Demo Weak&quot;
   }
-]</pre></section><section><h2>Falsification — actual computed checks</h2><pre>{
+]</pre></section><section><h2>4. Falsification — actual computed checks</h2><pre>{
   &quot;deterministic reproduction: identical plans, returns and metrics&quot;: true,
   &quot;no look-ahead: future availability rejected and future changes leave past unchanged&quot;: true,
   &quot;null control: flat data and no-edge candidate do not pass&quot;: true,
   &quot;planted positive signal recovered; deliberately weak candidate rejected&quot;: true
-}</pre></section><section><h2>Tournament — DEMO ONLY</h2><pre>[
+}</pre></section><section><h2>5. Strategy tournament — SYNTHETIC PERFORMANCE ONLY</h2><pre>[
   {
     &quot;name&quot;: &quot;Demo Relative Momentum&quot;,
     &quot;status&quot;: &quot;SURVIVES (DEMO ONLY)&quot;
@@ -96,7 +96,7 @@
   &quot;weights&quot;: {
     &quot;DEMO_UP&quot;: 0.2
   }
-}</pre></section><section><h2>RiskGate</h2><pre>{
+}</pre></section><section><h2>6. RiskGate</h2><pre>{
   &quot;approved&quot;: true,
   &quot;checks&quot;: {
     &quot;allowed instrument&quot;: true,
@@ -111,7 +111,7 @@
     &quot;positive whole-share long-only BUY&quot;: true,
     &quot;valid portfolio snapshot&quot;: true
   }
-}</pre></section><section><h2>Execution — SIMULATED / DRY RUN</h2><pre>{
+}</pre></section><section><h2>7. Execution — SIMULATED / DRY RUN</h2><pre>{
   &quot;data&quot;: &quot;SYNTHETIC / FIXTURE&quot;,
   &quot;estimated_notional&quot;: 1919.92,
   &quot;intent_hash&quot;: &quot;751863fbf103a78608ae3a6f78b3a5751d9cd3349bb8010463b4f24688986300&quot;,
@@ -124,6 +124,7 @@
 }</pre></section><section><h2>Evidence receipt — fixed scenario clock</h2><pre>{
   &quot;data&quot;: &quot;SYNTHETIC / FIXTURE&quot;,
   &quot;execution&quot;: &quot;dry_run&quot;,
+  &quot;experiment_hash&quot;: &quot;91995b340282af1b7d5872a8e4b0716ba7485cee69c44c589aed5e63569ff93d&quot;,
   &quot;experiment_id&quot;: &quot;demo-8130a8b0d0e69664&quot;,
   &quot;input_hash&quot;: &quot;268fbf60d3b5ebeba178ab346a7886fc918cd73aef6ace26ff23bf8459c8e9e6&quot;,
   &quot;live_trading&quot;: &quot;DISABLED&quot;,

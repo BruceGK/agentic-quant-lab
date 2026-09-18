@@ -1,89 +1,82 @@
 # Agentic Quant Lab
 
-An evidence-first quantitative research lab working toward autonomous strategy discovery: AI agents research and propose hypotheses; deterministic code calculates, backtests, falsifies, compares portfolios, and enforces risk controls. Today's runnable demo uses a **scripted agent and synthetic fixtures**, not a live LLM or evidence of profitable alpha. Real research is documented separately. Live trading is disabled; Robinhood is disconnected.
+An autonomous quantitative research system in development: discover hypotheses,
+test them, falsify weak ideas, and eventually execute systematic strategies.
+
+**Agents research. Deterministic systems decide.**
+
+```text
+Research Agent → Hypothesis → Experiment → Backtest → Falsification
+  → Strategy Tournament → Portfolio → RiskGate → Execution Adapter
+  → DRY RUN today · Robinhood in the future
+```
+
+Today's runnable agent is **scripted**, with **synthetic fixtures**, not a live
+LLM or a discovered profitable strategy. **Live trading is disabled.
+Robinhood is disconnected.**
 
 ## Demo
 
-**[Slides — download the PowerPoint](demo/Agentic-Quant-Lab-Demo.pptx)** ·
-[PDF / offline fallback](demo/Agentic-Quant-Lab-Demo.pdf) ·
-[Editable slide source](demo/slides.md)
+**[Open the PowerPoint](demo/Agentic-Quant-Lab-Demo.pptx)** ·
+[Presenter script](demo/presentation-script.md) ·
+[Demo runbook](demo/demo-runbook.md) · [Slide source](demo/slides.md)
 
-**[Presenter Script](demo/presentation-script.md)** — exact spoken English, 11 slides, approximately 6½ minutes including the demo.
-
-**[Demo Runbook](demo/demo-runbook.md)** — preparation, exact commands/clicks, and offline fallbacks.
-
-**Run**
+**11 slides · 6 minutes 40 seconds · deterministic and offline after setup.**
 
 ```bash
-uv run aql demo
-```
-
-Prepare Python 3.12 and run `uv sync --frozen` beforehand. On the prepared machine,
-use `uv run --offline --no-sync aql demo` for a network-independent presentation.
-Open the generated `demo-output/index.html`. If setup fails, download and open the
-[pre-generated local dashboard](demo/assets/offline-demo/index.html); no installation
-is needed. **DEMO FIXTURE ≠ REAL RESEARCH.**
-
-![Preview of the 11-slide presentation](demo/assets/deck-preview.png)
-
-### Architecture
-
-```text
-Research Agent
-      ↓
-Hypothesis
-      ↓
-Backtest + Falsification
-      ↓
-Strategy Tournament
-      ↓
-Portfolio
-      ↓
-RiskGate
-      ↓
-Execution Adapter
-      ↓
-Robinhood (future)
-```
-
-## What it does
-
-- Agents research hypotheses; today's demo agent is scripted, not an LLM.
-- Deterministic code runs experiments and preserves evidence.
-- Falsification rejects weak ideas; synthetic scores do not establish alpha.
-- A tournament feeds a demo portfolio proposal.
-- RiskGate checks the proposal against a supplied demo snapshot.
-- Live trading is disabled; execution is dry-run only.
-
-## Current status
-
-| State | Scope |
-| --- | --- |
-| ✅ | Phase 0 foundation, research harness and demo tournament integrated. |
-| ✅ | Fixed-rule ETF trend research and independent stock, PEAD and sector data audits restored. |
-| 🚧 | Autonomous strategy discovery and paper trading—not ready. |
-| ⏳ | Robinhood integration—future; current stub disabled. |
-
-## Quick Demo
-
-Prerequisites: **Python 3.12 and [uv](https://docs.astral.sh/uv/)**.
-From the repository root:
-
-```sh
 uv sync
 uv run aql demo
 ```
 
-Open **`demo-output/index.html`**; its companion is **`demo-output/receipt.json`**.
-Installation must prepare dependencies and may need network access. The demo
-runtime uses committed synthetic inputs, not accounts, cloud services or real-data downloads.
+Requires Python 3.12+ and [uv](https://docs.astral.sh/uv/); prepare dependencies
+before disconnecting. On a prepared machine, use
+`uv run --offline --no-sync aql demo` to skip network resolution entirely.
+No API keys, database, Azure, SEC, or broker connection.
 
-[Five-minute presenter script](docs/demo-script.md) ·
-[Research status and provenance](docs/research-status.md)
+No setup available? Read the [successful demo transcript](demo/demo-output.txt)
+or open the [prerecorded local dashboard](demo/assets/offline-demo/index.html).
+**Demo fixture metrics are not real research results.**
 
-The complete presentation package is linked above. The earlier
-[short HTML overview](docs/demo-slides.html) remains available as an archival
-alternative; it is not the 5–7 minute presentation.
+## What it does
+
+- Turns hypotheses into explicit, reproducible experiments.
+- Runs deterministic backtests with timing and cost controls.
+- Challenges ideas with null, planted-signal, and leakage tests.
+- Preserves rejected candidates instead of hiding negative evidence.
+- Compares strategies and constructs a bounded portfolio proposal.
+- Requires RiskGate authorization; execution stops at a dry run.
+
+## Current status
+
+- **Built:** Phase 0 evidence foundation, research harness, offline demo, and deck.
+- **Real research:** Trend weak / not promoted; stocks and quality data blocked;
+  PEAD deferred; sector-relative momentum not yet tested.
+- **Future:** evaluated autonomous agents, paper/shadow trading, and separately
+  authorized Robinhood execution. None is enabled by this demo.
+
+[Canonical research status and branch provenance](docs/research-status.md).
+The final demo branch is **`demo/final-presentation`**, based on the complete
+research/presentation lineage at `80ac885`, not the initial `main`.
+
+<details>
+<summary>Presentation preview and offline fallbacks</summary>
+
+![All eleven slides](demo/assets/deck-preview.png)
+
+[PowerPoint](demo/Agentic-Quant-Lab-Demo.pptx) ·
+[PDF fallback](demo/Agentic-Quant-Lab-Demo.pdf) ·
+[Terminal transcript](demo/demo-output.txt) ·
+[Local HTML](demo/assets/offline-demo/index.html) ·
+[Deck validation](demo/assets/deck-validation.json)
+
+The script includes exact words, transitions, and a 90-second terminal
+walkthrough. The runbook includes pre-demo preparation and a five-second
+failure rule. The [generator](demo/generate_slides.py) uses isolated authoring
+dependencies, not new production packages. Older
+[demo notes](docs/demo-script.md) and the [HTML overview](docs/demo-slides.html)
+remain archival references, not the final presentation.
+
+</details>
 
 <details>
 <summary>Demo: offline preparation, seven stages, reproducibility and safety</summary>
@@ -162,6 +155,9 @@ with a broker or a complete multi-order portfolio risk system.
 `live_execution.enabled = false` is a hard-fail boundary; the Robinhood adapter
 is a **disabled stub**, not a broker connection. A successful dry run is neither
 an order placement nor authorization to trade.
+A rejected RiskGate check reports its reason, exits with status 1, and writes
+no new demo artifacts. Use the runbook's explicitly prerecorded fallback rather
+than presenting a failed invocation as a successful run.
 
 </details>
 
@@ -172,7 +168,8 @@ an order placement nor authorization to trade.
 flowchart LR
     A["Research Agent"] --> H["Hypothesis"]
     H --> E["Experiment Engine"]
-    E --> F["Falsification"]
+    E --> BT["Backtest"]
+    BT --> F["Falsification"]
     F --> T["Strategy Tournament"]
     T --> P["Portfolio"]
     P --> R["RiskGate"]

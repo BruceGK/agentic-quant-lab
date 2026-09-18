@@ -188,6 +188,10 @@ The source window is **2016-01-04–2026-07-31**, with **BIL defense** and
 | Absolute12 | 11.26% | -33.68% |
 | SMA10 | 7.85% | -28.19% |
 
+Static 70/30 and Absolute12 both round to 11.26%; Absolute12's exact CAGR is
+slightly higher. The comparison is the drawdown trade-off, not a claim that
+static 70/30 has a higher CAGR.
+
 The whipsaw counts are **completed defensive cycles losing relative wealth
 against SPY, including switching costs**, not necessarily negative absolute
 returns. SMA10 protected part of the COVID decline but missed a large rebound.

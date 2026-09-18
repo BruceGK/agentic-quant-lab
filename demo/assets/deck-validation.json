@@ -41,8 +41,8 @@
       "max_drawdown_pct": -28.18529878
     }
   },
-  "bytes": 82540,
-  "sha256": "df8bc0a7ca8cce63df524e8a79c846a6f94de90e6000d79da0550ed0b70371a5",
+  "bytes": 82685,
+  "sha256": "cf9dc654ab5ca30eac4fc0a5051dab8c33ed9db0e257af1824dc33f1d68ebe8d",
   "native_powerpoint_keynote_check": "Requires presenter machine; not available here",
   "rendering": {
     "renderer": "LibreOffice / Poppler, local",
@@ -61,9 +61,9 @@
       "slide-10.png": "4c61d6ecf6d5114aecc39f43bbde8ba5ed6cb4a762ef5d93584098376049653a",
       "slide-11.png": "6f4f165254a62d1121b599dfb45d349195b80761491aa39353b537141b161416"
     },
-    "pdf_sha256": "18905691cdb074de28363f94183d8afbc48465ec4133f3eac875344de59cd1ff",
+    "pdf_sha256": "9a166d3903240b7b45e7063e592ed61e6592051dd3e99d809b591c888debdea8",
     "preview_sha256": "03409d8cf3da15324133e2769d3b94ac1e83e17930f7485a88bd6667cabc53c0",
-    "visual_inspection": "passed: all eleven full-resolution slides inspected; revised slides 3 and 6 re-inspected after layout fixes",
+    "visual_inspection": "passed: all eleven full-resolution slides inspected; note-only precision update preserves identical hashes for all eleven inspected images",
     "rendered_text_bounds": "passed: all rendered words inside all eleven pages; no split production-readiness qualification"
   }
 }

@@ -207,7 +207,10 @@ Select `defense=BIL`, `one_way_cost_bps=20` from the CSV:
 | Absolute12 | 11.26% | -33.68% |
 | SMA10 | 7.85% | -28.19% |
 
-Static splits mean SPY/BIL, not stock/aggregate bonds. The 4/4 and 9/11
+Static splits mean SPY/BIL, not stock/aggregate bonds. Static 70/30 and
+Absolute12 have the same rounded CAGR, not exactly equal growth; Absolute12's
+exact CAGR is slightly higher. Compare their drawdowns, not strict CAGR dominance.
+The 4/4 and 9/11
 counts refer to completed defensive cycles losing relative wealth versus SPY,
 including switching costs, not calendar periods or necessarily absolute losses.
 ### Data source

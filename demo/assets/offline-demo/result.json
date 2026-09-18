@@ -343,6 +343,7 @@
   "receipt": {
     "data": "SYNTHETIC / FIXTURE",
     "execution": "dry_run",
+    "experiment_hash": "91995b340282af1b7d5872a8e4b0716ba7485cee69c44c589aed5e63569ff93d",
     "experiment_id": "demo-8130a8b0d0e69664",
     "input_hash": "268fbf60d3b5ebeba178ab346a7886fc918cd73aef6ace26ff23bf8459c8e9e6",
     "live_trading": "DISABLED",
