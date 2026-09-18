@@ -1,81 +1,48 @@
 # Research status and provenance
 
-This is a reading guide to the integrated research, **not a new experiment or
-promotion decision**. Canonical structured status lives in the packaged
-[`src/agentic_quant_lab/resources/research_status.json`](../src/agentic_quant_lab/resources/research_status.json).
-The source reports below remain authoritative for methods, findings and limits.
-The demo may display their status, but its synthetic tournament never scores or
-promotes these real candidates.
+**Presentation evidence review: 2026-09-18. EXPLORATORY / not production-ready.**
+This is the canonical human-readable summary of committed real research, not a
+new experiment or promotion decision. The [packaged status](../src/agentic_quant_lab/resources/research_status.json)
+contains the corresponding machine-readable labels; the original reports remain
+authoritative. Synthetic demo results never score or promote these real candidates.
 
-## Integration provenance
+## Current conclusions
 
-The assigned integration branch is **`copilot/make-repository-demo-ready`**.
-It was fast-forwarded onto the stable research/trend lineage, not developed on
-stale `main`. Independent additions were restored without broad branch merges
-or rewriting their conclusions.
-
-| Contribution | Exact source head | Integration treatment |
+| Workstream | Preserved status | What the evidence supports |
 | --- | --- | --- |
-| Completed Phase 0 lineage | `04dda08b216a9b76e5d49b2c4c8e618c0d5c2362` | Historical recorder/acceptance foundation retained. |
-| General research harness | `e6d620568de409655f7cfe4dd4a6538a282e8046` (`e6d6205`) | Inherited through stable lineage. |
-| Stable research + fixed ETF Trend | `3e8273472ad24508463916c11b44bd4b754abe6d` | Fast-forward integration base. |
-| Stock-data audit | `63a9b668b29499889f134c7eda0f3d333a33c528` | Original stock report, source matrix and audit JSON restored unchanged. |
-| PEAD-data audit | `82cdf944f42015043ae4493541839bf13bbb2c4f` | Original PEAD report, source matrix and audit JSON restored unchanged. |
-| Sector-relative momentum | `544b55e5c2a5110d483024e193055871c085c1a7` | Report, artifacts and additive landscape update copied byte-for-byte. |
+| Phase 0 evidence/provenance foundation | **COMPLETE: historical manual acceptance** | Prospective PIT recording, reconciliation and recovery demonstrated; scheduling and live execution remain disabled. |
+| Fixed ETF Trend: Absolute12 and SMA10 | **RESEARCH MORE; near rejection, not promoted** | Modern NAV-based validation is weak versus static 80/20 and 70/30; executable-price verification remains open. |
+| Stock momentum | **DATA BLOCKED** | Historical universe, stable security IDs, delisting/terminal returns and PIT joins unqualified; no new stock alpha test. |
+| Momentum + quality | **DATA BLOCKED** | Inherits stock-data blockers and additionally needs original PIT fundamental vintages and filing-availability evidence. |
+| PEAD | **DEFER; NOT TESTED** | Price-based low-cost feasibility may be possible; no qualified event/price join or accepted consensus/revision vintages. |
+| ETF relative / dual momentum | **EXPLORATORY; RESEARCH MORE; performance NOT RUN** | Frozen protocol; acquisition/DNS gates prevented all 18 scenarios. This is not an economic rejection. |
 
-Stock additions are `docs/stock-data-feasibility.md`,
-`research/results/data_source_matrix.csv` and
-`research/results/pit_data_audit.json`. PEAD additions are
-`docs/pead-data-feasibility.md`, `research/results/pead_data_source_matrix.csv`
-and `research/results/pead_pit_audit.json`. Sector additions are
-`docs/etf-relative-momentum-validation.md` and
-`research/etf_relative_momentum/`, with its additive update to
-`docs/strategy-landscape.md`. Earlier trend artifacts and frozen protocols are
-retained, not replaced by sector acquisition failures.
-
-The Phase 0 [SEC acceptance report](sec-acceptance-report.md) records historical
-external acceptance **PASS**. That does not set an activation flag:
+The [SEC acceptance report](sec-acceptance-report.md) records historical **PASS**,
+not a new live check. Eligibility is prospective:
+`decision_eligible_at = fetched_at`, never backdated to SEC acceptance.
+The [constitution](../src/agentic_quant_lab/constitution.toml) still has
 `phase0.external_acceptance_complete = false`,
-`phase0.scheduled_recording_enabled = false` and
-`live_execution.enabled = false` deliberately remain untouched in the constitution.
-Historical reports describe their own sessions. No SEC/Azure/live acceptance,
-production recording, deployment or trading was rerun for this documentation work.
+`phase0.scheduled_recording_enabled = false` and `live_execution.enabled = false`.
+Completed manual acceptance does not authorize recurring recording or trading.
 
-## Verdicts at a glance
+## Fixed modern ETF Trend: actual research metrics
 
-| Real candidate | Preserved verdict | Performance evidence available? |
-| --- | --- | --- |
-| Fixed ETF Trend: Absolute12 and SMA10 | **RESEARCH MORE**; execution-data verification only; **no paper/shadow promotion** | Yes, explicitly exploratory modern NAV proxies, not executable-close returns. |
-| Stock momentum / momentum + quality | **C. RESEARCH-GRADE STOCK TEST CURRENTLY BLOCKED.** | No new stock alpha backtest; inherited survivor-panel results remain exploratory. |
-| Price-based PEAD | **LOW-COST DATA REQUIRED** | No qualified event/price join; no performance. |
-| Consensus-surprise PEAD | **BLOCKED** | No accepted pre-release consensus-vintage evidence. |
-| Analyst revision momentum | **BLOCKED** | No accepted multiple-vintage archive for the same target period. |
-| Guidance-text PEAD | **LOW-COST DATA REQUIRED** | Original text is plausible input, not a qualified broad timed event/price dataset. |
-| PEAD overall | **DEFER PEAD** | Acquisition feasibility only, not an alpha test. |
-| Sector-relative / dual momentum | **EXPLORATORY; RESEARCH MORE; DATA ACQUISITION STILL BLOCKED** | Zero of 18 scenarios run; metrics unavailable, not zero. |
+Authority: [validation report](etf-trend-validation.md), [frozen protocol](../research/etf_trend/protocol.md)
+and [reproduction guide](../research/etf_trend/README.md).
+The sample is **2016-01-04 to 2026-07-31, 2,659 sessions**, after 2014-2015 warmup.
+Exact calendar-month Absolute12/SMA10 rules use monthly decisions and next-session
+NAV valuation; initial entry and both legs of security rotations are charged.
+Six fixed portfolios x three costs x BIL/zero-yield cash give **36 scenarios**,
+not parameter optimization.
 
-None of these labels means a validated profitable strategy. A data-access
-blocker is not an economic rejection; a favorable toy score is not evidence
-that a blocker has been solved.
+**NAV-based modern validation, not executable-close returns.** Official issuer
+NAV/distributions, BIL's 2017 reverse split and payment-date reinvestment were
+audited; all 12 issuer return checkpoints matched within 2 bps. Full-period
+exchange closes remain unverified. Revised source vintages, limited
+premium/discount history and unpaid-dividend cash constraints at switches are
+additional limitations, not verified execution assumptions.
 
-## Fixed modern ETF Trend
-
-Authority: [ETF trend validation](etf-trend-validation.md);
-[protocol and reproduction](../research/etf_trend/README.md).
-
-The modern follow-up fixes Absolute12 and SMA10 on SPY, with BIL or zero-yield
-cash defense. It uses exact calendar-month rules, monthly decisions and
-next-session valuation, with initial entry and both sides of rotations charged.
-January 4, 2016–July 31, 2026 supplies 2,659 evaluation sessions after 2014–2015
-warmup. Six fixed portfolios × three cost levels × two defenses gives **36
-scenarios**, not a parameter search.
-
-Official issuer NAV/distributions were acquired. The audit normalizes BIL's
-one-for-two 2017 reverse split and accrues distributions on ex-date while
-reinvesting at payment. All 12 issuer return checkpoints matched within 2 bps.
-These are historical acquisition/audit findings, not checks rerun for this guide.
-
-The required **20 bps one-way** stress comparison illustrates the adverse result:
+At **20 bps one-way**, with **BIL defense**, the committed results are:
 
 | Portfolio | Net CAGR | RF-excess Sharpe | Maximum drawdown |
 | --- | ---: | ---: | ---: |
@@ -85,130 +52,122 @@ The required **20 bps one-way** stress comparison illustrates the adverse result
 | Absolute12 / BIL | 11.26% | 0.60 | -33.68% |
 | SMA10 / BIL | 7.85% | 0.48 | -28.19% |
 
-Absolute12 did not reduce the worst drawdown; SMA10's temporary crisis protection
-was eroded by missed rebounds and whipsaws. Static de-risking is the stronger
-comparator. This later evidence supersedes the old crisis-heavy ETF
-build-priority recommendation in the general landscape.
+**Chart source:** [metrics.csv](../research/etf_trend/results/metrics.csv), filtered
+to `defense == "BIL"`, `one_way_cost_bps == 20`, and
+`model in {"SPY", "STATIC80", "STATIC70", "ABS12", "SMA10"}` (exactly five rows).
+Use `cagr`, `max_drawdown` and RF-excess `sharpe`; multiply the first two by 100
+for percentages. Keep the full CSV precision until display rounding.
+Static70 and Absolute12 only **round** to the same CAGR: their stored fractions
+are `0.1125811788` and `0.1126074007`, respectively.
 
-**Exact decision: RESEARCH MORE.** Full-period exchange closes remain
-unverified; next-session NAV is a valuation proxy, not a fill. Current revised
-source vintages, limited premium/discount history and unpaid-dividend cash
-constraints at switches further limit execution interpretation.
-**Do not promote to paper/shadow.** Verify the same rules on actual closes;
-reject the fixed implementation if the adverse results persist. Do not optimize
-lookbacks, dates or thresholds to rescue it. This is not a universal rejection
-of trend across all markets or samples.
+Modern fixed-rule results are substantially weaker than the earlier long-history
+research and crisis-heavy ETF snapshot in the [landscape](strategy-landscape.md).
+The old 2001-2015 snapshot used different session-based rules and cash treatment;
+it is not a like-for-like comparison. Its build-priority recommendation is
+superseded. Absolute12 retains SPY's worst drawdown; SMA10 sacrifices substantial
+growth despite temporary protection. Static 80/20 and 70/30 offer the stronger
+observed growth/drawdown tradeoff.
 
-## Stock momentum and momentum + quality
+**Whipsaws and crises, BIL / 20 bps:**
 
-Authority: [stock-data feasibility](stock-data-feasibility.md);
-[audit](../research/results/pit_data_audit.json);
-[source matrix](../research/results/data_source_matrix.csv).
+- [whipsaw_summary.csv](../research/etf_trend/results/whipsaw_summary.csv), filtered
+  to `defense == "BIL"` and `cost_bps == 20`: Absolute12 **4/4** completed defensive
+  spells are whipsaws (332 defensive sessions); SMA10 **9/11** (461 sessions).
+  The frozen definition requires positive SPY return while out **and** net
+  underperformance versus staying in SPY. These are relative opportunity losses.
+- [drawdown_events.csv](../research/etf_trend/results/drawdown_events.csv), using
+  the same defense/cost filter: Absolute12 exits after the late-2018 and COVID troughs.
+  Its 2020-04-01 to 2020-05-01 absence misses a **14.61%** SPY rebound.
+  SMA10 exits 2020-03-02 and returns 2020-06-01: **27.39%** further SPY decline
+  avoided, but **36.85%** rebound missed. These differently based returns are
+  **not additive P&L**.
+- [defensive_spells.csv](../research/etf_trend/results/defensive_spells.csv), same
+  filter: SMA10's completed COVID cycle has near-zero net relative advantage;
+  its 2022-05-02 to 2022-12-01 spell gains about **1.13% relative wealth**, but
+  other whipsaws outweigh it. Temporary crisis protection is not durable alpha.
 
-**Exact decision: C. RESEARCH-GRADE STOCK TEST CURRENTLY BLOCKED.**
-No new stock alpha backtest ran, no paid stack was certified and no purchase
-was made. The audit could not qualify historical membership, immutable
-issue/share-class identity, ticker continuity, complete held-position returns
-and terminal economics. A delisted flag is not a terminal-return observation.
-Today's constituents and a ticker/CIK-only join cannot establish a historical
-investable universe.
+**Formal decision: RESEARCH MORE**, not REJECT or PROMOTE. "Near rejection" is
+presentation shorthand for the adverse NAV result. Only same-rule actual-close
+verification remains; reject the fixed implementation if that confirms it.
+**No parameter rescue, no paper/shadow promotion, no production readiness.**
+This is not a universal economic rejection of trend.
 
-Quality additionally requires original accession-level fact/value/timestamp
-traces, correct accounting contexts and eligible filing vintages. Current
-CompanyFacts data alone is not point-in-time certification. The attempted real
-SEC traces were blocked; none is fabricated. Historical reconstruction must
-remain separate from Phase 0's observed `decision_eligible_at = fetched_at`.
+## Data-blocked candidates: do not invent performance
 
-Reopen with permitted historical samples including IPOs, multiple share classes,
-renames, delistings and terminal consideration, plus real filing/restatement
-traces. Pass the report's ten acceptance gates before scaling acquisition or
-testing alpha. This finding does not prove that a clean free or paid stack
-cannot exist, or that momentum/quality fails economically.
+- **Stocks and quality:** the [stock audit](stock-data-feasibility.md) concludes
+  **C. RESEARCH-GRADE STOCK TEST CURRENTLY BLOCKED**. Today's constituents,
+  ticker/CIK-only joins and delisted flags do not establish historical membership,
+  immutable issue/share-class identity or terminal economics. Current CompanyFacts
+  is not PIT certification. Original accession/fact/value/availability traces,
+  including restatements, remain unqualified; no new stock alpha backtest ran.
+- **PEAD:** the [feasibility report](pead-data-feasibility.md) says price-based and
+  guidance-text PEAD **LOW-COST DATA REQUIRED**; consensus-surprise and revision
+  momentum **BLOCKED**; overall **DEFER PEAD**. Price response does not require
+  consensus, but still needs qualified release sessions, historical IDs and
+  inactive/action-inclusive prices. Recoverable guidance text is not a certified
+  event/price join. Consensus/revision variants need retained pre-release and
+  multiple-vintage evidence; none was accepted. No PEAD performance was tested.
+- **Sector relative momentum:** the [report](etf-relative-momentum-validation.md)
+  and [protocol](../research/etf_relative_momentum/protocol.json), frozen at
+  `79cb2aefe99bb1ab04443c3370c9e1b90de4cd26`, specify monthly equal-weight top three
+  of nine sector SPDRs. Real 12-1 is `TR(m-1) / TR(m-12) - 1`, **eleven intervals**;
+  the dual variant leaves failed/equal same-window BIL-hurdle slots in BIL.
+  The [outcome](../research/etf_relative_momentum/outcome.json) is
+  `NOT_RUN_DATA_GATE`, **0/18** scenarios. The [retry gate](../research/etf_relative_momentum/acquisition_20260916T013826Z/data_gate.json)
+  records DNS failure, zero HTTP responses/raw market bodies and
+  `performance_permitted = false`. Diagnostics also remain unrun. Missing metrics
+  mean unavailable, not zero or a loss. A complete panel, corporate actions
+  (including XLF/XLRE entitlement) and independent calendar are still required;
+  the earlier SPY/BIL audit does not supply them. No economic rejection is justified.
 
-## PEAD and earnings-related candidates
+## Base and source-branch provenance
 
-Authority: [PEAD-data feasibility](pead-data-feasibility.md);
-[audit](../research/results/pead_pit_audit.json);
-[source matrix](../research/results/pead_data_source_matrix.csv).
+Final integration is **`demo/final-presentation`**, created from
+`origin/copilot/create-complete-presentation-package` at
+`80ac8854c4cdfbcc13f58b50761b714221557249`, a verified descendant of
+`research/long-only-strategy-tournament` at
+`3e8273472ad24508463916c11b44bd4b754abe6d`.
+The general harness ancestor is `e6d620568de409655f7cfe4dd4a6538a282e8046`.
+The complete base already contains the [PowerPoint](../demo/Agentic-Quant-Lab-Demo.pptx),
+[PDF](../demo/Agentic-Quant-Lab-Demo.pdf) and [synthetic offline demo](../demo/assets/offline-demo/);
+it is not the initial scaffold. Presentation commits `05d40c1` and `f83a779`
+were present at review start.
 
-Preserve the distinctions: **price-based PEAD: LOW-COST DATA REQUIRED**;
-**consensus-surprise PEAD: BLOCKED**; **revision momentum: BLOCKED**;
-**guidance-text PEAD: LOW-COST DATA REQUIRED**.
-**Overall recommendation: DEFER PEAD.**
+The available `main` ref (`origin/main`) and
+`origin/copilot/create-demo-presentation-package` both remain at initial
+`fb9b789a6be052c0cd421810825efd104acd5960`. Do not confuse that stale package
+branch with the **complete** presentation base.
 
-“LOW-COST DATA REQUIRED” is a plausible retail acquisition route, not a verified
-price, purchase recommendation or clean 2010–2026 dataset. Price-response drift
-does **not** need analyst consensus, but it still needs actual release sessions,
-original-event provenance, historical security identity and inactive-inclusive
-prices/actions. No qualified event/price join was obtained. Recoverable guidance
-text does not by itself qualify a broad timed, versioned event/price join.
+Verification used **local origin refs, not a network refresh**. The following
+committed files/trees were compared byte-for-byte with the listed source heads:
 
-Before a baseline implementation or backtest, qualify the report's bounded
-event/price sample, original/corrected versions, timing semantics and missingness.
-Only then consider a predeclared price-only daily-bar baseline with decision
-after event-session close and entry at the next session's open. Surprise and
-revision variants separately require licensed, retained pre-event consensus
-vintages for matching fiscal periods and accounting bases. Current estimates,
-undated historical surprise values and LLM text output cannot substitute.
-No PEAD performance or quality improvement is claimed.
+| Source ref | Exact head | Evidence comparison |
+| --- | --- | --- |
+| `origin/copilot/phase-0-sec-filing-recorder` | `04dda08b216a9b76e5d49b2c4c8e618c0d5c2362` | [SEC acceptance](sec-acceptance-report.md), [session report](session-report.md), [deployment report](azure-deployment-report.md) and [constitution](../src/agentic_quant_lab/constitution.toml): **identical**. |
+| `origin/research/long-only-strategy-tournament` | `3e8273472ad24508463916c11b44bd4b754abe6d` | [Trend report](etf-trend-validation.md) and entire [trend tree](../research/etf_trend/): **identical**. |
+| `origin/copilot/researchpit-stock-data-audit` | `63a9b668b29499889f134c7eda0f3d333a33c528` | [Stock report](stock-data-feasibility.md), [matrix](../research/results/data_source_matrix.csv) and [audit JSON](../research/results/pit_data_audit.json): **identical**. |
+| `origin/copilot/researchpead-data-feasibility` | `82cdf944f42015043ae4493541839bf13bbb2c4f` | [PEAD report](pead-data-feasibility.md), [matrix](../research/results/pead_data_source_matrix.csv) and [audit JSON](../research/results/pead_pit_audit.json): **identical**. |
+| `origin/copilot/researchetf-relative-momentum` | `544b55e5c2a5110d483024e193055871c085c1a7` | [Sector report](etf-relative-momentum-validation.md), entire [sector evidence tree](../research/etf_relative_momentum/) including the retry, and [landscape](strategy-landscape.md): **identical**. |
 
-## Sector-relative and dual momentum
+**No divergences in the checked original evidence.** This equality does not
+claim that independent branch code is identical or that historical acceptance,
+provider access or test counts were rerun. Source-session wording and original
+reports/results are preserved; only this summary is updated for the final demo.
 
-Authority: [ETF relative-momentum validation](etf-relative-momentum-validation.md);
-[frozen protocol](../research/etf_relative_momentum/protocol.json);
-[outcome](../research/etf_relative_momentum/outcome.json);
-[acquisition retry](../research/etf_relative_momentum/acquisition_20260916T013826Z/data_gate.json).
+## Reproduction and demo boundary
 
-**Classification: EXPLORATORY. Decision: RESEARCH MORE.
-DATA ACQUISITION STILL BLOCKED.** This is independent of SPY Absolute12/SMA10,
-not a retuning or a completed economic test.
+The [general research](../research/README.md) and [data audit](../research/notes/data-audit.md)
+retain exploratory limits: survivor-selected stocks, revised academic baskets,
+pseudo-out-of-sample splits and non-selection-adjusted inference. The older
+481-run tournament is not a production qualification; sleeve blends are not
+stock-level quality filters.
 
-Protocol commit `79cb2aefe99bb1ab04443c3370c9e1b90de4cd26` freezes monthly
-equal-weight top-three selection among nine sector SPDRs, with SPY/BIL controls.
-At month-end `m`, the real **12-1** score is `TR(m-1) / TR(m-12) - 1`:
-**eleven return intervals**, not twelve shifted returns. Its one dual variant
-uses BIL's identical-window return as a hurdle, with failed/equal slots left in
-BIL and no lower-ranked replacements. This is not the demo's compressed rule.
+Real research reproduction uses its own frozen protocols and matching authorized
+raw archives, not the demo command. Raw third-party data is not committed; changed
+hashes must stop reproduction rather than silently replace the vintage.
+The offline demo uses fictional fixtures and deterministic scenario-time receipts,
+outside the Phase 0 evidence ledger. Its results are **synthetic only**, not
+evidence of real profitability or resolved PIT/data gates.
 
-The original 24 issuer/calendar GET attempts failed DNS resolution. The separately
-preserved retry also failed before HTTP responses; no new raw market bodies or
-source-body hashes were obtained. `performance_permitted = false`;
-**zero of 18** primary scenarios ran. Blank metrics mean unavailable.
-Future-rank, shuffled-rank, XLK-exclusion, regime, rolling-window and turnover
-diagnostics remain unrun, not passed. The earlier successful SPY/BIL trend audit
-does not supply its missing raw bytes or qualify sector corporate actions.
-
-The single unresolved question is whether normal authorized source access or
-authorized exact-byte archives can supply the complete panel, corporate actions
-and independent calendar to pass the unchanged gate. This includes XLF's 2016
-XLRE noncash entitlement and issuer-return reconciliation; neither may be guessed.
-Complete issuer NAV could permit exploratory evaluation but still would not
-verify market fills. No parameter rescue, promotion, economic rejection or
-optional cross-asset experiment is justified.
-
-## Methodology and reproduction boundaries
-
-The [general harness](../research/README.md) retains frozen hypotheses and all
-481 predeclared runs, with delayed availability, exact self-financing costs,
-drifted weights and null/planted/leakage controls. Its
-[landscape](strategy-landscape.md) and [data audit](../research/notes/data-audit.md)
-must accompany the results: the old stock panel is survivor-selected, academic
-long baskets are not executable portfolios, retrospective splits are
-pseudo-out-of-sample, and descriptive bootstrap intervals are not
-selection-adjusted alpha tests. Sleeve blends do not implement stock-level
-quality filters or composite factors.
-
-Use the existing [general](../research/README.md) and
-[ETF trend](../research/etf_trend/README.md) reproduction instructions, not the
-demo command, to reproduce research. Optional research dependencies and matching
-authorized raw archives must already be available for offline reproduction.
-Third-party raw data is not committed; changed hashes must stop a reproduction
-rather than silently update the vintage. New acquisitions must preserve old
-failure receipts and identify a new evidence vintage.
-
-The four demo strategies—Relative Momentum, Trend, Weak and Null—use fictional
-symbols, fixture seed 20260918, monthly valuations, one-period delay and 10 bps
-one-way costs. They are **synthetic only**, not implementations of the real
-quality or PEAD candidates. Their deterministic receipt uses fixed scenario
-time rather than actual audit-event time and remains outside the Phase 0 ledger.
-No generated demo metric is added to the research evidence above.
+This presentation review resumed **no research**: no data acquisition, provider
+calls, SEC/Azure checks, deployment, scheduling or live trading.
