@@ -55,6 +55,10 @@ runtime uses committed synthetic inputs, not accounts, cloud services or real-da
 [Five-minute presenter script](docs/demo-script.md) ·
 [Research status and provenance](docs/research-status.md)
 
+**[27-second HTML slides + speaker script](docs/demo-slides.html)** — download/open
+the HTML file in a browser; use ← / → to navigate and **N** to show the script.
+The deck is self-contained and works offline without installation.
+
 <details>
 <summary>Demo: offline preparation, seven stages, reproducibility and safety</summary>
 
