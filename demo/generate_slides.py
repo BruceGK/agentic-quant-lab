@@ -324,7 +324,7 @@ def architecture_slide(s: Slide, t: list[str]) -> None:
             arrow(s, x - 0.01, 4.63, x - 0.16, 4.63, MUTED if i == 2 else MINT)
     text(s, t[12], 3.5, 5.11, 2.18, 0.3, 16, MUTED, align=PP_ALIGN.CENTER, metadata=True)
     box(s, 0.55, 5.78, 12.18, 0.83, fill="182435", stroke=LINE)
-    text(s, t[13], 0.8, 5.92, 3.6, 0.47, 20, BLUE, True)
+    text(s, t[13], 0.8, 5.87, 3.6, 0.68, 20, BLUE, True)
     text(s, t[14], 4.55, 5.94, 7.9, 0.43, 21, MUTED)
     arrow(s, 1.8, 4.81, 1.8, 5.75, BLUE)
     arrow(s, 7.83, 3.53, 8.11, 3.72, BLUE, False)
@@ -394,8 +394,10 @@ def trend_slide(s: Slide, t: list[str]) -> None:
     text(s, t[4], 0.55, 5.94, 5.95, 0.69, 20, WHITE, True)
     text(s, t[5], 6.9, 5.94, 5.87, 0.69, 20, WHITE, True)
     text(s, t[6], 0.55, 6.65, 12.2, 0.35, 20, AMBER)
-    text(s, t[7], 0.55, 0.57, 12, 0.24, 16, MINT, True, metadata=True)
-    text(s, t[8], 4.75, 7.06, 6.7, 0.23, 12, MUTED, metadata=True)
+    text(s, t[7], 0.55, 0.57, 12, 0.36, 20, MINT, True)
+    qualifier, limitation = t[8].split(" · ", 1)
+    text(s, qualifier, 8.7, 2.0, 4.08, 0.35, 20, AMBER, True)
+    text(s, limitation, 4.75, 7.06, 6.7, 0.23, 12, MUTED, metadata=True)
 
 
 def demo_slide(s: Slide, t: list[str]) -> None:
@@ -659,10 +661,44 @@ def render(path: Path) -> dict[str, object]:
         "renderer": "LibreOffice / Poppler, local",
         "rendered_pages": SLIDE_COUNT,
         "slide_images": "demo/assets/slides/slide-01.png through slide-11.png",
+        "slide_image_sha256": {
+            f"slide-{number:02}.png": hashlib.sha256(
+                (ASSETS / f"slides/slide-{number:02}.png").read_bytes()
+            ).hexdigest()
+            for number in range(1, SLIDE_COUNT + 1)
+        },
         "pdf_sha256": hashlib.sha256(path.with_suffix(".pdf").read_bytes()).hexdigest(),
         "preview_sha256": hashlib.sha256((ASSETS / "deck-preview.png").read_bytes()).hexdigest(),
         "visual_inspection": "Pending inspection of all eleven rendered slides",
     }
+
+
+def matching_rendering(
+    report: dict[str, object], validation_path: Path
+) -> dict[str, object] | None:
+    if not validation_path.exists():
+        return None
+    previous = json.loads(validation_path.read_text(encoding="utf-8"))
+    if not isinstance(previous, dict):
+        raise ValueError("Existing deck validation report is not a JSON object")
+    rendering = previous.get("rendering")
+    if previous.get("sha256") != report["sha256"] or not isinstance(rendering, dict):
+        return None
+    files = {
+        DECK.with_suffix(".pdf"): rendering.get("pdf_sha256"),
+        ASSETS / "deck-preview.png": rendering.get("preview_sha256"),
+    }
+    image_hashes = rendering.get("slide_image_sha256")
+    expected_images = {f"slide-{number:02}.png" for number in range(1, SLIDE_COUNT + 1)}
+    if not isinstance(image_hashes, dict) or set(image_hashes) != expected_images:
+        return None
+    files.update({ASSETS / "slides" / name: image_hashes[name] for name in expected_images})
+    if any(
+        not path.is_file() or hashlib.sha256(path.read_bytes()).hexdigest() != expected
+        for path, expected in files.items()
+    ):
+        return None
+    return rendering
 
 
 def main() -> None:
@@ -718,8 +754,11 @@ def main() -> None:
     save_reproducibly(prs, DECK)
     report = validate(DECK)
     ASSETS.mkdir(exist_ok=True)
-    report["rendering"] = "Not run; any prior PDF/preview must be regenerated for this PPTX"
     validation_path = ASSETS / "deck-validation.json"
+    report["rendering"] = (
+        matching_rendering(report, validation_path)
+        or "Not run; any prior PDF/preview must be regenerated for this PPTX"
+    )
     validation_path.write_text(json.dumps(report, indent=2) + "\n", encoding="utf-8")
     if args.render:
         report["rendering"] = render(DECK)

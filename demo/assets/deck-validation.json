@@ -41,8 +41,29 @@
       "max_drawdown_pct": -28.18529878
     }
   },
-  "bytes": 82494,
-  "sha256": "4d88fbcbede55524fe4491ef21023c6dea4c41ab3c5abda15757fc931a39748e",
+  "bytes": 82540,
+  "sha256": "df8bc0a7ca8cce63df524e8a79c846a6f94de90e6000d79da0550ed0b70371a5",
   "native_powerpoint_keynote_check": "Requires presenter machine; not available here",
-  "rendering": "Not run; any prior PDF/preview must be regenerated for this PPTX"
+  "rendering": {
+    "renderer": "LibreOffice / Poppler, local",
+    "rendered_pages": 11,
+    "slide_images": "demo/assets/slides/slide-01.png through slide-11.png",
+    "slide_image_sha256": {
+      "slide-01.png": "c73071ff406fad92050a5c1ed27dfc5dcba7d9a18666cf2b2293ce897d0b374b",
+      "slide-02.png": "fb66fcd4392473d7980760f5c99383b9a69afff563dd13b5a749829379c37905",
+      "slide-03.png": "eb25136b0c0fcf9a46ff5c29d0c25f9d5041bce11d14611948adb105d27af8de",
+      "slide-04.png": "d39a838222dc0b3aaa4bd48b0cc0f1c49b30e5447e6d67faaf6a088431629a44",
+      "slide-05.png": "6fb16616044b5984e1b28c556d519cc8ef08f3371243a73b9e6c64c9b5f88168",
+      "slide-06.png": "60d8e2d9ba4b0d43200475f5373e4d8760490e60c505258cea94513763592d79",
+      "slide-07.png": "67adeca8e6f74e7b1287134684035ac5dfeac494a1dbaa4428fa28303f9d23c5",
+      "slide-08.png": "8e402a28e0367f1df9ec987b8551ce4751046b44bbabc1c814382e6b9ad548b8",
+      "slide-09.png": "b6becfd658a9a3ca23f495d4f6204dc6208d21be19080cb8338ab1eeed906d83",
+      "slide-10.png": "4c61d6ecf6d5114aecc39f43bbde8ba5ed6cb4a762ef5d93584098376049653a",
+      "slide-11.png": "6f4f165254a62d1121b599dfb45d349195b80761491aa39353b537141b161416"
+    },
+    "pdf_sha256": "18905691cdb074de28363f94183d8afbc48465ec4133f3eac875344de59cd1ff",
+    "preview_sha256": "03409d8cf3da15324133e2769d3b94ac1e83e17930f7485a88bd6667cabc53c0",
+    "visual_inspection": "passed: all eleven full-resolution slides inspected; revised slides 3 and 6 re-inspected after layout fixes",
+    "rendered_text_bounds": "passed: all rendered words inside all eleven pages; no split production-readiness qualification"
+  }
 }

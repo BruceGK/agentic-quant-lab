@@ -195,7 +195,8 @@ NOT PRODUCTION-READY · NAV proxy, not executable closes.
 ```
 ### Visual layout
 Two aligned horizontal bar panels with zero origins, comparing return against
-drawdown magnitude. Keep drawdown labels signed negative. No fabricated series.
+drawdown magnitude. Keep drawdown labels signed negative and the
+NOT PRODUCTION-READY qualification prominent at 20 pt. No fabricated series.
 Select `defense=BIL`, `one_way_cost_bps=20` from the CSV:
 
 | Model | Net CAGR | Max drawdown |
